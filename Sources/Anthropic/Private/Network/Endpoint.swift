@@ -72,7 +72,9 @@ extension Endpoint {
       }
       request.httpMethod = method.rawValue
       if let params {
-         request.httpBody = try JSONEncoder().encode(params)
+         let encoder = JSONEncoder()
+         encoder.keyEncodingStrategy = .convertToSnakeCase
+         request.httpBody = try encoder.encode(params)
       }
       return request
    }
