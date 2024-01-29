@@ -1,5 +1,5 @@
 # SwiftAnthropic
-<img width="1090" alt="repoOpenAI" src="https://github.com/jamesrochabrun/DelegateTutorialFinal/assets/5378604/410ee7f2-752d-4cde-994c-3ae4cd952ffa">
+<img width="1275" alt="Anthropic" src="https://github.com/jamesrochabrun/SwiftAnthropic/assets/5378604/52d1dd1a-b8ee-4a6b-b2de-6fbad440217b">
 
 ![iOS 15+](https://img.shields.io/badge/iOS-15%2B-blue.svg)
 [![MIT license](https://img.shields.io/badge/License-MIT-blue.svg)](https://lbesson.mit-license.org/)
