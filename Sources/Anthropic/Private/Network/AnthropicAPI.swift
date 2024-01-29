@@ -25,7 +25,7 @@ extension AnthropicAPI: Endpoint {
    var path: String {
       switch self {
       case .messages: return "/v1/messages"
-      case .textCompletions: return "v1/complete"
+      case .textCompletions: return "/v1/complete"
       }
    }
 }
