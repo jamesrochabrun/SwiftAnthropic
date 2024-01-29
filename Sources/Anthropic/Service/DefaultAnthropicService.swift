@@ -1,0 +1,75 @@
+//
+//  DefaultAnthropicService.swift
+//
+//
+//  Created by James Rochabrun on 1/28/24.
+//
+
+import Foundation
+
+struct DefaultAnthropicService: AnthropicService {
+
+
+   let session: URLSession
+   let decoder: JSONDecoder
+   
+   private let apiKey: String
+   private let apiVersion: String
+
+   init(
+      apiKey: String,
+      apiVersion: String = "2023-06-01",
+      configuration: URLSessionConfiguration = .default,
+      decoder: JSONDecoder = .init())
+   {
+      self.session = URLSession(configuration: configuration)
+      self.decoder = decoder
+      self.apiKey = apiKey
+      self.apiVersion = apiVersion
+   }
+   
+   // MARK: Message
+
+   func createMessage(
+      _ parameter: MessageParameter)
+      async throws -> MessageResponse
+   {
+      var localParameter = parameter
+      localParameter.stream = false
+      let request = try AnthropicAPI.messages.request(apiKey: apiKey, version: apiVersion, method: .post, params: localParameter, beta: "messages-2023-12-15")
+      return try await fetch(type: MessageResponse.self, with: request)
+   }
+   
+   // MARK: Text Completion
+
+   func createStreamMessage(
+      _ parameter: MessageParameter)
+      async throws -> MessageStreamResponse
+   {
+      var localParameter = parameter
+      localParameter.stream = true
+      let request = try AnthropicAPI.messages.request(apiKey: apiKey, version: apiVersion, method: .post, params: localParameter, beta: "messages-2023-12-15")
+      return try await fetch(type: MessageStreamResponse.self, with: request)
+   }
+   
+   func createTextCompletion(
+      _ parameter: TextCompletionParameter)
+      async throws -> TextCompletionResponse
+   {
+      var localParameter = parameter
+      localParameter.stream = false
+      let request = try AnthropicAPI.textCompletions.request(apiKey: apiKey, version: apiVersion, method: .post, params: localParameter)
+      return try await fetch(type: TextCompletionResponse.self, with: request)
+   }
+   
+   func createStreamTextCompletion(
+      _ parameter: TextCompletionParameter)
+      async throws -> TextCompletionStreamResponse
+   {
+      var localParameter = parameter
+      localParameter.stream = true
+      let request = try AnthropicAPI.textCompletions.request(apiKey: apiKey, version: apiVersion, method: .post, params: localParameter)
+      return try await fetch(type: TextCompletionStreamResponse.self, with: request)
+   }
+   
+}
