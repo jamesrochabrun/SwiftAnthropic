@@ -47,9 +47,29 @@ public struct TextCompletionParameter: Encodable {
    /// See [streaming](https://docs.anthropic.com/claude/reference/text-completions-streaming) for details.
    var stream: Bool
    
-   struct MetaData: Encodable {
+   public struct MetaData: Encodable {
       /// An external identifier for the user who is associated with the request.
       // This should be a uuid, hash value, or other opaque identifier. Anthropic may use this id to help detect abuse. Do not include any identifying information such as name, email address, or phone number.
       let userId: UUID
+   }
+   
+   public init(
+      model: String,
+      prompt: String,
+      maxTokensToSample: Int,
+      stopSequences: [String]? = nil,
+      temperature: Double? = nil,
+      topK: Int? = nil, 
+      metadata: MetaData? = nil,
+      stream: Bool = false)
+   {
+      self.model = model
+      self.prompt = prompt
+      self.maxTokensToSample = maxTokensToSample
+      self.stopSequences = stopSequences
+      self.temperature = temperature
+      self.topK = topK
+      self.metadata = metadata
+      self.stream = stream
    }
 }

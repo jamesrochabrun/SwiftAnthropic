@@ -9,7 +9,6 @@ import Foundation
 
 struct DefaultAnthropicService: AnthropicService {
 
-
    let session: URLSession
    let decoder: JSONDecoder
    
@@ -19,11 +18,12 @@ struct DefaultAnthropicService: AnthropicService {
    init(
       apiKey: String,
       apiVersion: String = "2023-06-01",
-      configuration: URLSessionConfiguration = .default,
-      decoder: JSONDecoder = .init())
+      configuration: URLSessionConfiguration = .default)
    {
       self.session = URLSession(configuration: configuration)
-      self.decoder = decoder
+      let decoderWithSnakeCaseStrategy = JSONDecoder()
+      decoderWithSnakeCaseStrategy.keyDecodingStrategy = .convertFromSnakeCase
+      self.decoder = decoderWithSnakeCaseStrategy
       self.apiKey = apiKey
       self.apiVersion = apiVersion
    }
@@ -40,8 +40,6 @@ struct DefaultAnthropicService: AnthropicService {
       return try await fetch(type: MessageResponse.self, with: request)
    }
    
-   // MARK: Text Completion
-
    func createStreamMessage(
       _ parameter: MessageParameter)
       async throws -> MessageStreamResponse
@@ -52,6 +50,8 @@ struct DefaultAnthropicService: AnthropicService {
       return try await fetch(type: MessageStreamResponse.self, with: request)
    }
    
+   // MARK: Text Completion
+
    func createTextCompletion(
       _ parameter: TextCompletionParameter)
       async throws -> TextCompletionResponse

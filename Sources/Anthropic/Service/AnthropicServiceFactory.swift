@@ -16,20 +16,17 @@ public final class AnthropicServiceFactory {
    ///   - apiKey: The API key required for authentication.
    ///   - apiVersion: The Anthropic api version..
    ///   - configuration: The URL session configuration to be used for network calls (default is `.default`).
-   ///   - decoder: The JSON decoder to be used for parsing API responses (default is `JSONDecoder.init()`).
    ///
    /// - Returns: A fully configured object conforming to `AnthropicService`.
    public static func service(
       apiKey: String,
       apiVersion: String = "2023-06-01",
-      configuration: URLSessionConfiguration = .default,
-      decoder: JSONDecoder = .init())
+      configuration: URLSessionConfiguration = .default)
       -> some AnthropicService
    {
       DefaultAnthropicService(
          apiKey: apiKey,
          apiVersion: apiVersion,
-         configuration: configuration,
-         decoder: decoder)
+         configuration: configuration)
    }
 }

@@ -86,4 +86,28 @@ public struct MessageParameter: Encodable {
       // This should be a uuid, hash value, or other opaque identifier. Anthropic may use this id to help detect abuse. Do not include any identifying information such as name, email address, or phone number.
       let userId: UUID
    }
+   
+   init(
+      model: String,
+      messages: [Message],
+      maxTokens: Int,
+      system: String? = nil,
+      metadata: MetaData? = nil,
+      stopSequences: [String]? = nil,
+      stream: Bool = false,
+      temperature: Double? = nil,
+      topK: Int? = nil,
+      topP: Double? = nil)
+   {
+      self.model = model
+      self.messages = messages
+      self.maxTokens = maxTokens
+      self.system = system
+      self.metadata = metadata
+      self.stopSequences = stopSequences
+      self.stream = stream
+      self.temperature = temperature
+      self.topK = topK
+      self.topP = topP
+   }
 }
