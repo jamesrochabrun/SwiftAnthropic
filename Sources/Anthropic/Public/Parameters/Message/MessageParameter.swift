@@ -63,7 +63,7 @@ public struct MessageParameter: Encodable {
    ///In nucleus sampling, we compute the cumulative distribution over all the options for each subsequent token in decreasing probability order and cut it off once it reaches a particular probability specified by top_p. You should either alter temperature or top_p, but not both.
    let topP: Double?
    
-   struct Message: Encodable {
+   public struct Message: Encodable {
       let role: String
       let content: String
       
@@ -81,13 +81,13 @@ public struct MessageParameter: Encodable {
       }
    }
    
-   struct MetaData: Encodable {
+   public struct MetaData: Encodable {
       // An external identifier for the user who is associated with the request.
       // This should be a uuid, hash value, or other opaque identifier. Anthropic may use this id to help detect abuse. Do not include any identifying information such as name, email address, or phone number.
       let userId: UUID
    }
    
-   init(
+   public init(
       model: String,
       messages: [Message],
       maxTokens: Int,
