@@ -64,12 +64,12 @@ struct DefaultAnthropicService: AnthropicService {
    
    func createStreamTextCompletion(
       _ parameter: TextCompletionParameter)
-      async throws -> TextCompletionStreamResponse
+      async throws -> AsyncThrowingStream<TextCompletionStreamResponse, Error>
    {
       var localParameter = parameter
       localParameter.stream = true
       let request = try AnthropicAPI.textCompletions.request(apiKey: apiKey, version: apiVersion, method: .post, params: localParameter)
-      return try await fetch(type: TextCompletionStreamResponse.self, with: request)
+      return try await fetchStream(type: TextCompletionStreamResponse.self, with: request)
    }
    
 }

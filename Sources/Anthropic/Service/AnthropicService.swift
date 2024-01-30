@@ -90,7 +90,7 @@ public protocol AnthropicService {
    /// For more information, refer to [Anthropic's Text Completion API documentation](https://docs.anthropic.com/claude/reference/streaming).
    func createStreamTextCompletion(
       _ parameter: TextCompletionParameter)
-   async throws -> TextCompletionStreamResponse
+   async throws -> AsyncThrowingStream<TextCompletionStreamResponse, Error>
 }
 
 extension AnthropicService {
