@@ -81,9 +81,9 @@ public struct MessageStreamResponse: Decodable {
    
    public struct Delta: Decodable {
       
-      public let type: String
+      public let type: String?
       
-      public let text: String
+      public let text: String?
       
       public let stopReason: String?
       
