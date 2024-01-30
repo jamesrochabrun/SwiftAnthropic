@@ -34,7 +34,7 @@ public struct MessageResponse: Decodable {
    
    public let role: String
    
-   public let content: Content
+   public let content: [Content]
    
    public let stopReason: String
    
