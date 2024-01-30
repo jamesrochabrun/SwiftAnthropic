@@ -36,10 +36,9 @@ public struct MessageResponse: Decodable {
    
    public let content: [Content]
    
-   public let stopReason: String
+   public let stopReason: String?
    
    public let stopSequence: String?
-   
    
    public struct Content: Decodable {
       

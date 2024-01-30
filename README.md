@@ -252,10 +252,9 @@ public struct MessageResponse: Decodable {
    
    public let content: Content
    
-   public let stopReason: String
+   public let stopReason: String?
    
    public let stopSequence: String
-   
    
    public struct Content: Decodable {
       
@@ -284,13 +283,52 @@ public struct MessageStreamResponse: Decodable {
    
    public let index: Int?
    
+   public let message: Message?
+   
    public let delta: Delta?
+   
+   public struct Message: Decodable {
+      
+      public let id: String?
+      
+      public let type: String?
+      
+      public let role: String?
+      
+      public let content: [Content]?
+      
+      public let usage: Usage?
+      
+      let model: String?
+      
+      public let stopReason: String?
+      
+      public let stopSequence: String?
+      
+      public struct Content: Decodable {
+         
+         public let type: String
+         
+         public let text: String
+      }
+      
+      public struct Usage: Decodable {
+         
+         public let inputTokens: Int?
+         
+         public let outputTokens: Int?
+      }
+   }
    
    public struct Delta: Decodable {
       
-      public let type: String
+      public let type: String?
       
-      public let text: String
+      public let text: String?
+      
+      public let stopReason: String?
+      
+      public let stopSequence: String?
    }
 }
 ```
