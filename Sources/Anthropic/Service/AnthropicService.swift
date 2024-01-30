@@ -69,7 +69,7 @@ public protocol AnthropicService {
    /// For more information, refer to [Anthropic's Stream Message API documentation](https://docs.anthropic.com/claude/reference/messages-streaming).
    func createStreamMessage(
       _ parameter: MessageParameter)
-   async throws -> MessageStreamResponse
+   async throws -> AsyncThrowingStream<MessageStreamResponse, Error>
    
    
    // MARK: Text Completion

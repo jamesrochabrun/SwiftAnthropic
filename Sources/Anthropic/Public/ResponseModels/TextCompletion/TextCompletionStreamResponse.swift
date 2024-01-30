@@ -43,10 +43,10 @@ public struct TextCompletionStreamResponse: Decodable {
    
    public let type: String
 
-   public let completion: String
+   public let completion: String?
    
    public let stopReason: String?
    
-   public let model: String
+   public let model: String?
 
 }

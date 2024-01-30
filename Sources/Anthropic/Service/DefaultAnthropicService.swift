@@ -42,12 +42,12 @@ struct DefaultAnthropicService: AnthropicService {
    
    func createStreamMessage(
       _ parameter: MessageParameter)
-      async throws -> MessageStreamResponse
+      async throws -> AsyncThrowingStream<MessageStreamResponse, Error>
    {
       var localParameter = parameter
       localParameter.stream = true
       let request = try AnthropicAPI.messages.request(apiKey: apiKey, version: apiVersion, method: .post, params: localParameter, beta: "messages-2023-12-15")
-      return try await fetch(type: MessageStreamResponse.self, with: request)
+      return try await fetchStream(type: MessageStreamResponse.self, with: request)
    }
    
    // MARK: Text Completion
