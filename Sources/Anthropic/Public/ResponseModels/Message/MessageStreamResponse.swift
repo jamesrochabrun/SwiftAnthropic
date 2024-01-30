@@ -49,6 +49,10 @@ public struct MessageStreamResponse: Decodable {
       public let type: String
       
       public let text: String
+      
+      public let stopReason: String?
+      
+      public let stopSequence: String?
    }
 }
 
