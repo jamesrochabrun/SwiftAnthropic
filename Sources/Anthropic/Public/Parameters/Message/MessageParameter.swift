@@ -21,7 +21,7 @@ public struct MessageParameter: Encodable {
    
    /// The model that will complete your prompt.
    // As we improve Claude, we develop new versions of it that you can query. The model parameter controls which version of Claude responds to your request. Right now we offer two model families: Claude, and Claude Instant. You can use them by setting model to "claude-2.1" or "claude-instant-1.2", respectively.
-   ///See [models](https://docs.anthropic.com/claude/reference/selecting-a-model) for additional details and options.
+   /// See [models](https://docs.anthropic.com/claude/reference/selecting-a-model) for additional details and options.
    let model: String
    
    /// Input messages.
@@ -36,7 +36,7 @@ public struct MessageParameter: Encodable {
    let maxTokens: Int
    
    /// System prompt.
-   ///A system prompt is a way of providing context and instructions to Claude, such as specifying a particular goal or role. See our [guide to system prompts](https://docs.anthropic.com/claude/docs/how-to-use-system-prompts).
+   /// A system prompt is a way of providing context and instructions to Claude, such as specifying a particular goal or role. See our [guide to system prompts](https://docs.anthropic.com/claude/docs/how-to-use-system-prompts).
    let system: String?
    
    /// An object describing metadata about the request.
@@ -48,7 +48,7 @@ public struct MessageParameter: Encodable {
    let stopSequences: [String]?
    
    /// Whether to incrementally stream the response using server-sent events.
-   ///See [streaming](https://docs.anthropic.com/claude/reference/messages-streaming for details.
+   /// See [streaming](https://docs.anthropic.com/claude/reference/messages-streaming for details.
    var stream: Bool
    
    /// Amount of randomness injected into the response.
@@ -60,7 +60,7 @@ public struct MessageParameter: Encodable {
    let topK: Int?
    
    /// Use nucleus sampling.
-   ///In nucleus sampling, we compute the cumulative distribution over all the options for each subsequent token in decreasing probability order and cut it off once it reaches a particular probability specified by top_p. You should either alter temperature or top_p, but not both.
+   /// In nucleus sampling, we compute the cumulative distribution over all the options for each subsequent token in decreasing probability order and cut it off once it reaches a particular probability specified by top_p. You should either alter temperature or top_p, but not both.
    let topP: Double?
    
    public struct Message: Encodable {

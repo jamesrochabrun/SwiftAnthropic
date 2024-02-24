@@ -7,11 +7,8 @@
 
 import Foundation
 
-/*
- Create a Text Completion
- POST: https://api.anthropic.com/v1/complete
- */
-
+/// [Create a Text Completion](https://docs.anthropic.com/claude/reference/complete_post)
+/// POST: https://api.anthropic.com/v1/complete
 public struct TextCompletionParameter: Encodable {
    
    /// The model that will complete your prompt.
@@ -20,7 +17,7 @@ public struct TextCompletionParameter: Encodable {
    let model: String
    
    /// The prompt that you want Claude to complete.
-   // For proper response generation you will need to format your prompt using alternating \n\nHuman: and \n\nAssistant: conversational turns. For example: `"\n\nHuman: {userQuestion}\n\nAssistant:"`
+   /// For proper response generation you will need to format your prompt using alternating \n\nHuman: and \n\nAssistant: conversational turns. For example: `"\n\nHuman: {userQuestion}\n\nAssistant:"`
    /// See [prompt validation](https://anthropic.readme.io/claude/reference/prompt-validation) and our guide to [prompt design](https://docs.anthropic.com/claude/docs/introduction-to-prompt-designhttps://docs.anthropic.com/claude/docs/introduction-to-prompt-design) for more details.
    let prompt: String
    
@@ -37,7 +34,7 @@ public struct TextCompletionParameter: Encodable {
    let temperature: Double?
    
    /// Only sample from the top K options for each subsequent token.
-   // Used to remove "long tail" low probability responses. [Learn more technical details here](https://towardsdatascience.com/how-to-sample-from-language-models-682bceb97277).
+   /// Used to remove "long tail" low probability responses. [Learn more technical details here](https://towardsdatascience.com/how-to-sample-from-language-models-682bceb97277).
    let topK: Int?
    
    /// An object describing metadata about the request.

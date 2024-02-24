@@ -7,77 +7,37 @@
 
 import Foundation
 
-
-/*
- Example Response:
- 
- event: message_start
- data: {"type": "message_start", "message": {"id": "msg_1nZdL29xx5MUA1yADyHTEsnR8uuvGzszyY", "type": "message", "role": "assistant", "content": [], "model": "claude-2.1", "stop_reason": null, "stop_sequence": null}}
- 
- event: content_block_start
- data: {"type": "content_block_start", "index":0, "content_block": {"type": "text", "text": ""}}
- 
- event: ping
- data: {"type": "ping"}
- 
- event: content_block_delta
- data: {"type": "content_block_delta", "index": 0, "delta": {"type": "text_delta", "text": "Hello"}}
- 
- event: content_block_delta
- data: {"type": "content_block_delta", "index": 0, "delta": {"type": "text_delta", "text": "!"}}
- 
- event: content_block_stop
- data: {"type": "content_block_stop", "index": 0}
- 
- event: message_delta
- data: {"type": "message_delta", "delta": {"stop_reason": "end_turn", "stop_sequence":null}}
- 
- event: message_stop
- data: {"type": "message_stop"}
- */
-
+/// [Message Stream Response](https://docs.anthropic.com/claude/reference/messages-streaming).
+///
+/// ## Event Types
+/// Each server-sent event is paired with a specific event type and accompanying JSON data. Events are named using SSE event names (e.g., `event: message_stop`) and include a corresponding event type within their data payload.
+///
+/// ### Event Flow
+/// Events within a stream follow a predefined sequence:
+///
+/// - `message_start`: Signals the beginning of a message, carrying a Message object with no content.
+///
+/// - `content_block` events sequence:
+///   - `content_block_start`: Marks the start of a content block, which is part of the final Message content. Each block has an index correlating to its position within the Message content array.
+///   - `content_block_delta`: Represents interim updates within a content block. There can be one or more of these events for each content block.
+///   - `content_block_stop`: Indicates the end of a content block.
+///
+/// - `message_delta` events: Reflect top-level modifications to the final Message object. There may be one or more such events.
+///
+/// - `message_stop`: Denotes the conclusion of the message transmission.
+///
+/// This structured sequence facilitates the orderly reception and processing of message components and overall changes.
 public struct MessageStreamResponse: Decodable {
    
    public let type: String
    
    public let index: Int?
    
-   public let message: Message?
+   public let contentBlock: ContentBlock?
+   
+   public let message: MessageResponse?
    
    public let delta: Delta?
-   
-   public struct Message: Decodable {
-      
-      public let id: String?
-      
-      public let type: String?
-      
-      public let role: String?
-      
-      public let content: [Content]?
-      
-      public let usage: Usage?
-      
-      let model: String?
-      
-      public let stopReason: String?
-      
-      public let stopSequence: String?
-      
-      public struct Content: Decodable {
-         
-         public let type: String
-         
-         public let text: String
-      }
-      
-      public struct Usage: Decodable {
-         
-         public let inputTokens: Int?
-         
-         public let outputTokens: Int?
-      }
-   }
    
    public struct Delta: Decodable {
       
@@ -88,5 +48,12 @@ public struct MessageStreamResponse: Decodable {
       public let stopReason: String?
       
       public let stopSequence: String?
+   }
+   
+   public struct ContentBlock: Decodable {
+      
+      public let type: String
+      
+      public let text: String
    }
 }
