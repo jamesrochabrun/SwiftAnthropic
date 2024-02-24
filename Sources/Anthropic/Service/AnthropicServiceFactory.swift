@@ -14,7 +14,7 @@ public final class AnthropicServiceFactory {
    ///
    /// - Parameters:
    ///   - apiKey: The API key required for authentication.
-   ///   - apiVersion: The Anthropic api version..
+   ///   - apiVersion: The Anthropic api version. Currently "2023-06-01". (Can be overriden)
    ///   - configuration: The URL session configuration to be used for network calls (default is `.default`).
    ///
    /// - Returns: A fully configured object conforming to `AnthropicService`.

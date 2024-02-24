@@ -67,7 +67,7 @@ public protocol AnthropicService {
    /// - Throws: An error if the request fails.
    ///
    /// For more information, refer to [Anthropic's Stream Message API documentation](https://docs.anthropic.com/claude/reference/messages-streaming).
-   func createStreamMessage(
+   func streamMessage(
       _ parameter: MessageParameter)
    async throws -> AsyncThrowingStream<MessageStreamResponse, Error>
    

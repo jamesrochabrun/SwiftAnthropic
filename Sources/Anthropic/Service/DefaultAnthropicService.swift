@@ -40,7 +40,7 @@ struct DefaultAnthropicService: AnthropicService {
       return try await fetch(type: MessageResponse.self, with: request)
    }
    
-   func createStreamMessage(
+   func streamMessage(
       _ parameter: MessageParameter)
       async throws -> AsyncThrowingStream<MessageStreamResponse, Error>
    {
