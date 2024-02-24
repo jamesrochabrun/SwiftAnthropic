@@ -152,6 +152,8 @@ let textCompletion = try await service.createTextCompletion(parameters)
 
 ### Text Completion Stream
 
+<img width="743" alt="Screenshot 2024-02-23 at 10 24 31 PM" src="https://github.com/jamesrochabrun/SwiftLiteLLM/assets/5378604/907d1771-2633-47d1-aafb-9f4bdf5305a1">
+
 Response
 ```swift
 public struct TextCompletionStreamResponse: Decodable {
