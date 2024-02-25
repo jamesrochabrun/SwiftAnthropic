@@ -397,7 +397,8 @@ let message = try await service.streamMessage(parameters)
 
 ### Demo
 
-Check the [blog post](https://medium.com/@jamesrochabrun/anthropic-ios-sdk-032e1dc6afd8)) for more details.
+Check the [blog post](https://medium.com/@jamesrochabrun/anthropic-ios-sdk-032e1dc6afd8) for more details.
+
 You can also run the Demo project located on the [Examples](https://github.com/jamesrochabrun/SwiftAnthropic/tree/main/Examples/SwiftAnthropicExample) folder on this Package.
 
-<img width="1000" alt="Anthropic" src="https://github.com/jamesrochabrun/SwiftAnthropic/assets/5378604/c2d39617-e8ab-44aa-ac2d-f01d94bb8bfc">
+<img width="450" alt="Anthropic" src="https://github.com/jamesrochabrun/SwiftAnthropic/assets/5378604/c2d39617-e8ab-44aa-ac2d-f01d94bb8bfc">
