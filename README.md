@@ -62,6 +62,13 @@ Then, initialize the service using your Anthropic API key:
 
 ```swift
 let apiKey = "YOUR_ANTHROPIC_API_KEY"
+let service = AnthropicServiceFactory.service(apiKey: apiKey)
+```
+
+If needed, the api version can be overriden:
+
+```swift
+let apiKey = "YOUR_ANTHROPIC_API_KEY"
 let apiVersion = "YOUR_ANTHROPIC_API_VERSION" e.g: "2023-06-01".
 let service = AnthropicServiceFactory.service(apiKey: apiKey, apiVersion: apiVersion)
 ```
@@ -401,4 +408,4 @@ Check the [blog post](https://medium.com/@jamesrochabrun/anthropic-ios-sdk-032e1
 
 You can also run the Demo project located on the [Examples](https://github.com/jamesrochabrun/SwiftAnthropic/tree/main/Examples/SwiftAnthropicExample) folder on this Package.
 
-<img width="450" alt="Anthropic" src="https://github.com/jamesrochabrun/SwiftAnthropic/assets/5378604/c2d39617-e8ab-44aa-ac2d-f01d94bb8bfc">
+<img width="350" alt="Anthropic" src="https://github.com/jamesrochabrun/SwiftAnthropic/assets/5378604/c2d39617-e8ab-44aa-ac2d-f01d94bb8bfc">
