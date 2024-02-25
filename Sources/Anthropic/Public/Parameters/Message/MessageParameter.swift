@@ -88,7 +88,7 @@ public struct MessageParameter: Encodable {
    }
    
    public init(
-      model: String,
+      model: Model,
       messages: [Message],
       maxTokens: Int,
       system: String? = nil,
@@ -99,7 +99,7 @@ public struct MessageParameter: Encodable {
       topK: Int? = nil,
       topP: Double? = nil)
    {
-      self.model = model
+      self.model = model.value
       self.messages = messages
       self.maxTokens = maxTokens
       self.system = system

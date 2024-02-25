@@ -65,7 +65,7 @@ public struct TextCompletionParameter: Encodable {
    }
    
    public init(
-      model: String,
+      model: Model,
       prompt: String,
       maxTokensToSample: Int,
       stopSequences: [String]? = nil,
@@ -75,7 +75,7 @@ public struct TextCompletionParameter: Encodable {
       metadata: MetaData? = nil,
       stream: Bool = false)
    {
-      self.model = model
+      self.model = model.value
       self.prompt = prompt
       self.maxTokensToSample = maxTokensToSample
       self.stopSequences = stopSequences
