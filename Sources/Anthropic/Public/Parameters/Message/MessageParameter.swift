@@ -67,16 +67,16 @@ public struct MessageParameter: Encodable {
       let role: String
       let content: String
       
-      enum Role {
+      public enum Role: String {
          case user
          case assistant
       }
       
       public init(
-         role: String,
+         role: Role,
          content: String)
       {
-         self.role = role
+         self.role = role.rawValue
          self.content = content
       }
    }

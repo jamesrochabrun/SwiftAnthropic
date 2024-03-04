@@ -50,6 +50,8 @@ public enum Model {
    case claudeInstant12
    case claude2 
    case claude21
+   case claude3Opus
+   case claude3Sonnet
    
    case custom(String)
 
@@ -58,6 +60,8 @@ public enum Model {
       case .claudeInstant12: return "claude-instant-1.2 "
       case .claude2: return "claude-2.0"
       case .claude21: return "claude-2.1"
+      case .claude3Opus: return "claude-3-opus-20240229"
+      case .claude3Sonnet: return "claude-3-sonnet-20240229"
       case .custom(let model): return model
       }
    }

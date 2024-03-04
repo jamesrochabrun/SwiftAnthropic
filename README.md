@@ -353,7 +353,7 @@ Usage
 ```swift
 let model = "claude-2.1"
 let maxTokens = 1024
-let messageParameter = MessageParameter.Message(role: "user", content: "Hello, Claude")
+let messageParameter = MessageParameter.Message(role: .user, content: "Hello, Claude")
 let parameters = MessageParameter(model: model, messages: [messageParameter], maxTokens: maxTokens)
 let message = try await service.createMessage(parameters)
 ```
@@ -397,7 +397,7 @@ Usage
 ```swift
 let model = "claude-2.1"
 let maxTokens = 1024
-let messageParameter = MessageParameter.Message(role: "user", content: "Hello, Claude")
+let messageParameter = MessageParameter.Message(role: .user, content: "Hello, Claude")
 let parameters = MessageParameter(model: model, messages: [messageParameter], maxTokens: maxTokens)
 let message = try await service.streamMessage(parameters)
 ```

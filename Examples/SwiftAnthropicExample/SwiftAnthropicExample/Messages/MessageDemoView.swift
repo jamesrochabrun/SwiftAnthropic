@@ -49,7 +49,7 @@ struct MessageDemoView: View {
             .padding()
          Button {
             Task {
-               let messages = [MessageParameter.Message(role: "user", content: prompt)]
+               let messages = [MessageParameter.Message(role: .user, content: prompt)]
                prompt = ""
                let parameters = MessageParameter(
                   model: .claude2,
