@@ -73,98 +73,71 @@ public struct MessageParameter: Encodable {
          case assistant
       }
       
-      public enum Content: Codable {
+      public enum Content: Encodable {
          
-         case single(String)
-         case multiple([ContentBlock])
+         case text(String)
+         case list([ContentObject])
          
-         public init(from decoder: Decoder) throws {
-            if let singleString = try? decoder.singleValueContainer().decode(String.self) {
-               self = .single(singleString)
-            } else {
-               self = .multiple(try [ContentBlock](from: decoder))
-            }
-         }
-         
+         // Custom encoding to handle different cases
          public func encode(to encoder: Encoder) throws {
+            var container = encoder.singleValueContainer()
             switch self {
-            case .single(let string):
-               var container = encoder.singleValueContainer()
-               try container.encode(string)
-            case .multiple(let blocks):
-               try blocks.encode(to: encoder)
+            case .text(let text):
+               try container.encode(text)
+            case .list(let objects):
+               try container.encode(objects)
             }
          }
          
-         public struct ContentBlock: Codable {
+         public enum ContentObject: Encodable {
+            case text(String)
+            case image(ImageSource)
             
-            let content: ContentType
-            
-            public enum ContentType: Codable {
-               case text(String)
-               case image(ImageSource)
-               
-               // Custom encoding to handle the associated values
-               public func encode(to encoder: Encoder) throws {
-                  var container = encoder.container(keyedBy: CodingKeys.self)
-                  switch self {
-                  case .text(let text):
-                     try container.encode("text", forKey: .type)
-                     try container.encode(text, forKey: .text)
-                  case .image(let source):
-                     try container.encode("image", forKey: .type)
-                     try container.encode(source, forKey: .source)
-                  }
-               }
-               
-               // Custom decoding to construct the appropriate ContentType from JSON
-               public init(from decoder: Decoder) throws {
-                  let container = try decoder.container(keyedBy: CodingKeys.self)
-                  let type = try container.decode(String.self, forKey: .type)
-                  switch type {
-                  case "text":
-                     let text = try container.decode(String.self, forKey: .text)
-                     self = .text(text)
-                  case "image":
-                     let source = try container.decode(ImageSource.self, forKey: .source)
-                     self = .image(source)
-                  default:
-                     throw DecodingError.dataCorruptedError(forKey: .type, in: container, debugDescription: "Invalid type value")
-                  }
-               }
-               
-               public struct ImageSource: Codable {
-                  
-                  let mediaType: String
-                  let data: String
-                  
-                  public enum MediaType: String, Encodable {
-                     case jpeg
-                     case png
-                     case gif
-                     case webp
-                     
-                     var value: String {
-                        "image/\(self)"
-                     }
-                  }
-                  
-                  public init(
-                     mediaType: MediaType,
-                     data: String)
-                  {
-                     self.mediaType = mediaType.value
-                     self.data = data
-                  }
-               }
-               
-               private enum CodingKeys: String, CodingKey {
-                  case type, text, source
+            // Custom encoding to handle different cases
+            public func encode(to encoder: Encoder) throws {
+               var container = encoder.container(keyedBy: CodingKeys.self)
+               switch self {
+               case .text(let text):
+                  try container.encode("text", forKey: .type)
+                  try container.encode(text, forKey: .text)
+               case .image(let source):
+                  try container.encode("image", forKey: .type)
+                  try container.encode(source, forKey: .source)
                }
             }
             
-            public init(content: ContentType) {
-               self.content = content
+            enum CodingKeys: String, CodingKey {
+               case type
+               case source
+               case text
+            }
+         }
+         
+         public struct ImageSource: Encodable {
+            
+            let type: String
+            let mediaType: String
+            let data: String
+            
+            public enum MediaType: String, Encodable {
+               case jpeg = "image/jpeg"
+               case png = "image/png"
+               case gif = "image/gif"
+               case webp = "image/webp"
+            }
+            
+            public enum ImageSourceType: String, Encodable {
+               case base64
+            }
+            
+            public init(
+               type: ImageSourceType,
+               mediaType: MediaType,
+               data: String)
+            {
+               self.type = type.rawValue
+               self.mediaType = mediaType.rawValue
+               self.data = data
             }
          }
       }
