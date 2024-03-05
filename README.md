@@ -27,6 +27,7 @@ An open-source Swift package designed for effortless interaction with [Anthropic
 - [Text Completion Stream](#text-completion-stream)
 - [Message](#message)
 - [Message Stream](#message-stream)
+- [Vision](#vision)
 - [Examples](#demo)
 
 ## Getting an API Key
@@ -151,10 +152,9 @@ public struct TextCompletionResponse: Decodable {
 
 Usage
 ```swift
-let model = "claude-2.1"
 let maxTokensToSample = 1024
 let prompt = "\n\nHuman: Hello, Claude\n\nAssistant:"
-let parameters = TextCompletionParameter(model: model, prompt: prompt, maxTokensToSample: 10)
+let parameters = TextCompletionParameter(model: .claude21, prompt: prompt, maxTokensToSample: 10)
 let textCompletion = try await service.createTextCompletion(parameters)
 ```
 
@@ -178,10 +178,9 @@ public struct TextCompletionStreamResponse: Decodable {
 
 Usage
 ```swift
-let model = "claude-2.1"
 let maxTokensToSample = 1024
 let prompt = "\n\nHuman: Hello, Claude\n\nAssistant:"
-let parameters = TextCompletionParameter(model: model, prompt: prompt, maxTokensToSample: 10)
+let parameters = TextCompletionParameter(model: .claude21, prompt: prompt, maxTokensToSample: 10)
 let textStreamCompletion = try await service.createStreamTextCompletion(parameters)
 ```
 
@@ -237,11 +236,26 @@ public struct MessageParameter: Encodable {
    
    struct Message: Encodable {
       let role: String
-      let content: String
+      let content: Content
       
       enum Role {
          case user
          case assistant
+      }
+      
+      public enum Content: Encodable {
+         case text(String)
+         case list([ContentObject])
+         
+         public enum ContentObject: Encodable {
+            case text(String)
+            case image(ImageSource)
+            
+            public struct ImageSource: Encodable {
+               let type: String
+               let mediaType: String
+               let data: String
+         }
       }
       
       public init(
@@ -351,10 +365,9 @@ public struct MessageResponse: Decodable {
 
 Usage
 ```swift
-let model = "claude-2.1"
 let maxTokens = 1024
 let messageParameter = MessageParameter.Message(role: .user, content: "Hello, Claude")
-let parameters = MessageParameter(model: model, messages: [messageParameter], maxTokens: maxTokens)
+let parameters = MessageParameter(model: .claude21, messages: [messageParameter], maxTokens: maxTokens)
 let message = try await service.createMessage(parameters)
 ```
 
@@ -395,12 +408,38 @@ public struct MessageStreamResponse: Decodable {
 
 Usage
 ```swift
-let model = "claude-2.1"
 let maxTokens = 1024
 let messageParameter = MessageParameter.Message(role: .user, content: "Hello, Claude")
-let parameters = MessageParameter(model: model, messages: [messageParameter], maxTokens: maxTokens)
+let parameters = MessageParameter(model: .claude21, messages: [messageParameter], maxTokens: maxTokens)
 let message = try await service.streamMessage(parameters)
 ```
+
+### Vision
+
+<img width="619" alt="Anthropic docs" src="https://github.com/jamesrochabrun/SwiftAnthropic/assets/5378604/33b591d2-13dd-49b8-b2af-b8cad11e6575">
+
+Usage
+```
+let maxTokens = 1024
+let prompt = "What is this image about?"
+let base64Image = "/9j/4AAQSkZJRg..."
+
+/// Define the image source
+let imageSource: MessageParameter.Message.Content.ContentObject = .image(.init(type: .base64, mediaType: .jpeg, data: base64Image))
+
+/// Define the text message
+let text: MessageParameter.Message.Content.ContentObject = .text(prompt)
+
+/// Define the content for the message parameter
+let content: MessageParameter.Message.Content = list([imageSource, text])
+
+/// Define the messages parameter
+let messagesParameter = [MessageParameter.Message(role: .user, content: content)]
+
+/// Define the parameters
+let parameters = MessageParameter(model: .claude3Sonnet, messages: messagesParameter, maxTokens: maxTokens)
+
+let message = try await service.streamMessage(parameters)
 
 ### Demo
 
