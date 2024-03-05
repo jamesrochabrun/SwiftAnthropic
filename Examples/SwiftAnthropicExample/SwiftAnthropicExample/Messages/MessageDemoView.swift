@@ -60,19 +60,18 @@ struct MessageDemoView: View {
          Button {
             Task {
                
-               let images: [MessageParameter.Message.Content.ContentBlock.ContentType] = selectedImagesEncoded.map {
-                  .image(.init(mediaType: .jpeg, data: $0))
+               let images: [MessageParameter.Message.Content.ContentObject] = selectedImagesEncoded.map {
+                  .image(.init(type: .base64, mediaType: .jpeg, data: $0))
                }
-               let text: [MessageParameter.Message.Content.ContentBlock.ContentType] = [.text(prompt)]
+               let text: [MessageParameter.Message.Content.ContentObject] = [.text(prompt)]
                
-               let finalInput = text + images
-                  //let messages = [MessageParameter.Message(role: .user, content: .multiple(finalInput.map { .init(content: $0) }))]
-
-               let messages = [MessageParameter.Message(role: .user, content: .single(prompt))]
-
+               let finalInput = images + text
+               
+               let messages = [MessageParameter.Message(role: .user, content: .list(finalInput))]
+               
                prompt = ""
                let parameters = MessageParameter(
-                  model: .claude2,
+                  model: .claude3Sonnet,
                   messages: messages,
                   maxTokens: 1024)
                switch selectedSegment {
@@ -121,13 +120,19 @@ struct MessageDemoView: View {
          Task {
             selectedImages.removeAll()
             for item in selectedItems {
+               
                if let data = try? await item.loadTransferable(type: Data.self) {
-                  let base64String = data.base64EncodedString()
-                 // let url = URL(string: "data:image/jpeg;base64,\(base64String)")!
-                  selectedImagesEncoded.append(base64String)
-                  if let uiImage = UIImage(data: data) {
-                     let image = Image(uiImage: uiImage)
-                     selectedImages.append(image)
+                  if let uiImage = UIImage(data: data), let resizedImageData = uiImage.jpegData(compressionQuality: 0.7) {
+                      // Make sure the resized image is below the size limit
+                     // This is needed as Claude allows a max of 5Mb size per image.
+                      if resizedImageData.count < 5_242_880 { // 5 MB in bytes
+                          let base64String = resizedImageData.base64EncodedString()
+                          selectedImagesEncoded.append(base64String)
+                          let image = Image(uiImage: UIImage(data: resizedImageData)!)
+                          selectedImages.append(image)
+                      } else {
+                          // Handle the error - maybe resize to an even smaller size or show an error message to the user
+                      }
                   }
                }
             }
