@@ -64,17 +64,56 @@ public struct MessageParameter: Encodable {
    let topP: Double?
    
    public struct Message: Encodable {
+      
       let role: String
-      let content: String
+      let content: [Content]
       
       public enum Role: String {
          case user
          case assistant
       }
       
+      public struct Content: Encodable {
+         
+         let source: Source
+         
+         public struct Source: Encodable {
+            
+            let type: String
+            let mediaType: String?
+            let data: String?
+            
+            public enum SourceType: String, Encodable {
+               case text
+               case image
+            }
+            
+            public enum MediaType: String, Encodable {
+               case jpeg
+               case png
+               case gif
+               case webp
+               
+               var value: String {
+                  "image/\(self)"
+               }
+            }
+            
+            public init(
+               type: SourceType,
+               mediaType: MediaType?,
+               data: String?)
+            {
+               self.type = type.rawValue
+               self.mediaType = mediaType?.value
+               self.data = data
+            }
+         }
+      }
+      
       public init(
          role: Role,
-         content: String)
+         content: [Content])
       {
          self.role = role.rawValue
          self.content = content
