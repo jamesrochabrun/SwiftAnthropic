@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import PhotosUI
 import SwiftAnthropic
 import SwiftUI
 
@@ -14,6 +15,10 @@ struct MessageDemoView: View {
    let observable: MessageDemoObservable
    @State private var selectedSegment: ChatConfig = .messageStream
    @State private var prompt = ""
+   
+   @State private var selectedItems: [PhotosPickerItem] = []
+   @State private var selectedImages: [Image] = []
+   @State private var selectedImagesEncoded: [String] = []
 
    enum ChatConfig {
       case message
@@ -24,7 +29,6 @@ struct MessageDemoView: View {
       ScrollView {
          VStack {
             picker
-            textArea
             Text(observable.errorMessage)
                .foregroundColor(.red)
             messageView
@@ -39,7 +43,12 @@ struct MessageDemoView: View {
                EmptyView()
             }
          }
-      )
+      ).safeAreaInset(edge: .bottom) {
+         VStack(spacing: 0) {
+            selectedImagesView
+            textArea
+         }
+      }
    }
    
    var textArea: some View {
@@ -47,9 +56,20 @@ struct MessageDemoView: View {
          TextField("Enter prompt", text: $prompt, axis: .vertical)
             .textFieldStyle(.roundedBorder)
             .padding()
+         photoPicker
          Button {
             Task {
+               
+               let images: [MessageParameter.Message.Content.ContentBlock.ContentType] = selectedImagesEncoded.map {
+                  .image(.init(mediaType: .jpeg, data: $0))
+               }
+               let text: [MessageParameter.Message.Content.ContentBlock.ContentType] = [.text(prompt)]
+               
+               let finalInput = text + images
+                  //let messages = [MessageParameter.Message(role: .user, content: .multiple(finalInput.map { .init(content: $0) }))]
+
                let messages = [MessageParameter.Message(role: .user, content: .single(prompt))]
+
                prompt = ""
                let parameters = MessageParameter(
                   model: .claude2,
@@ -79,16 +99,51 @@ struct MessageDemoView: View {
       .padding()
    }
    
-   /// stream = `true`
    var messageView: some View {
       VStack(spacing: 24) {
-         Button("Cancel") {
-            observable.cancelStream()
-         }
-         Button("Clear Message") {
-            observable.clearMessage()
+         HStack {
+            Button("Cancel") {
+               observable.cancelStream()
+            }
+            Button("Clear Message") {
+               observable.clearMessage()
+            }
          }
          Text(observable.message)
+      }
+   }
+   
+   var photoPicker: some View {
+      PhotosPicker(selection: $selectedItems, matching: .images) {
+         Image(systemName: "photo")
+      }
+      .onChange(of: selectedItems) {
+         Task {
+            selectedImages.removeAll()
+            for item in selectedItems {
+               if let data = try? await item.loadTransferable(type: Data.self) {
+                  let base64String = data.base64EncodedString()
+                 // let url = URL(string: "data:image/jpeg;base64,\(base64String)")!
+                  selectedImagesEncoded.append(base64String)
+                  if let uiImage = UIImage(data: data) {
+                     let image = Image(uiImage: uiImage)
+                     selectedImages.append(image)
+                  }
+               }
+            }
+         }
+      }
+   }
+   
+   var selectedImagesView: some View {
+      HStack(spacing: 0) {
+         ForEach(0..<selectedImages.count, id: \.self) { i in
+            selectedImages[i]
+               .resizable()
+               .frame(width: 60, height: 60)
+               .clipShape(RoundedRectangle(cornerRadius: 12))
+               .padding(4)
+         }
       }
    }
 }

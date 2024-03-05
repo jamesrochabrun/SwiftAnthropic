@@ -97,46 +97,74 @@ public struct MessageParameter: Encodable {
          }
          
          public struct ContentBlock: Codable {
-            let type: ContentType
-            let text: String?
-            let source: ImageSource?
             
-            enum ContentType: String, Codable {
-               case text
-               case image
-            }
+            let content: ContentType
             
-            public struct ImageSource: Codable {
+            public enum ContentType: Codable {
+               case text(String)
+               case image(ImageSource)
                
-               let type: String
-               let mediaType: String?
-               let data: String?
-               
-               public enum SourceType: String, Encodable {
-                  case text
-                  case image
-               }
-               
-               public enum MediaType: String, Encodable {
-                  case jpeg
-                  case png
-                  case gif
-                  case webp
-                  
-                  var value: String {
-                     "image/\(self)"
+               // Custom encoding to handle the associated values
+               public func encode(to encoder: Encoder) throws {
+                  var container = encoder.container(keyedBy: CodingKeys.self)
+                  switch self {
+                  case .text(let text):
+                     try container.encode("text", forKey: .type)
+                     try container.encode(text, forKey: .text)
+                  case .image(let source):
+                     try container.encode("image", forKey: .type)
+                     try container.encode(source, forKey: .source)
                   }
                }
                
-               public init(
-                  type: SourceType,
-                  mediaType: MediaType?,
-                  data: String?)
-               {
-                  self.type = type.rawValue
-                  self.mediaType = mediaType?.value
-                  self.data = data
+               // Custom decoding to construct the appropriate ContentType from JSON
+               public init(from decoder: Decoder) throws {
+                  let container = try decoder.container(keyedBy: CodingKeys.self)
+                  let type = try container.decode(String.self, forKey: .type)
+                  switch type {
+                  case "text":
+                     let text = try container.decode(String.self, forKey: .text)
+                     self = .text(text)
+                  case "image":
+                     let source = try container.decode(ImageSource.self, forKey: .source)
+                     self = .image(source)
+                  default:
+                     throw DecodingError.dataCorruptedError(forKey: .type, in: container, debugDescription: "Invalid type value")
+                  }
                }
+               
+               public struct ImageSource: Codable {
+                  
+                  let mediaType: String
+                  let data: String
+                  
+                  public enum MediaType: String, Encodable {
+                     case jpeg
+                     case png
+                     case gif
+                     case webp
+                     
+                     var value: String {
+                        "image/\(self)"
+                     }
+                  }
+                  
+                  public init(
+                     mediaType: MediaType,
+                     data: String)
+                  {
+                     self.mediaType = mediaType.value
+                     self.data = data
+                  }
+               }
+               
+               private enum CodingKeys: String, CodingKey {
+                  case type, text, source
+               }
+            }
+            
+            public init(content: ContentType) {
+               self.content = content
             }
          }
       }

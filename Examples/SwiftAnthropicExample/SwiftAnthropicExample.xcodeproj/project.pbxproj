@@ -18,6 +18,7 @@
 		7B3288062B8B1530002C7FEF /* OptionsListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B3288052B8B1530002C7FEF /* OptionsListView.swift */; };
 		7B3288082B8B1750002C7FEF /* MessageDemoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B3288072B8B1750002C7FEF /* MessageDemoView.swift */; };
 		7B32880A2B8B17A1002C7FEF /* MessageDemoObservable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B3288092B8B17A1002C7FEF /* MessageDemoObservable.swift */; };
+		7B531D782B96FFFA0047DBAB /* PhotoPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B531D772B96FFFA0047DBAB /* PhotoPicker.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -51,6 +52,7 @@
 		7B3288052B8B1530002C7FEF /* OptionsListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OptionsListView.swift; sourceTree = "<group>"; };
 		7B3288072B8B1750002C7FEF /* MessageDemoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageDemoView.swift; sourceTree = "<group>"; };
 		7B3288092B8B17A1002C7FEF /* MessageDemoObservable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageDemoObservable.swift; sourceTree = "<group>"; };
+		7B531D772B96FFFA0047DBAB /* PhotoPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoPicker.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -105,6 +107,7 @@
 				7B3287D22B8B1260002C7FEF /* SwiftAnthropicExampleApp.swift */,
 				7B3288032B8B14A3002C7FEF /* ApiKeyIntroView.swift */,
 				7B3288052B8B1530002C7FEF /* OptionsListView.swift */,
+				7B531D772B96FFFA0047DBAB /* PhotoPicker.swift */,
 				7B3288022B8B147D002C7FEF /* Messages */,
 				7B3287D62B8B1261002C7FEF /* Assets.xcassets */,
 				7B3287D82B8B1261002C7FEF /* Preview Content */,
@@ -284,6 +287,7 @@
 			files = (
 				7B3288042B8B14A3002C7FEF /* ApiKeyIntroView.swift in Sources */,
 				7B3288082B8B1750002C7FEF /* MessageDemoView.swift in Sources */,
+				7B531D782B96FFFA0047DBAB /* PhotoPicker.swift in Sources */,
 				7B3287D32B8B1260002C7FEF /* SwiftAnthropicExampleApp.swift in Sources */,
 				7B32880A2B8B17A1002C7FEF /* MessageDemoObservable.swift in Sources */,
 				7B3288062B8B1530002C7FEF /* OptionsListView.swift in Sources */,
