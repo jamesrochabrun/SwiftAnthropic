@@ -53,7 +53,7 @@ public enum Model {
    case claude3Opus
    case claude3Sonnet
    
-   case custom(String)
+   case other(String)
 
    public var value: String {
       switch self {
@@ -62,7 +62,7 @@ public enum Model {
       case .claude21: return "claude-2.1"
       case .claude3Opus: return "claude-3-opus-20240229"
       case .claude3Sonnet: return "claude-3-sonnet-20240229"
-      case .custom(let model): return model
+      case .other(let model): return model
       }
    }
 }

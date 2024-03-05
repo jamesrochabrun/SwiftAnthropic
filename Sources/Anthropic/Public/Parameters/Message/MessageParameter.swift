@@ -64,17 +64,87 @@ public struct MessageParameter: Encodable {
    let topP: Double?
    
    public struct Message: Encodable {
+      
       let role: String
-      let content: String
+      let content: Content
       
       public enum Role: String {
          case user
          case assistant
       }
       
+      public enum Content: Encodable {
+         
+         case text(String)
+         case list([ContentObject])
+         
+         // Custom encoding to handle different cases
+         public func encode(to encoder: Encoder) throws {
+            var container = encoder.singleValueContainer()
+            switch self {
+            case .text(let text):
+               try container.encode(text)
+            case .list(let objects):
+               try container.encode(objects)
+            }
+         }
+         
+         public enum ContentObject: Encodable {
+            case text(String)
+            case image(ImageSource)
+            
+            // Custom encoding to handle different cases
+            public func encode(to encoder: Encoder) throws {
+               var container = encoder.container(keyedBy: CodingKeys.self)
+               switch self {
+               case .text(let text):
+                  try container.encode("text", forKey: .type)
+                  try container.encode(text, forKey: .text)
+               case .image(let source):
+                  try container.encode("image", forKey: .type)
+                  try container.encode(source, forKey: .source)
+               }
+            }
+            
+            enum CodingKeys: String, CodingKey {
+               case type
+               case source
+               case text
+            }
+         }
+         
+         public struct ImageSource: Encodable {
+            
+            let type: String
+            let mediaType: String
+            let data: String
+            
+            public enum MediaType: String, Encodable {
+               case jpeg = "image/jpeg"
+               case png = "image/png"
+               case gif = "image/gif"
+               case webp = "image/webp"
+            }
+            
+            public enum ImageSourceType: String, Encodable {
+               case base64
+            }
+            
+            public init(
+               type: ImageSourceType,
+               mediaType: MediaType,
+               data: String)
+            {
+               self.type = type.rawValue
+               self.mediaType = mediaType.rawValue
+               self.data = data
+            }
+         }
+      }
+      
       public init(
          role: Role,
-         content: String)
+         content: Content)
       {
          self.role = role.rawValue
          self.content = content
