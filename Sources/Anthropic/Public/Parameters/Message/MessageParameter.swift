@@ -66,54 +66,84 @@ public struct MessageParameter: Encodable {
    public struct Message: Encodable {
       
       let role: String
-      let content: [Content]
+      let content: Content
       
       public enum Role: String {
          case user
          case assistant
       }
       
-      public struct Content: Encodable {
+      public enum Content: Codable {
          
-         let source: Source
+         case single(String)
+         case multiple([ContentBlock])
          
-         public struct Source: Encodable {
+         public init(from decoder: Decoder) throws {
+            if let singleString = try? decoder.singleValueContainer().decode(String.self) {
+               self = .single(singleString)
+            } else {
+               self = .multiple(try [ContentBlock](from: decoder))
+            }
+         }
+         
+         public func encode(to encoder: Encoder) throws {
+            switch self {
+            case .single(let string):
+               var container = encoder.singleValueContainer()
+               try container.encode(string)
+            case .multiple(let blocks):
+               try blocks.encode(to: encoder)
+            }
+         }
+         
+         public struct ContentBlock: Codable {
+            let type: ContentType
+            let text: String?
+            let source: ImageSource?
             
-            let type: String
-            let mediaType: String?
-            let data: String?
-            
-            public enum SourceType: String, Encodable {
+            enum ContentType: String, Codable {
                case text
                case image
             }
             
-            public enum MediaType: String, Encodable {
-               case jpeg
-               case png
-               case gif
-               case webp
+            public struct ImageSource: Codable {
                
-               var value: String {
-                  "image/\(self)"
+               let type: String
+               let mediaType: String?
+               let data: String?
+               
+               public enum SourceType: String, Encodable {
+                  case text
+                  case image
                }
-            }
-            
-            public init(
-               type: SourceType,
-               mediaType: MediaType?,
-               data: String?)
-            {
-               self.type = type.rawValue
-               self.mediaType = mediaType?.value
-               self.data = data
+               
+               public enum MediaType: String, Encodable {
+                  case jpeg
+                  case png
+                  case gif
+                  case webp
+                  
+                  var value: String {
+                     "image/\(self)"
+                  }
+               }
+               
+               public init(
+                  type: SourceType,
+                  mediaType: MediaType?,
+                  data: String?)
+               {
+                  self.type = type.rawValue
+                  self.mediaType = mediaType?.value
+                  self.data = data
+               }
             }
          }
       }
       
       public init(
          role: Role,
-         content: [Content])
+         content: Content)
       {
          self.role = role.rawValue
          self.content = content
