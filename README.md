@@ -419,7 +419,7 @@ let message = try await service.streamMessage(parameters)
 <img width="619" alt="Anthropic docs" src="https://github.com/jamesrochabrun/SwiftAnthropic/assets/5378604/33b591d2-13dd-49b8-b2af-b8cad11e6575">
 
 Usage
-```
+```swift
 let maxTokens = 1024
 let prompt = "What is this image about?"
 let base64Image = "/9j/4AAQSkZJRg..."
@@ -440,6 +440,7 @@ let messagesParameter = [MessageParameter.Message(role: .user, content: content)
 let parameters = MessageParameter(model: .claude3Sonnet, messages: messagesParameter, maxTokens: maxTokens)
 
 let message = try await service.streamMessage(parameters)
+```
 
 ### Demo
 
