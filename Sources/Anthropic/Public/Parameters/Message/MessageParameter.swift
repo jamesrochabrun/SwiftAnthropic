@@ -32,7 +32,7 @@ public struct MessageParameter: Encodable {
    
 
    // Functions the model can invoke in responses
-   // When non-empty, `stopSequences` will automatically include "</function_calls>", per Anthropic's API docs
+   // When non-empty, `stopSequences` will automatically include "</function_calls>", per Anthropic's API docs: https://docs.anthropic.com/claude/docs/functions-external-tools#function-calling-format
    let functions: [Function]
 
    /// The maximum number of tokens to generate before stopping.
@@ -192,25 +192,25 @@ public struct MessageParameter: Encodable {
 
             public func toXML() -> String {
                 return """
-            <parameter>
-                <name>\(name)</name>
-                <type>\(type)</type>
-                <description>\(description)</description>
-            </parameter>
-            """
+                <parameter>
+                  <name>\(name)</name>
+                  <type>\(type)</type>
+                  <description>\(description)</description>
+                </parameter>
+                """
             }
         }
         
         public func toXML() -> String {
             return """
-        <tool_description>
-            <tool_name>\(name)</tool_name>
-            <description>\(description)</description>
-            <parameters>
-                \(parameters.map { $0.toXML() }.joined(separator:"\n\t\t"))
-            </parameters>
-        </tool_description>
-        """
+            <tool_description>
+              <tool_name>\(name)</tool_name>
+              <description>\(description)</description>
+              <parameters>
+                \(parameters.map { $0.toXML() }.joined(separator:"\n      "))
+              </parameters>
+            </tool_description>
+            """
         }
     }
     
@@ -246,6 +246,7 @@ public struct MessageParameter: Encodable {
         try container.encode(topP, forKey: .topP)
     }
     
+    // as suggested by https://docs.anthropic.com/claude/docs/functions-external-tools
     private let toolsPreamble = """
 In this environment you have access to a set of tools you can use to answer the user's question.
 
