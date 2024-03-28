@@ -3,6 +3,5 @@ import XCTest
 
 final class SwiftAnthropicTests: XCTestCase {
     func testExample() throws {
-        print("CCB test")
     }
 }

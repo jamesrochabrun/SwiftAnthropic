@@ -82,7 +82,7 @@ public struct MessageResponse: Decodable {
       
       public let text: String
        
-       public func functionCalls() -> [FunctionCall] {
+       public var functionCalls: [FunctionCall] {
            guard let range = text.range(of: "<function_calls>") else {
                return []
            }

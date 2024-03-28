@@ -31,7 +31,7 @@ public struct MessageParameter: Encodable {
    let messages: [Message]
    
 
-   // Functions the model can invoke in responses (and potentially consume the results, if they are given, in further responses)
+   // Functions the model can invoke in responses
    let functions: [Function]
 
    /// The maximum number of tokens to generate before stopping.
@@ -238,7 +238,6 @@ public struct MessageParameter: Encodable {
             systemStr += toolsPreamble
             systemStr += functions.compactMap { $0.toXML() }.joined(separator: "\n")
             try container.encode(systemStr, forKey: .system)
-            print("CCB system", systemStr)
         }
         try container.encode(metadata, forKey: .metadata)
         try container.encode(stopSequences, forKey:  .stopSequences)
