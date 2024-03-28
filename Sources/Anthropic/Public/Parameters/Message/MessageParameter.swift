@@ -248,21 +248,21 @@ public struct MessageParameter: Encodable {
     
     // as suggested by https://docs.anthropic.com/claude/docs/functions-external-tools
     private let toolsPreamble = """
-In this environment you have access to a set of tools you can use to answer the user's question.
+        In this environment you have access to a set of tools you can use to answer the user's question.
 
-You may call them like this:
-<function_calls>
-<invoke>
-<tool_name>$TOOL_NAME</tool_name>
-<parameters>
-<$PARAMETER_NAME>$PARAMETER_VALUE</$PARAMETER_NAME>
-...
-</parameters>
-</invoke>
-</function_calls>
+        You may call them like this:
+        <function_calls>
+        <invoke>
+        <tool_name>$TOOL_NAME</tool_name>
+        <parameters>
+        <$PARAMETER_NAME>$PARAMETER_VALUE</$PARAMETER_NAME>
+        ...
+        </parameters>
+        </invoke>
+        </function_calls>
 
-Here are the tools available:
-"""
+        Here are the tools available:
+        """
     
     
    private static let functionCallStopSequence = "</function_calls>"

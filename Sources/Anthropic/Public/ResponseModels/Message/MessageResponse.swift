@@ -88,6 +88,20 @@ public struct MessageResponse: Decodable {
            }
            return XMLFunctionCallsParser().parse(xml: String(text[range.lowerBound...]))
        }
+       
+       // convenience for decoding into Codable structs
+       public func functionCallsJSON() throws  -> [(String, Data)] {
+           return try self.functionCalls.compactMap { funcName, params in
+               var paramDict = params.reduce(into: [String:String](), { ps, param in
+                   ps[param.0] = param.1
+               })
+               return (funcName, try JSONSerialization.data(withJSONObject:paramDict, options: .prettyPrinted))
+           }
+       }
+       
+       public enum ParseError: Error {
+           case failedGeneratingJSON([FunctionCall])
+       }
    }
    
    public struct Usage: Decodable {
