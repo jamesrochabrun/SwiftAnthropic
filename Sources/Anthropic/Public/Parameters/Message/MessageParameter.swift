@@ -30,6 +30,11 @@ public struct MessageParameter: Encodable {
    /// If the final message uses the assistant role, the response content will continue immediately from the content in that message. This can be used to constrain part of the model's response.
    let messages: [Message]
    
+
+   // Functions the model can invoke in responses
+   // When non-empty, `stopSequences` will automatically include "</function_calls>", per Anthropic's API docs
+   let functions: [Function]
+
    /// The maximum number of tokens to generate before stopping.
    /// Note that our models may stop before reaching this maximum. This parameter only specifies the absolute maximum number of tokens to generate.
    /// Different models have different maximum values for this parameter. See [input and output](https://docs.anthropic.com/claude/reference/input-and-output-sizes) sizes for details.
@@ -45,7 +50,7 @@ public struct MessageParameter: Encodable {
    /// Custom text sequences that will cause the model to stop generating.
    /// Our models will normally stop when they have naturally completed their turn, which will result in a response stop_reason of "end_turn".
    /// If you want the model to stop generating when it encounters custom strings of text, you can use the stop_sequences parameter. If the model encounters one of the custom sequences, the response stop_reason value will be "stop_sequence" and the response stop_sequence value will contain the matched stop sequence.
-   let stopSequences: [String]?
+   var stopSequences: [String]
    
    /// Whether to incrementally stream the response using server-sent events.
    /// See [streaming](https://docs.anthropic.com/claude/reference/messages-streaming for details.
@@ -156,14 +161,119 @@ public struct MessageParameter: Encodable {
       // This should be a uuid, hash value, or other opaque identifier. Anthropic may use this id to help detect abuse. Do not include any identifying information such as name, email address, or phone number.
       let userId: UUID
    }
-   
+    
+    public struct Function {
+        let name: String
+        let description: String
+        let parameters: [Parameter]
+  
+        public init(name: String, description: String, parameters: [Parameter]) {
+            self.name = name
+            self.description = description
+            self.parameters = parameters
+        }
+        
+        public struct Parameter {
+            let name: String
+            let type: ParamType
+            let description: String
+            
+            public init(name: String, type: ParamType, description: String) {
+                self.name = name
+                self.type = type
+                self.description = description
+            }
+            
+            public enum ParamType: String {
+                case string
+                case integer
+                case number
+            }
+
+            public func toXML() -> String {
+                return """
+            <parameter>
+                <name>\(name)</name>
+                <type>\(type)</type>
+                <description>\(description)</description>
+            </parameter>
+            """
+            }
+        }
+        
+        public func toXML() -> String {
+            return """
+        <tool_description>
+            <tool_name>\(name)</tool_name>
+            <description>\(description)</description>
+            <parameters>
+                \(parameters.map { $0.toXML() }.joined(separator:"\n\t\t"))
+            </parameters>
+        </tool_description>
+        """
+        }
+    }
+    
+    enum CodingKeys: String, CodingKey {
+        case model
+        case messages
+        case maxTokens
+        case system
+        case metadata
+        case stopSequences
+        case stream
+        case temperature
+        case topK
+        case topP
+    }
+    
+    public func encode(to encoder: any Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(model, forKey: .model)
+        try container.encode(messages, forKey: .messages)
+        try container.encode(maxTokens, forKey: .maxTokens)
+        var systemStr = system ?? ""
+        if functions.count > 0 {
+            systemStr += toolsPreamble
+            systemStr += functions.compactMap { $0.toXML() }.joined(separator: "\n")
+        }
+        try container.encode(systemStr, forKey: .system)
+        try container.encode(metadata, forKey: .metadata)
+        try container.encode(stopSequences, forKey:  .stopSequences)
+        try container.encode(stream, forKey: .stream)
+        try container.encode(temperature, forKey: .temperature)
+        try container.encode(topK, forKey: .topK)
+        try container.encode(topP, forKey: .topP)
+    }
+    
+    private let toolsPreamble = """
+In this environment you have access to a set of tools you can use to answer the user's question.
+
+You may call them like this:
+<function_calls>
+<invoke>
+<tool_name>$TOOL_NAME</tool_name>
+<parameters>
+<$PARAMETER_NAME>$PARAMETER_VALUE</$PARAMETER_NAME>
+...
+</parameters>
+</invoke>
+</function_calls>
+
+Here are the tools available:
+"""
+    
+    
+   private static let functionCallStopSequence = "</function_calls>"
+
    public init(
       model: Model,
       messages: [Message],
       maxTokens: Int,
       system: String? = nil,
+      functions: [Function] = [],
       metadata: MetaData? = nil,
-      stopSequences: [String]? = nil,
+      stopSequences: [String] = [],
       stream: Bool = false,
       temperature: Double? = nil,
       topK: Int? = nil,
@@ -171,6 +281,7 @@ public struct MessageParameter: Encodable {
    {
       self.model = model.value
       self.messages = messages
+      self.functions = functions
       self.maxTokens = maxTokens
       self.system = system
       self.metadata = metadata
@@ -179,5 +290,10 @@ public struct MessageParameter: Encodable {
       self.temperature = temperature
       self.topK = topK
       self.topP = topP
+
+      if self.functions.count > 0,
+         !self.stopSequences.contains(Self.functionCallStopSequence) {
+          self.stopSequences.append(Self.functionCallStopSequence)
+      }
    }
 }

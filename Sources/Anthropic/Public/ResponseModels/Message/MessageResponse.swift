@@ -81,6 +81,13 @@ public struct MessageResponse: Decodable {
       public let type: String
       
       public let text: String
+       
+       public var functionCalls: [FunctionCall] {
+           guard let range = text.range(of: "<function_calls>") else {
+               return []
+           }
+           return XMLFunctionCallsParser().parse(xml: String(text[range.lowerBound...]))
+       }
    }
    
    public struct Usage: Decodable {
@@ -92,3 +99,62 @@ public struct MessageResponse: Decodable {
       public let outputTokens: Int
    }
 }
+
+public typealias FunctionCall = (String, [(String, String)])
+
+class XMLFunctionCallsParser: NSObject, XMLParserDelegate {
+    private var functionCalls : [FunctionCall] = []
+    private var currentElement = ""
+    private var currentFn: String = ""
+    private var currentParameters: [(String, String)] = []
+    private var parsingParams = false
+    private var currentParameterValue: String = ""
+    
+    func parse(xml: String) -> [FunctionCall] {
+        var xml_ = xml + "</function_calls>" // TODO ensure this gets passed as a stop sequence if functions are passed as part of the request
+        guard let data = xml.data(using: .utf8) else {
+            // todo throw
+            return []
+        }
+        let parser = XMLParser(data: data)
+        parser.delegate = self
+        parser.parse()
+        return functionCalls
+    }
+    
+    func parser(_ parser: XMLParser, didStartElement elementName: String, namespaceURI: String?, qualifiedName qName: String?, attributes attributeDict: [String : String] = [:]) {
+        currentElement = elementName
+        if currentElement == "parameters" {
+            parsingParams = true
+            currentParameters = []
+        }
+    }
+    
+    func parser(_ parser: XMLParser, foundCharacters string: String) {
+        let trimmed = string.trimmingCharacters(in: .whitespacesAndNewlines)
+        if trimmed.isEmpty { return }
+        
+        switch currentElement {
+        case "tool_name":
+            currentFn = trimmed
+        default:
+            if parsingParams {
+                currentParameterValue = trimmed
+            }
+        }
+    }
+    
+    func parser(_ parser: XMLParser, didEndElement elementName: String, namespaceURI: String?, qualifiedName qName: String?) {
+        switch elementName {
+        case "invoke":
+            functionCalls.append((currentFn, currentParameters))
+        case "parameters":
+            parsingParams = false
+        default:
+            if parsingParams {
+                currentParameters.append((elementName, currentParameterValue))
+            }
+        }
+    }
+}
+
