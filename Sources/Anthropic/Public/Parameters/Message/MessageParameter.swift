@@ -233,12 +233,12 @@ public struct MessageParameter: Encodable {
         try container.encode(model, forKey: .model)
         try container.encode(messages, forKey: .messages)
         try container.encode(maxTokens, forKey: .maxTokens)
+        var systemStr = system ?? ""
         if functions.count > 0 {
-            var systemStr = system ?? ""
             systemStr += toolsPreamble
             systemStr += functions.compactMap { $0.toXML() }.joined(separator: "\n")
-            try container.encode(systemStr, forKey: .system)
         }
+        try container.encode(systemStr, forKey: .system)
         try container.encode(metadata, forKey: .metadata)
         try container.encode(stopSequences, forKey:  .stopSequences)
         try container.encode(stream, forKey: .stream)

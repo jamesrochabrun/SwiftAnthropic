@@ -111,7 +111,7 @@ class XMLFunctionCallsParser: NSObject, XMLParserDelegate {
     private var currentParameterValue: String = ""
     
     func parse(xml: String) -> [FunctionCall] {
-        var xml_ = xml + "</function_calls>"
+        var xml_ = xml + "</function_calls>" // TODO ensure this gets passed as a stop sequence if functions are passed as part of the request
         guard let data = xml.data(using: .utf8) else {
             // todo throw
             return []
@@ -131,14 +131,15 @@ class XMLFunctionCallsParser: NSObject, XMLParserDelegate {
     }
     
     func parser(_ parser: XMLParser, foundCharacters string: String) {
-        let trimmedString = string.trimmingCharacters(in: .whitespacesAndNewlines)
-        if trimmedString.isEmpty { return }
+        let trimmed = string.trimmingCharacters(in: .whitespacesAndNewlines)
+        if trimmed.isEmpty { return }
+        
         switch currentElement {
         case "tool_name":
-            currentFn = string
+            currentFn = trimmed
         default:
             if parsingParams {
-                currentParameterValue = string
+                currentParameterValue = trimmed
             }
         }
     }
