@@ -67,8 +67,6 @@ public struct MessageParameter: Encodable {
    /// In nucleus sampling, we compute the cumulative distribution over all the options for each subsequent token in decreasing probability order and cut it off once it reaches a particular probability specified by top_p. You should either alter temperature or top_p, but not both.
    let topP: Double?
    
-    
-    
    public struct Message: Encodable {
       
       let role: String
