@@ -21,7 +21,7 @@ final class SwiftAnthropicExampleTests: XCTestCase {
                                    functions: [
                                     MessageParameter.Function(name: "consider_excerpt", description: "submits an excerpt to the user for reflection", parameters: [
                                         MessageParameter.Function.Parameter(name: "excerpt", type: .string, description: "the text that the user will reflect on")])],
-                                   temperature: 0.99, topK: 1, topP: 0)
+                                   temperature: 0.99)
         
         let response = try await service.createMessage(msg)
 
