@@ -232,18 +232,31 @@ public struct MessageParameter: Encodable {
         try container.encode(model, forKey: .model)
         try container.encode(messages, forKey: .messages)
         try container.encode(maxTokens, forKey: .maxTokens)
+        try container.encode(stopSequences, forKey:  .stopSequences)
+        try container.encode(stream, forKey: .stream)
+
         var systemStr = system ?? ""
         if functions.count > 0 {
             systemStr += toolsPreamble
             systemStr += functions.compactMap { $0.toXML() }.joined(separator: "\n")
         }
         try container.encode(systemStr, forKey: .system)
-        try container.encode(metadata, forKey: .metadata)
-        try container.encode(stopSequences, forKey:  .stopSequences)
-        try container.encode(stream, forKey: .stream)
-        try container.encode(temperature, forKey: .temperature)
-        try container.encode(topK, forKey: .topK)
-        try container.encode(topP, forKey: .topP)
+
+        if metadata != nil {
+            try container.encode(metadata, forKey: .metadata)
+        }
+
+        if temperature != nil {
+            try container.encode(temperature, forKey: .temperature)
+        }
+
+        if topK != nil {
+            try container.encode(topK, forKey: .topK)
+        }
+
+        if topP != nil {
+            try container.encode(topP, forKey: .topP)
+        }
     }
     
     // as suggested by https://docs.anthropic.com/claude/docs/functions-external-tools
