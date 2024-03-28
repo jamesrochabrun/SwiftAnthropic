@@ -32,6 +32,7 @@ public struct MessageParameter: Encodable {
    
 
    // Functions the model can invoke in responses
+   // When non-empty, `stopSequences` will automatically include "</function_calls>", per Anthropic's API docs
    let functions: [Function]
 
    /// The maximum number of tokens to generate before stopping.
@@ -49,7 +50,7 @@ public struct MessageParameter: Encodable {
    /// Custom text sequences that will cause the model to stop generating.
    /// Our models will normally stop when they have naturally completed their turn, which will result in a response stop_reason of "end_turn".
    /// If you want the model to stop generating when it encounters custom strings of text, you can use the stop_sequences parameter. If the model encounters one of the custom sequences, the response stop_reason value will be "stop_sequence" and the response stop_sequence value will contain the matched stop sequence.
-   let stopSequences: [String]?
+   var stopSequences: [String]
    
    /// Whether to incrementally stream the response using server-sent events.
    /// See [streaming](https://docs.anthropic.com/claude/reference/messages-streaming for details.
@@ -262,6 +263,9 @@ You may call them like this:
 Here are the tools available:
 """
     
+    
+   private static let functionCallStopSequence = "</function_calls>"
+
    public init(
       model: Model,
       messages: [Message],
@@ -269,7 +273,7 @@ Here are the tools available:
       system: String? = nil,
       functions: [Function] = [],
       metadata: MetaData? = nil,
-      stopSequences: [String]? = nil,
+      stopSequences: [String] = [],
       stream: Bool = false,
       temperature: Double? = nil,
       topK: Int? = nil,
@@ -286,5 +290,10 @@ Here are the tools available:
       self.temperature = temperature
       self.topK = topK
       self.topP = topP
+
+      if self.functions.count > 0,
+         !self.stopSequences.contains(Self.functionCallStopSequence) {
+          self.stopSequences.append(Self.functionCallStopSequence)
+      }
    }
 }

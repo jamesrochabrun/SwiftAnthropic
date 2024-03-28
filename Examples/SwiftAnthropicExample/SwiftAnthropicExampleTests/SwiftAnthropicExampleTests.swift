@@ -21,7 +21,7 @@ final class SwiftAnthropicExampleTests: XCTestCase {
                                    functions: [
                                     MessageParameter.Function(name: "consider_excerpt", description: "submits an excerpt to the user for reflection", parameters: [
                                         MessageParameter.Function.Parameter(name: "excerpt", type: .string, description: "the text that the user will reflect on")])],
-                                   stopSequences: ["</function_calls>"], temperature: 0.99, topK: 1, topP: 0)
+                                   stopSequences: nil, temperature: 0.99, topK: 1, topP: 0)
         let response = try await service.createMessage(msg)
         XCTAssertEqual(response.content.first?.functionCalls().first?.0, "consider_excerpt")
         XCTAssertEqual(response.content.first?.functionCalls().first?.1.first?.0, "excerpt")
