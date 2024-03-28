@@ -7,23 +7,26 @@
 
 import XCTest
 @testable import SwiftAnthropicExample
+import SwiftAnthropic
 
 final class SwiftAnthropicExampleTests: XCTestCase {
-
-    override func setUpWithError() throws {
-        // Put setup code here. This method is called before the invocation of each test method in the class.
-    }
+    private var service : AnthropicService = AnthropicServiceFactory.service(apiKey: "TODO friendly API key inclusion")
 
     override func tearDownWithError() throws {
         // Put teardown code here. This method is called after the invocation of each test method in the class.
     }
 
-    func testExample() throws {
-        // This is an example of a functional test case.
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
-        // Any test you write for XCTest can be annotated as throws and async.
-        // Mark your test throws to produce an unexpected failure when your test encounters an uncaught error.
-        // Mark your test async to allow awaiting for asynchronous code to complete. Check the results with assertions afterwards.
+    func testSimpleFunctionCall() async throws {
+        let msg = MessageParameter(model: .claude2, 
+                                   messages: [MessageParameter.Message(role: .user, content: .text("What does the user think about a quote from your favorite art, literature, philosophy, or even a meaningful reflection of your own? Include an attribution, even if you are the author."))],
+                                   maxTokens: 4096,
+                                   functions: [
+                                    MessageParameter.Function(name: "evaluate_quote", description: "submits a quote to the user for evaluation", parameters: [
+                                        MessageParameter.Function.Parameter(name: "quote", type: .string, description: "the quote that the user will share their thoughts and feelings on")])],
+                                   stopSequences: ["</function_calls>"], temperature: 0.99, topK: 1, topP: 0)
+        let response = try await service.createMessage(msg)
+        XCTAssertEqual(response.content.first?.functionCalls().first?.0, "evaluate_quote")
+        XCTAssertEqual(response.content.first?.functionCalls().first?.1.first?.0, "quote")
     }
 
     func testPerformanceExample() throws {
