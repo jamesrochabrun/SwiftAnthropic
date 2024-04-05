@@ -1,8 +1,8 @@
 //
-//  MessageDemoObservable.swift
-//  SwiftAnthropicExample
+//  MessageFunctionCallingObservable.swift
 //
-//  Created by James Rochabrun on 2/24/24.
+//
+//  Created by James Rochabrun on 4/4/24.
 //
 
 import Foundation
@@ -10,12 +10,31 @@ import SwiftAnthropic
 import SwiftUI
 
 @MainActor
-@Observable class MessageDemoObservable {
+@Observable class MessageFunctionCallingObservable {
    
    let service: AnthropicService
    var message: String = ""
    var errorMessage: String = ""
    var isLoading = false
+   var toolResponse: ToolResponse?
+   
+   struct ToolResponse {
+      let id: String
+      let name: String
+      let input: [String: String]
+      
+      var inputDisplay: String {
+         var display = ""
+         for key in input.keys {
+            display += key
+            display += ","
+            display += input[key] ?? ""
+         }
+         return display
+      }
+   }
+   
+   static let toolsBeta = "tools-2024-04-04"
 
    init(service: AnthropicService) {
       self.service = service
@@ -27,14 +46,15 @@ import SwiftUI
       task = Task {
          do {
             isLoading = true
-            let message = try await service.createMessage(parameters, beta: nil)
+            let message = try await service.createMessage(parameters, beta: Self.toolsBeta)
             isLoading = false
-            switch message.content.first {
-            case .text(let text):
-               self.message = text
-            default:
-               /// Function call not implemented on this demo
-               break
+            for content in message.content {
+               switch content {
+               case .text(let text):
+                  self.message = text
+               case .toolUse(let id, let name, let input):
+                  toolResponse = .init(id: id, name: name, input: input)
+               }
             }
          } catch {
             self.errorMessage = "\(error)"
@@ -48,7 +68,7 @@ import SwiftUI
       task = Task {
          do {
             isLoading = true
-            let stream = try await service.streamMessage(parameters, beta: nil)
+            let stream = try await service.streamMessage(parameters, beta: Self.toolsBeta)
             isLoading = false
             for try await result in stream {
                let content = result.delta?.text ?? ""

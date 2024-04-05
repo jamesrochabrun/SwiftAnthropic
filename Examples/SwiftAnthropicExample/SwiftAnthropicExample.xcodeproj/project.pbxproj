@@ -19,6 +19,8 @@
 		7B3288082B8B1750002C7FEF /* MessageDemoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B3288072B8B1750002C7FEF /* MessageDemoView.swift */; };
 		7B32880A2B8B17A1002C7FEF /* MessageDemoObservable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B3288092B8B17A1002C7FEF /* MessageDemoObservable.swift */; };
 		7B531D782B96FFFA0047DBAB /* PhotoPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B531D772B96FFFA0047DBAB /* PhotoPicker.swift */; };
+		7BF304E02BBFBE1000671273 /* MessageFunctionCallingDemoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BF304DE2BBFBE1000671273 /* MessageFunctionCallingDemoView.swift */; };
+		7BF304E12BBFBE1000671273 /* MessageFunctionCallingObservable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BF304DF2BBFBE1000671273 /* MessageFunctionCallingObservable.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -53,6 +55,8 @@
 		7B3288072B8B1750002C7FEF /* MessageDemoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageDemoView.swift; sourceTree = "<group>"; };
 		7B3288092B8B17A1002C7FEF /* MessageDemoObservable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageDemoObservable.swift; sourceTree = "<group>"; };
 		7B531D772B96FFFA0047DBAB /* PhotoPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoPicker.swift; sourceTree = "<group>"; };
+		7BF304DE2BBFBE1000671273 /* MessageFunctionCallingDemoView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MessageFunctionCallingDemoView.swift; sourceTree = "<group>"; };
+		7BF304DF2BBFBE1000671273 /* MessageFunctionCallingObservable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MessageFunctionCallingObservable.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -107,6 +111,7 @@
 				7B3287D22B8B1260002C7FEF /* SwiftAnthropicExampleApp.swift */,
 				7B3288032B8B14A3002C7FEF /* ApiKeyIntroView.swift */,
 				7B3288052B8B1530002C7FEF /* OptionsListView.swift */,
+				7BF304DD2BBFBE1000671273 /* FunctionCalling */,
 				7B531D772B96FFFA0047DBAB /* PhotoPicker.swift */,
 				7B3288022B8B147D002C7FEF /* Messages */,
 				7B3287D62B8B1261002C7FEF /* Assets.xcassets */,
@@ -147,6 +152,15 @@
 				7B3288092B8B17A1002C7FEF /* MessageDemoObservable.swift */,
 			);
 			path = Messages;
+			sourceTree = "<group>";
+		};
+		7BF304DD2BBFBE1000671273 /* FunctionCalling */ = {
+			isa = PBXGroup;
+			children = (
+				7BF304DE2BBFBE1000671273 /* MessageFunctionCallingDemoView.swift */,
+				7BF304DF2BBFBE1000671273 /* MessageFunctionCallingObservable.swift */,
+			);
+			path = FunctionCalling;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -288,8 +302,10 @@
 				7B3288042B8B14A3002C7FEF /* ApiKeyIntroView.swift in Sources */,
 				7B3288082B8B1750002C7FEF /* MessageDemoView.swift in Sources */,
 				7B531D782B96FFFA0047DBAB /* PhotoPicker.swift in Sources */,
+				7BF304E12BBFBE1000671273 /* MessageFunctionCallingObservable.swift in Sources */,
 				7B3287D32B8B1260002C7FEF /* SwiftAnthropicExampleApp.swift in Sources */,
 				7B32880A2B8B17A1002C7FEF /* MessageDemoObservable.swift in Sources */,
+				7BF304E02BBFBE1000671273 /* MessageFunctionCallingDemoView.swift in Sources */,
 				7B3288062B8B1530002C7FEF /* OptionsListView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

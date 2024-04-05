@@ -53,24 +53,38 @@ public protocol AnthropicService {
    
    // MARK: Message
    
-   /// - Parameter parameters: Parameters for the create message request.
+   /// Creates a message with the provided parameters.
+   ///
+   /// - Parameters:
+   ///   - parameters: Parameters for the create message request.
+   ///   - beta: The value for the beta header.
+   ///
    /// - Returns: A [MessageResponse](https://docs.anthropic.com/claude/reference/messages_post).
+   ///
    /// - Throws: An error if the request fails.
    ///
    /// For more information, refer to [Anthropic's Message API documentation](https://docs.anthropic.com/claude/reference/messages_post).
    func createMessage(
-      _ parameter: MessageParameter)
+      _ parameter: MessageParameter,
+      beta: String?)
    async throws -> MessageResponse
    
-   /// - Parameter parameters: Parameters for the create message request.
-   /// - Returns: A streamed sequence of [MessageStreamResponse](https://docs.anthropic.com/claude/reference/messages-streaming).
+   /// Creates a message stream with the provided parameters.
+   ///
+   /// - Parameters:
+   ///   - parameters: Parameters for the create message request.
+   ///   - beta: The value for the beta header.
+   ///
+   /// - Returns: A streamed sequence of `MessageStreamResponse`.
+   ///   For more details, see [MessageStreamResponse](https://docs.anthropic.com/claude/reference/messages-streaming).
+   ///
    /// - Throws: An error if the request fails.
    ///
    /// For more information, refer to [Anthropic's Stream Message API documentation](https://docs.anthropic.com/claude/reference/messages-streaming).
    func streamMessage(
-      _ parameter: MessageParameter)
+      _ parameter: MessageParameter,
+      beta: String?)
    async throws -> AsyncThrowingStream<MessageStreamResponse, Error>
-   
    
    // MARK: Text Completion
    
