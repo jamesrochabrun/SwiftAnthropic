@@ -1,8 +1,8 @@
 //
-//  MessageDemoView.swift
-//  SwiftAnthropicExample
+//  MessageFunctionCallingDemoView.swift
 //
-//  Created by James Rochabrun on 2/24/24.
+//
+//  Created by James Rochabrun on 4/4/24.
 //
 
 import Foundation
@@ -10,10 +10,32 @@ import PhotosUI
 import SwiftAnthropic
 import SwiftUI
 
-@MainActor
-struct MessageDemoView: View {
+enum FunctionCallDefinition: String, CaseIterable {
    
-   let observable: MessageDemoObservable
+   case getWeather = "get_weather"
+   // Add more functions if needed, parallel function calling is supported.
+
+   var tool: MessageParameter.Tool {
+      switch self {
+      case .getWeather:
+         return .init(
+            name: self.rawValue, 
+            description: "Get the current weather in a given location",
+            inputSchema: .init(
+                           type: .object,
+                           properties: [
+                              "location": .init(type: .string, description: "The city and state, e.g. San Francisco, CA"),
+                              "unit": .init(type: .string, description: "The unit of temperature, either celsius or fahrenheit")
+                           ],
+                           required: ["location"]))
+      }
+   }
+}
+
+@MainActor
+struct MessageFunctionCallingDemoView: View {
+   
+   let observable: MessageFunctionCallingObservable
    @State private var selectedSegment: ChatConfig = .messageStream
    @State private var prompt = ""
    
@@ -72,9 +94,9 @@ struct MessageDemoView: View {
                
                prompt = ""
                let parameters = MessageParameter(
-                  model: .claude3Sonnet,
+                  model: .claude3Opus,
                   messages: messages,
-                  maxTokens: 1024)
+                  maxTokens: 1024, tools: [FunctionCallDefinition.getWeather.tool])
                switch selectedSegment {
                case .message:
                   try await observable.createMessage(parameters: parameters)
@@ -110,6 +132,14 @@ struct MessageDemoView: View {
             }
          }
          Text(observable.message)
+         if let toolResponse = observable.toolResponse {
+            Divider()
+            Text("Structured Response")
+               .bold()
+            Text("Name: \(toolResponse.name)")
+            Text("ID: \(toolResponse.id)")
+            Text("Input: \(toolResponse.inputDisplay)")
+         }
       }
       .buttonStyle(.bordered)
    }

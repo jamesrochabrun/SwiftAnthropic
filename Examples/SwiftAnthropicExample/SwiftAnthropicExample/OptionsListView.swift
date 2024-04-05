@@ -19,6 +19,7 @@ struct OptionsListView: View {
    enum APIOption: String, CaseIterable, Identifiable {
       
       case message = "Message"
+      case messageFunctionCall = "Function Call"
 
       var id: String { rawValue }
    }
@@ -34,6 +35,8 @@ struct OptionsListView: View {
                   switch selection {
                   case .message:
                      MessageDemoView(observable: .init(service: service))
+                  case .messageFunctionCall:
+                     MessageFunctionCallingDemoView(observable: .init(service: service))
                   }
                }
             }
