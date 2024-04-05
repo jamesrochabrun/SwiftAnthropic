@@ -31,25 +31,28 @@ struct DefaultAnthropicService: AnthropicService {
    // MARK: Message
 
    func createMessage(
-      _ parameter: MessageParameter)
+      _ parameter: MessageParameter,
+      beta: String?)
       async throws -> MessageResponse
    {
       var localParameter = parameter
       localParameter.stream = false
-      let request = try AnthropicAPI.messages.request(apiKey: apiKey, version: apiVersion, method: .post, params: localParameter, beta: "messages-2023-12-15")
+      let request = try AnthropicAPI.messages.request(apiKey: apiKey, version: apiVersion, method: .post, params: localParameter, beta: beta)
       return try await fetch(type: MessageResponse.self, with: request)
    }
    
    func streamMessage(
-      _ parameter: MessageParameter)
+      _ parameter: MessageParameter,
+      beta: String?)
       async throws -> AsyncThrowingStream<MessageStreamResponse, Error>
    {
       var localParameter = parameter
       localParameter.stream = true
-      let request = try AnthropicAPI.messages.request(apiKey: apiKey, version: apiVersion, method: .post, params: localParameter, beta: "messages-2023-12-15")
+      let request = try AnthropicAPI.messages.request(apiKey: apiKey, version: apiVersion, method: .post, params: localParameter, beta: beta)
       return try await fetchStream(type: MessageStreamResponse.self, with: request)
    }
    
+   /// "messages-2023-12-15"
    // MARK: Text Completion
 
    func createTextCompletion(
