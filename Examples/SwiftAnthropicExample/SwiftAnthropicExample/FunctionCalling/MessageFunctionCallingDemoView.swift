@@ -96,7 +96,8 @@ struct MessageFunctionCallingDemoView: View {
                let parameters = MessageParameter(
                   model: .claude3Opus,
                   messages: messages,
-                  maxTokens: 1024, tools: [FunctionCallDefinition.getWeather.tool])
+                  maxTokens: 1024, 
+                  tools: [FunctionCallDefinition.getWeather.tool])
                switch selectedSegment {
                case .message:
                   try await observable.createMessage(parameters: parameters)
