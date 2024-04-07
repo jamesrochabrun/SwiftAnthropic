@@ -27,7 +27,7 @@ import SwiftUI
       task = Task {
          do {
             isLoading = true
-            let message = try await service.createMessage(parameters, beta: nil)
+            let message = try await service.createMessage(parameters)
             isLoading = false
             switch message.content.first {
             case .text(let text):
@@ -48,7 +48,7 @@ import SwiftUI
       task = Task {
          do {
             isLoading = true
-            let stream = try await service.streamMessage(parameters, beta: nil)
+            let stream = try await service.streamMessage(parameters)
             isLoading = false
             for try await result in stream {
                let content = result.delta?.text ?? ""

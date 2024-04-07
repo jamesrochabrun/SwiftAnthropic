@@ -11,9 +11,10 @@ struct DefaultAnthropicService: AnthropicService {
 
    let session: URLSession
    let decoder: JSONDecoder
+   let apiKey: String
+   let apiVersion: String
    
-   private let apiKey: String
-   private let apiVersion: String
+   private static let betaHeader = "tools-2024-04-04"
 
    init(
       apiKey: String,
@@ -31,24 +32,22 @@ struct DefaultAnthropicService: AnthropicService {
    // MARK: Message
 
    func createMessage(
-      _ parameter: MessageParameter,
-      beta: String?)
+      _ parameter: MessageParameter)
       async throws -> MessageResponse
    {
       var localParameter = parameter
       localParameter.stream = false
-      let request = try AnthropicAPI.messages.request(apiKey: apiKey, version: apiVersion, method: .post, params: localParameter, beta: beta)
+      let request = try AnthropicAPI.messages.request(apiKey: apiKey, version: apiVersion, method: .post, params: localParameter, beta: Self.betaHeader)
       return try await fetch(type: MessageResponse.self, with: request)
    }
    
    func streamMessage(
-      _ parameter: MessageParameter,
-      beta: String?)
+      _ parameter: MessageParameter)
       async throws -> AsyncThrowingStream<MessageStreamResponse, Error>
    {
       var localParameter = parameter
       localParameter.stream = true
-      let request = try AnthropicAPI.messages.request(apiKey: apiKey, version: apiVersion, method: .post, params: localParameter, beta: beta)
+      let request = try AnthropicAPI.messages.request(apiKey: apiKey, version: apiVersion, method: .post, params: localParameter, beta: Self.betaHeader)
       return try await fetchStream(type: MessageStreamResponse.self, with: request)
    }
    

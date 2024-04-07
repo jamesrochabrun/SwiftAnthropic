@@ -34,8 +34,6 @@ import SwiftUI
       }
    }
    
-   static let toolsBeta = "tools-2024-04-04"
-
    init(service: AnthropicService) {
       self.service = service
    }
@@ -46,7 +44,7 @@ import SwiftUI
       task = Task {
          do {
             isLoading = true
-            let message = try await service.createMessage(parameters, beta: Self.toolsBeta)
+            let message = try await service.createMessage(parameters)
             isLoading = false
             for content in message.content {
                switch content {
@@ -68,7 +66,7 @@ import SwiftUI
       task = Task {
          do {
             isLoading = true
-            let stream = try await service.streamMessage(parameters, beta: Self.toolsBeta)
+            let stream = try await service.streamMessage(parameters)
             isLoading = false
             for try await result in stream {
                let content = result.delta?.text ?? ""
