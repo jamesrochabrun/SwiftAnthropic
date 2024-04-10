@@ -21,14 +21,18 @@ import SwiftUI
    struct ToolResponse {
       let id: String
       let name: String
-      let input: [String: String]
+      let input: [String: MessageResponse.Content.DynamicContent]
       
       var inputDisplay: String {
          var display = ""
          for key in input.keys {
             display += key
             display += ","
-            display += input[key] ?? ""
+            switch input[key] {
+            case .string(let text):
+               display += text
+            default: break
+            }
          }
          return display
       }

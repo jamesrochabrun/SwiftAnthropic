@@ -513,13 +513,45 @@ public struct MessageResponse: Decodable {
    
    public enum Content: Decodable {
       
-      public typealias Input = [String: String]
+      public typealias Input = [String: DynamicContent]
       
       case text(String)
       case toolUse(id: String, name: String, input: Input)
       
       private enum CodingKeys: String, CodingKey {
          case type, text, id, name, input
+      }
+      
+      public enum DynamicContent: Decodable {
+         
+         case string(String)
+         case integer(Int)
+         case double(Double)
+         case dictionary([String: DynamicContent])
+         case array([DynamicContent])
+         case bool(Bool)
+         case null
+         
+         public init(from decoder: Decoder) throws {
+            let container = try decoder.singleValueContainer()
+            if let intValue = try? container.decode(Int.self) {
+               self = .integer(intValue)
+            } else if let doubleValue = try? container.decode(Double.self) {
+               self = .double(doubleValue)
+            } else if let stringValue = try? container.decode(String.self) {
+               self = .string(stringValue)
+            } else if let boolValue = try? container.decode(Bool.self) {
+               self = .bool(boolValue)
+            } else if container.decodeNil() {
+               self = .null
+            } else if let arrayValue = try? container.decode([DynamicContent].self) {
+               self = .array(arrayValue)
+            } else if let dictionaryValue = try? container.decode([String: DynamicContent].self) {
+               self = .dictionary(dictionaryValue)
+            } else {
+               throw DecodingError.dataCorruptedError(in: container, debugDescription: "Content cannot be decoded")
+            }
+         }
       }
       
       public init(from decoder: Decoder) throws {
