@@ -21,12 +21,14 @@ public final class AnthropicServiceFactory {
    public static func service(
       apiKey: String,
       apiVersion: String = "2023-06-01",
+      basePath: String = "https://api.anthropic.com",
       configuration: URLSessionConfiguration = .default)
       -> some AnthropicService
    {
       DefaultAnthropicService(
          apiKey: apiKey,
-         apiVersion: apiVersion,
+         apiVersion: apiVersion, 
+         basePath: basePath,
          configuration: configuration)
    }
 }

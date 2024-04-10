@@ -35,6 +35,11 @@ An open-source Swift package designed for effortless interaction with [Anthropic
 
 ⚠️ **Important**
 
+> Remember that your API key is a secret! Do not share it with others or expose
+> it in any client-side code (browsers, apps). Production requests must be
+> routed through your own backend server where your API key can be securely
+> loaded from an environment variable or key management service.
+
 Anthropic is rolling out Claude slowly and incrementally, as they work to ensure the safety and scalability of it, in alignment with their company values.
 
 They are working with select partners to roll out Claude in their products. If you're interested in becoming one of those partners, they are [accepting applications](https://earlyaccess.anthropic.com/). Keep in mind that, due to the overwhelming interest they received so far, they may take a while to reply.
@@ -73,6 +78,15 @@ If needed, the api version can be overriden:
 let apiKey = "YOUR_ANTHROPIC_API_KEY"
 let apiVersion = "YOUR_ANTHROPIC_API_VERSION" e.g: "2023-06-01".
 let service = AnthropicServiceFactory.service(apiKey: apiKey, apiVersion: apiVersion)
+```
+
+If needed, the base path can also be overriden:
+
+```swift
+let apiKey = "YOUR_ANTHROPIC_API_KEY"
+let apiVersion = "YOUR_ANTHROPIC_API_VERSION" e.g: "2023-06-01".
+let basePath = "https://myservice.com"
+let service = AnthropicServiceFactory.service(apiKey: apiKey, apiVersion: apiVersion, basePath: basePath)
 ```
 
 ### Text Completion
