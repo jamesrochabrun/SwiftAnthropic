@@ -88,13 +88,13 @@ public struct MessageResponse: Decodable {
       
       case text(String)
       case toolUse(id: String, name: String, input: Input)
-      
+
       private enum CodingKeys: String, CodingKey {
          case type, text, id, name, input
       }
       
-      public enum DynamicContent: Decodable {
-         
+      public enum DynamicContent: Decodable, Encodable {
+
          case string(String)
          case integer(Int)
          case double(Double)
@@ -102,7 +102,7 @@ public struct MessageResponse: Decodable {
          case array([DynamicContent])
          case bool(Bool)
          case null
-         
+
          public init(from decoder: Decoder) throws {
             let container = try decoder.singleValueContainer()
             if let intValue = try? container.decode(Int.self) {
@@ -123,6 +123,26 @@ public struct MessageResponse: Decodable {
                throw DecodingError.dataCorruptedError(in: container, debugDescription: "Content cannot be decoded")
             }
          }
+
+          public func encode(to encoder: any Encoder) throws {
+              var container = encoder.singleValueContainer()
+              switch self {
+              case .string(let val):
+                  try container.encode(val)
+              case .integer(let val):
+                  try container.encode(val)
+              case .double(let val):
+                  try container.encode(val)
+              case .dictionary(let val):
+                  try container.encode(val)
+              case .array(let val):
+                  try container.encode(val)
+              case .bool(let val):
+                  try container.encode(val)
+              case .null:
+                  try container.encodeNil()
+              }
+          }
       }
 
       public init(from decoder: Decoder) throws {
