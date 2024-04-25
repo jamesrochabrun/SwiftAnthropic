@@ -8,7 +8,7 @@
 import Foundation
 
 /// [Message Response](https://docs.anthropic.com/claude/reference/messages_post)
-public struct MessageResponse: Decodable {
+public struct MessageResponse: Codable {
    
    /// Unique object identifier.
    ///
@@ -82,7 +82,7 @@ public struct MessageResponse: Decodable {
    /// Container for the number of tokens used.
    public let usage: Usage
    
-   public enum Content: Decodable {
+   public enum Content: Codable {
       
       public typealias Input = [String: DynamicContent]
       
@@ -93,7 +93,7 @@ public struct MessageResponse: Decodable {
          case type, text, id, name, input
       }
       
-      public enum DynamicContent: Decodable, Encodable {
+      public enum DynamicContent: Codable {
 
          case string(String)
          case integer(Int)
@@ -161,10 +161,24 @@ public struct MessageResponse: Decodable {
             throw DecodingError.dataCorruptedError(forKey: .type, in: container, debugDescription: "Invalid type value found in JSON!")
          }
       }
+
+       public func encode(to encoder: any Encoder) throws {
+           var container = try encoder.container(keyedBy: CodingKeys.self)
+           switch self {
+           case .text(let text):
+               try container.encode("text", forKey: .type)
+               try container.encode(text, forKey: .text)
+           case .toolUse(let id, let name, let input):
+               try container.encode("tool_use", forKey: .type)
+               try container.encode(id, forKey: .id)
+               try container.encode(name, forKey: .name)
+               try container.encode(input, forKey: .input)
+           }
+       }
    }
    
-   public struct Usage: Decodable {
-      
+   public struct Usage: Codable {
+
       /// The number of input tokens which were used.
       public let inputTokens: Int
       
