@@ -8,7 +8,7 @@
 import Foundation
 
 /// [Message Response](https://docs.anthropic.com/claude/reference/messages_post)
-public struct MessageResponse: Decodable {
+public struct MessageResponse: Codable {
    
    /// Unique object identifier.
    ///
@@ -82,19 +82,19 @@ public struct MessageResponse: Decodable {
    /// Container for the number of tokens used.
    public let usage: Usage
    
-   public enum Content: Decodable {
+   public enum Content: Codable {
       
       public typealias Input = [String: DynamicContent]
       
       case text(String)
       case toolUse(id: String, name: String, input: Input)
-      
+
       private enum CodingKeys: String, CodingKey {
          case type, text, id, name, input
       }
       
-      public enum DynamicContent: Decodable {
-         
+      public enum DynamicContent: Codable {
+
          case string(String)
          case integer(Int)
          case double(Double)
@@ -102,7 +102,7 @@ public struct MessageResponse: Decodable {
          case array([DynamicContent])
          case bool(Bool)
          case null
-         
+
          public init(from decoder: Decoder) throws {
             let container = try decoder.singleValueContainer()
             if let intValue = try? container.decode(Int.self) {
@@ -123,6 +123,26 @@ public struct MessageResponse: Decodable {
                throw DecodingError.dataCorruptedError(in: container, debugDescription: "Content cannot be decoded")
             }
          }
+
+          public func encode(to encoder: any Encoder) throws {
+              var container = encoder.singleValueContainer()
+              switch self {
+              case .string(let val):
+                  try container.encode(val)
+              case .integer(let val):
+                  try container.encode(val)
+              case .double(let val):
+                  try container.encode(val)
+              case .dictionary(let val):
+                  try container.encode(val)
+              case .array(let val):
+                  try container.encode(val)
+              case .bool(let val):
+                  try container.encode(val)
+              case .null:
+                  try container.encodeNil()
+              }
+          }
       }
 
       public init(from decoder: Decoder) throws {
@@ -141,10 +161,24 @@ public struct MessageResponse: Decodable {
             throw DecodingError.dataCorruptedError(forKey: .type, in: container, debugDescription: "Invalid type value found in JSON!")
          }
       }
+
+       public func encode(to encoder: any Encoder) throws {
+           var container = try encoder.container(keyedBy: CodingKeys.self)
+           switch self {
+           case .text(let text):
+               try container.encode("text", forKey: .type)
+               try container.encode(text, forKey: .text)
+           case .toolUse(let id, let name, let input):
+               try container.encode("tool_use", forKey: .type)
+               try container.encode(id, forKey: .id)
+               try container.encode(name, forKey: .name)
+               try container.encode(input, forKey: .input)
+           }
+       }
    }
    
-   public struct Usage: Decodable {
-      
+   public struct Usage: Codable {
+
       /// The number of input tokens which were used.
       public let inputTokens: Int
       
