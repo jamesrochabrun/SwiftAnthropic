@@ -105,7 +105,7 @@ public struct MessageParameter: Encodable {
          public enum ContentObject: Encodable {
             case text(String)
             case image(ImageSource)
-            case toolUse(String, Tool)
+            case toolUse(String, String, MessageResponse.Content.Input)
             case toolResult(String, String)
             
             // Custom encoding to handle different cases
@@ -118,11 +118,11 @@ public struct MessageParameter: Encodable {
                case .image(let source):
                   try container.encode("image", forKey: .type)
                   try container.encode(source, forKey: .source)
-               case .toolUse(let id, let tool):
+               case .toolUse(let id, let name, let input):
                    try container.encode("tool_use", forKey: .type)
                    try container.encode(id, forKey: .id)
-                   try container.encode(tool.name, forKey: .name)
-                   try container.encode(tool.inputSchema, forKey: .input)
+                   try container.encode(name, forKey: .name)
+                   try container.encode(input, forKey: .input)
                case .toolResult(let toolUseId, let content):
                    try container.encode("tool_result", forKey: .type)
                    try container.encode(toolUseId, forKey: .toolUseId)
