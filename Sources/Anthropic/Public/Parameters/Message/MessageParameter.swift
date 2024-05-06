@@ -22,46 +22,46 @@ public struct MessageParameter: Encodable {
    /// The model that will complete your prompt.
    // As we improve Claude, we develop new versions of it that you can query. The model parameter controls which version of Claude responds to your request. Right now we offer two model families: Claude, and Claude Instant. You can use them by setting model to "claude-2.1" or "claude-instant-1.2", respectively.
    /// See [models](https://docs.anthropic.com/claude/reference/selecting-a-model) for additional details and options.
-   let model: String
+   public let model: String
    
    /// Input messages.
    /// Our models are trained to operate on alternating user and assistant conversational turns. When creating a new Message, you specify the prior conversational turns with the messages parameter, and the model then generates the next Message in the conversation.
    /// Each input message must be an object with a role and content. You can specify a single user-role message, or you can include multiple user and assistant messages. The first message must always use the user role.
    /// If the final message uses the assistant role, the response content will continue immediately from the content in that message. This can be used to constrain part of the model's response.
-   let messages: [Message]
+   public let messages: [Message]
    
    /// The maximum number of tokens to generate before stopping.
    /// Note that our models may stop before reaching this maximum. This parameter only specifies the absolute maximum number of tokens to generate.
    /// Different models have different maximum values for this parameter. See [input and output](https://docs.anthropic.com/claude/reference/input-and-output-sizes) sizes for details.
-   let maxTokens: Int
+   public let maxTokens: Int
    
    /// System prompt.
    /// A system prompt is a way of providing context and instructions to Claude, such as specifying a particular goal or role. See our [guide to system prompts](https://docs.anthropic.com/claude/docs/how-to-use-system-prompts).
-   let system: String?
+   public let system: String?
    
    /// An object describing metadata about the request.
-   let metadata: MetaData?
+   public let metadata: MetaData?
    
    /// Custom text sequences that will cause the model to stop generating.
    /// Our models will normally stop when they have naturally completed their turn, which will result in a response stop_reason of "end_turn".
    /// If you want the model to stop generating when it encounters custom strings of text, you can use the stop_sequences parameter. If the model encounters one of the custom sequences, the response stop_reason value will be "stop_sequence" and the response stop_sequence value will contain the matched stop sequence.
-   let stopSequences: [String]?
+   public let stopSequences: [String]?
    
    /// Whether to incrementally stream the response using server-sent events.
    /// See [streaming](https://docs.anthropic.com/claude/reference/messages-streaming for details.
-   var stream: Bool
+   public var stream: Bool
    
    /// Amount of randomness injected into the response.
    /// Defaults to 1. Ranges from 0 to 1. Use temp closer to 0 for analytical / multiple choice, and closer to 1 for creative and generative tasks.
-   let temperature: Double?
+   public let temperature: Double?
    
    /// Only sample from the top K options for each subsequent token.
    /// Used to remove "long tail" low probability responses. [Learn more technical details here](https://towardsdatascience.com/how-to-sample-from-language-models-682bceb97277).
-   let topK: Int?
+   public let topK: Int?
    
    /// Use nucleus sampling.
    /// In nucleus sampling, we compute the cumulative distribution over all the options for each subsequent token in decreasing probability order and cut it off once it reaches a particular probability specified by top_p. You should either alter temperature or top_p, but not both.
-   let topP: Double?
+   public let topP: Double?
    
    /// **[beta]** Definitions of tools that the model may use.
    ///
@@ -78,8 +78,8 @@ public struct MessageParameter: Encodable {
    
    public struct Message: Encodable {
       
-      let role: String
-      let content: Content
+      public let role: String
+      public let content: Content
       
       public enum Role: String {
          case user
@@ -146,9 +146,9 @@ public struct MessageParameter: Encodable {
          
          public struct ImageSource: Encodable {
             
-            let type: String
-            let mediaType: String
-            let data: String
+            public let type: String
+            public let mediaType: String
+            public let data: String
             
             public enum MediaType: String, Encodable {
                case jpeg = "image/jpeg"
@@ -185,18 +185,18 @@ public struct MessageParameter: Encodable {
    public struct MetaData: Encodable {
       // An external identifier for the user who is associated with the request.
       // This should be a uuid, hash value, or other opaque identifier. Anthropic may use this id to help detect abuse. Do not include any identifying information such as name, email address, or phone number.
-      let userId: UUID
+      public let userId: UUID
    }
    
    public struct Tool: Codable, Equatable {
       
       /// The name of the function to be called. Must be a-z, A-Z, 0-9, or contain underscores and dashes, with a maximum length of 64.
-      let name: String
+      public let name: String
       /// A description of what the function does, used by the model to choose when and how to call the function.
-      let description: String?
+      public let description: String?
       /// The parameters the functions accepts, described as a JSON Schema object. See the [guide](https://platform.openai.com/docs/guides/gpt/function-calling) for examples, and the [JSON Schema reference](https://json-schema.org/understanding-json-schema) for documentation about the format.
       /// To describe a function that accepts no parameters, provide the value `{"type": "object", "properties": {}}`.
-      let inputSchema: JSONSchema?
+      public let inputSchema: JSONSchema?
       
       public struct JSONSchema: Codable, Equatable {
          
@@ -390,3 +390,4 @@ public struct MessageParameter: Encodable {
       self.tools = tools
    }
 }
+
