@@ -661,3 +661,6 @@ Check the [blog post](https://medium.com/@jamesrochabrun/anthropic-ios-sdk-032e1
 You can also run the Demo project located on the [Examples](https://github.com/jamesrochabrun/SwiftAnthropic/tree/main/Examples/SwiftAnthropicExample) folder on this Package.
 
 <img width="350" alt="Anthropic" src="https://github.com/jamesrochabrun/SwiftAnthropic/assets/5378604/c2d39617-e8ab-44aa-ac2d-f01d94bb8bfc">
+
+## Collaboration
+Open a PR for any proposed change pointing it to `main` branch. Unit tests are highly appreciated ❤️
