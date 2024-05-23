@@ -58,7 +58,7 @@ public enum Model {
 
    public var value: String {
       switch self {
-      case .claudeInstant12: return "claude-instant-1.2 "
+      case .claudeInstant12: return "claude-instant-1.2"
       case .claude2: return "claude-2.0"
       case .claude21: return "claude-2.1"
       case .claude3Opus: return "claude-3-opus-20240229"
