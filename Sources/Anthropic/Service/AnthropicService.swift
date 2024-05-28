@@ -23,13 +23,26 @@ public enum APIError: Error {
       switch self {
       case .requestFailed(let description): return description
       case .responseUnsuccessful(let description): return description
-      case .invalidData: return "Invalid data"
+      case .invalidData: return NSLocalizedString("Invalid data", comment: "Bad data")
       case .jsonDecodingFailure(let description): return description
       case .dataCouldNotBeReadMissingData(let description): return description
-      case .bothDecodingStrategiesFailed: return "Decoding strategies failed."
-      case .timeOutError: return "Time Out Error."
+      case .bothDecodingStrategiesFailed: return NSLocalizedString("Decoding strategies failed.", comment: "Decoding failed")
+      case .timeOutError: return NSLocalizedString("Time Out Error.", comment: "Time Out")
       }
    }
+}
+
+extension APIError: LocalizedError, CustomStringConvertible {
+    
+    /// A textual representation of this instance.
+    public var description: String {
+        return displayDescription
+    }
+    
+    /// A localized message describing what error occurred.
+    public var errorDescription: String? {
+        return displayDescription
+    }
 }
 
 // MARK: Service
@@ -124,13 +137,13 @@ extension AnthropicService {
       }
       printHTTPURLResponse(httpResponse)
       guard httpResponse.statusCode == 200 else {
-         var errorMessage = "status code \(httpResponse.statusCode)"
+         var errorMessage = "Status code \(httpResponse.statusCode). "
          do {
             let errorResponse = try decoder.decode(ErrorResponse.self, from: data)
             errorMessage += errorResponse.error.message
          } catch {
             // If decoding fails, proceed with a general error message
-            errorMessage = "status code \(httpResponse.statusCode)"
+            errorMessage = "Status code \(httpResponse.statusCode). "
          }
          throw APIError.responseUnsuccessful(description: errorMessage)
       }
@@ -177,7 +190,7 @@ extension AnthropicService {
       }
       printHTTPURLResponse(httpResponse)
       guard httpResponse.statusCode == 200 else {
-         var errorMessage = "status code \(httpResponse.statusCode)"
+         var errorMessage = "Status code \(httpResponse.statusCode). "
          do {
             let data = try await data.reduce(into: Data()) { data, byte in
                data.append(byte)
@@ -186,7 +199,7 @@ extension AnthropicService {
             errorMessage += errorResponse.error.message
          } catch {
             // If decoding fails, proceed with a general error message
-            errorMessage = "status code \(httpResponse.statusCode)"
+            errorMessage = "Status code \(httpResponse.statusCode). "
          }
          throw APIError.responseUnsuccessful(description: errorMessage)
       }
