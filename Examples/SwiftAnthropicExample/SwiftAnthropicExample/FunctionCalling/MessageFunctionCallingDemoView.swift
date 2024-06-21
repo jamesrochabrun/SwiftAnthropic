@@ -94,7 +94,7 @@ struct MessageFunctionCallingDemoView: View {
                
                prompt = ""
                let parameters = MessageParameter(
-                  model: .claude3Opus,
+                  model: .claude35Sonnet,
                   messages: messages,
                   maxTokens: 1024, 
                   tools: [FunctionCallDefinition.getWeather.tool])

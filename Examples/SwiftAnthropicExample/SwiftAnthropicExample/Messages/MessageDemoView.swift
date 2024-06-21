@@ -72,7 +72,7 @@ struct MessageDemoView: View {
                
                prompt = ""
                let parameters = MessageParameter(
-                  model: .claude3Sonnet,
+                  model: .claude35Sonnet,
                   messages: messages,
                   maxTokens: 1024)
                switch selectedSegment {
