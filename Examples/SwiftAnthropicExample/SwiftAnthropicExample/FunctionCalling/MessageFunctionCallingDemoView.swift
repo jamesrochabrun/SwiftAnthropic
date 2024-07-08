@@ -51,6 +51,7 @@ struct MessageFunctionCallingDemoView: View {
    var body: some View {
       ScrollView {
          VStack {
+            Text("TOOL: \(FunctionCallDefinition.getWeather.rawValue)")
             picker
             Text(observable.errorMessage)
                .foregroundColor(.red)
@@ -133,13 +134,25 @@ struct MessageFunctionCallingDemoView: View {
             }
          }
          Text(observable.message)
-         if let toolResponse = observable.toolResponse {
+         if let toolResponse = observable.toolUse {
             Divider()
-            Text("Structured Response")
-               .bold()
-            Text("Name: \(toolResponse.name)")
-            Text("ID: \(toolResponse.id)")
-            Text("Input: \(toolResponse.inputDisplay)")
+            VStack {
+               Text("Tool use")
+                  .bold()
+               Text("Name: \(toolResponse.name)")
+               Text("ID: \(toolResponse.id)")
+               if !toolResponse.inputDisplay.isEmpty {
+                  Text("Input: \(toolResponse.inputDisplay)")
+               }
+            }
+         }
+         
+         if !observable.totalJson.isEmpty {
+            VStack {
+               Divider()
+               Text("Stream response tool use Json.")
+               Text(observable.totalJson)
+            }
          }
       }
       .buttonStyle(.bordered)

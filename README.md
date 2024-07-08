@@ -175,8 +175,6 @@ let textCompletion = try await service.createTextCompletion(parameters)
 
 ### Text Completion Stream
 
-<img width="743" alt="Screenshot 2024-02-23 at 10 24 31 PM" src="https://github.com/jamesrochabrun/SwiftLiteLLM/assets/5378604/907d1771-2633-47d1-aafb-9f4bdf5305a1">
-
 Response
 ```swift
 public struct TextCompletionStreamResponse: Decodable {
@@ -592,10 +590,13 @@ public struct MessageStreamResponse: Decodable {
    
    public let index: Int?
    
+   /// available in "content_block_start" event
    public let contentBlock: ContentBlock?
    
+   /// available in "message_start" event
    public let message: MessageResponse?
    
+   /// Available in "content_block_delta", "message_delta" events.
    public let delta: Delta?
    
    public struct Delta: Decodable {
@@ -604,6 +605,9 @@ public struct MessageStreamResponse: Decodable {
       
       public let text: String?
       
+      /// type = tool_use
+      public let partialJson: String?
+      
       public let stopReason: String?
       
       public let stopSequence: String?
@@ -611,9 +615,35 @@ public struct MessageStreamResponse: Decodable {
    
    public struct ContentBlock: Decodable {
       
+      // Can be of type `text` or `tool_use`
       public let type: String
       
-      public let text: String
+      /// `text` type
+      public let text: String?
+      
+      /// `tool_use` type
+      
+      public let input: [String: MessageResponse.Content.DynamicContent]?
+      
+      public let name: String?
+      
+      public let id: String?
+      
+      public var toolUse: MessageResponse.Content.ToolUse? {
+         guard let name, let id else { return nil }
+         return .init(id: id, name: name, input: input ?? [:])
+      }
+   }
+   
+   /// https://docs.anthropic.com/en/api/messages-streaming#event-types
+   public enum StreamEvent: String {
+      
+      case contentBlockStart = "content_block_start"
+      case contentBlockDelta = "content_block_delta"
+      case contentBlockStop = "content_block_stop"
+      case messageStart = "message_start"
+      case messageDelta = "message_delta"
+      case messageStop = "message_stop"
    }
 }
 ```

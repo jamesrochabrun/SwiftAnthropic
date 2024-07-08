@@ -13,30 +13,14 @@ import SwiftUI
 @Observable class MessageFunctionCallingObservable {
    
    let service: AnthropicService
-   var message: String = ""
    var errorMessage: String = ""
    var isLoading = false
-   var toolResponse: ToolResponse?
+   var message: String = ""
    
-   struct ToolResponse {
-      let id: String
-      let name: String
-      let input: [String: MessageResponse.Content.DynamicContent]
-      
-      var inputDisplay: String {
-         var display = ""
-         for key in input.keys {
-            display += key
-            display += ","
-            switch input[key] {
-            case .string(let text):
-               display += text
-            default: break
-            }
-         }
-         return display
-      }
-   }
+   var toolUse: MessageResponse.Content.ToolUse?
+   
+   // Stream tool use response
+   var totalJson: String = ""
    
    init(service: AnthropicService) {
       self.service = service
@@ -54,8 +38,8 @@ import SwiftUI
                switch content {
                case .text(let text):
                   self.message = text
-               case .toolUse(let id, let name, let input):
-                  toolResponse = .init(id: id, name: name, input: input)
+               case .toolUse(let toolUSe):
+                  toolUse = toolUSe
                }
             }
          } catch {
@@ -73,8 +57,24 @@ import SwiftUI
             let stream = try await service.streamMessage(parameters)
             isLoading = false
             for try await result in stream {
+
                let content = result.delta?.text ?? ""
                self.message += content
+               
+               /// PartialJson is the JSON provided by tool use. Clients need to accumulate it.
+               /// https://docs.anthropic.com/en/api/messages-streaming#input-json-delta
+               self.totalJson += result.delta?.partialJson ?? ""
+               
+               switch result.streamEvent {
+               case .contentBlockStart:
+                  // Tool use data is only available in `content_block_start` events.
+                  /*
+                   event: content_block_start
+                   data: {"type":"content_block_start","index":1,"content_block":{"type":"tool_use","id":"toolu_01KXkhDdRhvV1pnk23GiWmjo","name":"get_weather","input":{}} }
+                   */
+                  self.toolUse = result.contentBlock?.toolUse
+               default: break
+               }
             }
          } catch {
             self.errorMessage = "\(error)"
@@ -88,6 +88,8 @@ import SwiftUI
    
    func clearMessage() {
       message = ""
+      toolUse = nil
+      totalJson = ""
    }
    
    // MARK: Private
@@ -96,3 +98,19 @@ import SwiftUI
 
 }
 
+extension MessageResponse.Content.ToolUse {
+   
+   var inputDisplay: String {
+      var display = ""
+      for key in input.keys {
+         display += key
+         display += ","
+         switch input[key] {
+         case .string(let text):
+            display += text
+         default: break
+         }
+      }
+      return display
+   }
+}
