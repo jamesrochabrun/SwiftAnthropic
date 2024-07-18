@@ -15,7 +15,7 @@ struct DefaultAnthropicService: AnthropicService {
    let apiVersion: String
    let basePath: String
    
-   private static let betaHeader = "tools-2024-04-04"
+   private static let betaHeader = "max-tokens-3-5-sonnet-2024-07-15"
 
    init(
       apiKey: String,
