@@ -110,11 +110,13 @@ extension AnthropicService {
    /// - Parameters:
    ///   - type: The `Decodable` type that the response should be decoded to.
    ///   - request: The `URLRequest` describing the API request.
+   ///   - debugEnabled: If true the service will print events on DEBUG builds.
    /// - Throws: An error if the request fails or if decoding fails.
    /// - Returns: A value of the specified decodable type.
    public func fetch<T: Decodable>(
       type: T.Type,
-      with request: URLRequest)
+      with request: URLRequest,
+      debugEnabled: Bool)
       async throws -> T
    {
       printCurlCommand(request)
@@ -135,7 +137,9 @@ extension AnthropicService {
          throw APIError.responseUnsuccessful(description: errorMessage)
       }
       #if DEBUG
-      print("DEBUG JSON FETCH API = \(try JSONSerialization.jsonObject(with: data, options: .allowFragments) as? [String: Any])")
+      if debugEnabled {
+         print("DEBUG JSON FETCH API = \(try JSONSerialization.jsonObject(with: data, options: .allowFragments) as? [String: Any])")
+      }
       #endif
       do {
          return try decoder.decode(type, from: data)
@@ -144,12 +148,16 @@ extension AnthropicService {
          let codingPath = "codingPath: \(context.codingPath)"
          let debugMessage = debug + codingPath
       #if DEBUG
-         print(debugMessage)
+         if debugEnabled {
+            print(debugMessage)
+         }
       #endif
          throw APIError.dataCouldNotBeReadMissingData(description: debugMessage)
       } catch {
       #if DEBUG
-         print("\(error)")
+         if debugEnabled {
+            print("\(error)")
+         }
       #endif
          throw APIError.jsonDecodingFailure(description: error.localizedDescription)
       }
@@ -162,11 +170,13 @@ extension AnthropicService {
    /// - Parameters:
    ///   - type: The `Decodable` type that each streamed response should be decoded to.
    ///   - request: The `URLRequest` describing the API request.
+   ///   - debugEnabled: If true the service will print events on DEBUG builds.
    /// - Throws: An error if the request fails or if decoding fails.
    /// - Returns: An asynchronous throwing stream of the specified decodable type.
    public func fetchStream<T: Decodable>(
       type: T.Type,
-      with request: URLRequest)
+      with request: URLRequest,
+      debugEnabled: Bool)
       async throws -> AsyncThrowingStream<T, Error>
    {
       printCurlCommand(request)
@@ -198,7 +208,9 @@ extension AnthropicService {
                   if line.hasPrefix("data:"),
                      let data = line.dropFirst(5).data(using: .utf8) {
                      #if DEBUG
-                     print("DEBUG JSON STREAM LINE = \(try JSONSerialization.jsonObject(with: data, options: .allowFragments) as? [String: Any])")
+                     if debugEnabled {
+                        print("DEBUG JSON STREAM LINE = \(try JSONSerialization.jsonObject(with: data, options: .allowFragments) as? [String: Any])")
+                     }
                      #endif
                      do {
                         let decoded = try self.decoder.decode(T.self, from: data)
@@ -208,12 +220,16 @@ extension AnthropicService {
                         let codingPath = "codingPath: \(context.codingPath)"
                         let debugMessage = debug + codingPath
                      #if DEBUG
-                        print(debugMessage)
+                        if debugEnabled {
+                           print(debugMessage)
+                        }
                      #endif
                         throw APIError.dataCouldNotBeReadMissingData(description: debugMessage)
                      } catch {
                      #if DEBUG
-                        debugPrint("CONTINUATION ERROR DECODING \(error.localizedDescription)")
+                        if debugEnabled {
+                           debugPrint("CONTINUATION ERROR DECODING \(error.localizedDescription)")
+                        }
                      #endif
                         continuation.finish(throwing: error)
                      }
@@ -225,12 +241,16 @@ extension AnthropicService {
                let codingPath = "codingPath: \(context.codingPath)"
                let debugMessage = debug + codingPath
                #if DEBUG
-               print(debugMessage)
+               if debugEnabled {
+                  print(debugMessage)
+               }
                #endif
                throw APIError.dataCouldNotBeReadMissingData(description: debugMessage)
             } catch {
                #if DEBUG
-               print("CONTINUATION ERROR DECODING \(error.localizedDescription)")
+               if debugEnabled {
+                  print("CONTINUATION ERROR DECODING \(error.localizedDescription)")
+               }
                #endif
                continuation.finish(throwing: error)
             }
