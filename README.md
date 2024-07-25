@@ -387,7 +387,7 @@ public struct MessageResponse: Decodable {
    public struct Usage: Decodable {
       
       /// The number of input tokens which were used.
-      public let inputTokens: Int
+      public let inputTokens: Int?
       
       /// The number of output tokens which were used.
       public let outputTokens: Int
