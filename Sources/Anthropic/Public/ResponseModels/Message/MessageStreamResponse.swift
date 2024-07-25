@@ -33,6 +33,9 @@ public struct MessageStreamResponse: Decodable {
    
    /// Available in "content_block_delta", "message_delta" events.
    public let delta: Delta?
+    
+   /// Available in "message_delta" events.
+   public let usage: MessageResponse.Usage?
    
    public var streamEvent: StreamEvent? {
       StreamEvent(rawValue: type)
