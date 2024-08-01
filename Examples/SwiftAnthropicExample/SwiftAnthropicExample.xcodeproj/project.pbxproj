@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0DCD68B32C5B049A00CFDE84 /* ServiceSelectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DCD68B22C5B049A00CFDE84 /* ServiceSelectionView.swift */; };
+		0DCD68B52C5B057000CFDE84 /* AIProxyIntroView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DCD68B42C5B057000CFDE84 /* AIProxyIntroView.swift */; };
 		7B3287D32B8B1260002C7FEF /* SwiftAnthropicExampleApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B3287D22B8B1260002C7FEF /* SwiftAnthropicExampleApp.swift */; };
 		7B3287D72B8B1261002C7FEF /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7B3287D62B8B1261002C7FEF /* Assets.xcassets */; };
 		7B3287DA2B8B1261002C7FEF /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7B3287D92B8B1261002C7FEF /* Preview Assets.xcassets */; };
@@ -41,6 +43,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		0DCD68B22C5B049A00CFDE84 /* ServiceSelectionView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ServiceSelectionView.swift; sourceTree = "<group>"; };
+		0DCD68B42C5B057000CFDE84 /* AIProxyIntroView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AIProxyIntroView.swift; sourceTree = "<group>"; };
 		7B3287CF2B8B1260002C7FEF /* SwiftAnthropicExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SwiftAnthropicExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		7B3287D22B8B1260002C7FEF /* SwiftAnthropicExampleApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftAnthropicExampleApp.swift; sourceTree = "<group>"; };
 		7B3287D62B8B1261002C7FEF /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -108,6 +112,8 @@
 		7B3287D12B8B1260002C7FEF /* SwiftAnthropicExample */ = {
 			isa = PBXGroup;
 			children = (
+				0DCD68B22C5B049A00CFDE84 /* ServiceSelectionView.swift */,
+				0DCD68B42C5B057000CFDE84 /* AIProxyIntroView.swift */,
 				7B3287D22B8B1260002C7FEF /* SwiftAnthropicExampleApp.swift */,
 				7B3288032B8B14A3002C7FEF /* ApiKeyIntroView.swift */,
 				7B3288052B8B1530002C7FEF /* OptionsListView.swift */,
@@ -307,6 +313,8 @@
 				7B32880A2B8B17A1002C7FEF /* MessageDemoObservable.swift in Sources */,
 				7BF304E02BBFBE1000671273 /* MessageFunctionCallingDemoView.swift in Sources */,
 				7B3288062B8B1530002C7FEF /* OptionsListView.swift in Sources */,
+				0DCD68B52C5B057000CFDE84 /* AIProxyIntroView.swift in Sources */,
+				0DCD68B32C5B049A00CFDE84 /* ServiceSelectionView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

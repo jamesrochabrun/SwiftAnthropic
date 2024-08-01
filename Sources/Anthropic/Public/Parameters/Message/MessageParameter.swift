@@ -194,7 +194,7 @@ public struct MessageParameter: Encodable {
       public let name: String
       /// A description of what the function does, used by the model to choose when and how to call the function.
       public let description: String?
-      /// The parameters the functions accepts, described as a JSON Schema object. See the [guide](https://platform.openai.com/docs/guides/gpt/function-calling) for examples, and the [JSON Schema reference](https://json-schema.org/understanding-json-schema) for documentation about the format.
+      /// The parameters the functions accepts, described as a JSON Schema object. See the [guide](https://docs.anthropic.com/en/docs/build-with-claude/tool-use) for examples, and the [JSON Schema reference](https://json-schema.org/understanding-json-schema) for documentation about the format.
       /// To describe a function that accepts no parameters, provide the value `{"type": "object", "properties": {}}`.
       public let inputSchema: JSONSchema?
       
