@@ -27,12 +27,12 @@ protocol Endpoint {
 
 extension Endpoint {
 
-   private func urlComponents(
+   func urlComponents(
       queryItems: [URLQueryItem])
       -> URLComponents
    {
       var components = URLComponents(string: base)!
-      components.path = path
+      components.path = components.path.appending(path)
       if !queryItems.isEmpty {
          components.queryItems = queryItems
       }

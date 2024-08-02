@@ -15,6 +15,7 @@ An open-source Swift package designed for effortless interaction with [Anthropic
 - [Getting an API Key](#getting-an-api-key)
 - [Installation](#installation)
 - [Usage](#usage)
+- [AIProxy](#aiproxy)
 - [Collaboration](#collaboration)
 
 ## Description
@@ -39,6 +40,9 @@ An open-source Swift package designed for effortless interaction with [Anthropic
 > it in any client-side code (browsers, apps). Production requests must be
 > routed through your own backend server where your API key can be securely
 > loaded from an environment variable or key management service.
+
+SwiftAnthropic has built-in support for AIProxy, which is a backend for AI apps, to satisfy this requirement.
+To configure AIProxy, see the instructions [here](#aiproxy).
 
 Anthropic is rolling out Claude slowly and incrementally, as they work to ensure the safety and scalability of it, in alignment with their company values.
 
@@ -694,6 +698,76 @@ Check the [blog post](https://medium.com/@jamesrochabrun/anthropic-ios-sdk-032e1
 You can also run the Demo project located on the [Examples](https://github.com/jamesrochabrun/SwiftAnthropic/tree/main/Examples/SwiftAnthropicExample) folder on this Package.
 
 <img width="350" alt="Anthropic" src="https://github.com/jamesrochabrun/SwiftAnthropic/assets/5378604/c2d39617-e8ab-44aa-ac2d-f01d94bb8bfc">
+
+
+## AIProxy
+
+### What is it?
+[AIProxy](https://www.aiproxy.pro) is a backend for iOS apps that proxies requests from your app to Anthropic.
+Using a proxy keeps your Anthropic key secret, protecting you from unexpectedly high bills due to key theft.
+Requests are only proxied if they pass your defined rate limits and Apple's [DeviceCheck](https://developer.apple.com/documentation/devicecheck) verification.
+We offer AIProxy support so you can safely distribute apps built with SwiftAnthropic.
+
+
+### How does my SwiftAnthropic code change?
+
+Proxy requests through AIProxy with two changes to your Xcode project:
+
+1. Instead of initializing `service` with:
+
+        let apiKey = "your_anthropic_api_key_here"
+        let service = AnthropicServiceFactory.service(apiKey: apiKey)
+
+Use:
+
+        let service = AnthropicServiceFactory.service(
+            aiproxyPartialKey: "your_partial_key_goes_here",
+            aiproxyServiceURL: "your_service_url_goes_here"
+        )
+
+The `aiproxyPartialKey` and `aiproxyServiceURL` values are provided to you on the [AIProxy developer dashboard](https://developer.aiproxy.pro)
+
+2. Add an `AIPROXY_DEVICE_CHECK_BYPASS' env variable to Xcode. This token is provided to you in the AIProxy
+   developer dashboard, and is necessary for the iOS simulator to communicate with the AIProxy backend.
+    - Go to `Product > Scheme > Edit Scheme` to open up the "Edit Schemes" menu in Xcode
+    - Select `Run` in the sidebar
+    - Select `Arguments` from the top nav
+    - Add to the "Environment Variables" section (not the "Arguments Passed on Launch" section) an env
+      variable with name `AIPROXY_DEVICE_CHECK_BYPASS` and value that we provided you in the AIProxy dashboard
+
+
+⚠️  The `AIPROXY_DEVICE_CHECK_BYPASS` is intended for the simulator only. Do not let it leak into
+a distribution build of your app (including a TestFlight distribution). If you follow the steps above,
+then the constant won't leak because env variables are not packaged into the app bundle.
+
+#### What is the `AIPROXY_DEVICE_CHECK_BYPASS` constant?
+
+AIProxy uses Apple's [DeviceCheck](https://developer.apple.com/documentation/devicecheck) to ensure
+that requests received by the backend originated from your app on a legitimate Apple device.
+However, the iOS simulator cannot produce DeviceCheck tokens. Rather than requiring you to
+constantly build and run on device during development, AIProxy provides a way to skip the
+DeviceCheck integrity check. The token is intended for use by developers only. If an attacker gets
+the token, they can make requests to your AIProxy project without including a DeviceCheck token, and
+thus remove one level of protection.
+
+#### What is the `aiproxyPartialKey` constant?
+
+This constant is safe to include in distributed version of your app. It is one part of an
+encrypted representation of your real secret key. The other part resides on AIProxy's backend.
+As your app makes requests to AIProxy, the two encrypted parts are paired, decrypted, and used
+to fulfill the request to Anthropic.
+
+#### How to setup my project on AIProxy?
+
+Please see the [AIProxy integration guide](https://www.aiproxy.pro/docs/integration-guide.html)
+
+
+### ⚠️  Disclaimer
+
+Contributors of SwiftAnthropic shall not be liable for any damages or losses caused by third parties.
+Contributors of this library provide third party integrations as a convenience. Any use of a third
+party's services are assumed at your own risk.
+
 
 ## Collaboration
 Open a PR for any proposed change pointing it to `main` branch. Unit tests are highly appreciated ❤️

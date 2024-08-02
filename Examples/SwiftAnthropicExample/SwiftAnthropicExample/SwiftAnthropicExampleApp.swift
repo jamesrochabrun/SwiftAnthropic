@@ -11,7 +11,7 @@ import SwiftUI
 struct SwiftAnthropicExampleApp: App {
     var body: some Scene {
         WindowGroup {
-           ApiKeyIntroView()
+           ServiceSelectionView()
         }
     }
 }
