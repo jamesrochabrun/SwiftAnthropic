@@ -2,11 +2,17 @@ import XCTest
 @testable import SwiftAnthropic
 
 final class SwiftAnthropicTests: XCTestCase {
-    func testExample() throws {
-        // XCTest Documentation
-        // https://developer.apple.com/documentation/xctest
-
-        // Defining Test Cases and Test Methods
-        // https://developer.apple.com/documentation/xctest/defining_test_cases_and_test_methods
+    func testEndpointConstruction() throws {
+       let endpoint = AnthropicAPI(
+         base: "https://api.example.org/my/path",
+         apiPath: .messages
+       )
+       let comp = endpoint.urlComponents(
+         queryItems: [URLQueryItem(name: "query", value: "value")]
+       )
+       XCTAssertEqual(
+         "https://api.example.org/my/path/v1/messages?query=value",
+         comp.url!.absoluteString
+       )
     }
 }
