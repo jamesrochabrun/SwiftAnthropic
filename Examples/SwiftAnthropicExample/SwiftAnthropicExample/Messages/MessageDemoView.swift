@@ -74,7 +74,10 @@ struct MessageDemoView: View {
                let parameters = MessageParameter(
                   model: .claude35Sonnet,
                   messages: messages,
-                  maxTokens: 1024)
+                  maxTokens: 1024,
+                  system: .objects([
+                     .init(type: .text, text: "You are a pirate"),
+                  ]))
                switch selectedSegment {
                case .message:
                   try await observable.createMessage(parameters: parameters)

@@ -37,7 +37,9 @@ public struct MessageParameter: Encodable {
    
    /// System prompt.
    /// A system prompt is a way of providing context and instructions to Claude, such as specifying a particular goal or role. See our [guide to system prompts](https://docs.anthropic.com/claude/docs/how-to-use-system-prompts).
-   public let system: String?
+   /// System role can be either a simple String or an array of objects, use the objects array for prompt caching.
+   /// [Prompt Caching](https://docs.anthropic.com/en/docs/build-with-claude/prompt-caching)
+   public let system: System?
    
    /// An object describing metadata about the request.
    public let metadata: MetaData?
@@ -75,6 +77,49 @@ public struct MessageParameter: Encodable {
    ///
    /// **input_schema**: JSON schema for the tool input shape that the model will produce in tool_use output content blocks.
    let tools: [Tool]?
+   
+   public enum System: Encodable {
+      case text(String)
+      case objects([SystemObject])
+      
+      public func encode(to encoder: Encoder) throws {
+         var container = encoder.singleValueContainer()
+         switch self {
+         case .text(let string):
+            try container.encode(string)
+         case .objects(let objects):
+            try container.encode(objects)
+         }
+      }
+      
+      public struct SystemObject: Encodable {
+         let type: SystemObjectType
+         let text: String
+         let cacheControl: CacheControl?
+         
+         public init(type: SystemObjectType, text: String, cacheControl: CacheControl? = nil) {
+            self.type = type
+            self.text = text
+            self.cacheControl = cacheControl
+         }
+         
+         public enum SystemObjectType: String, Encodable {
+            case text
+         }
+         
+         public struct CacheControl: Encodable {
+            let type: CacheControlType
+            
+            public init(type: CacheControlType) {
+               self.type = type
+            }
+            
+            public enum CacheControlType: String, Encodable {
+               case ephemeral
+            }
+         }
+      }
+   }
    
    public struct Message: Encodable {
       
@@ -368,7 +413,7 @@ public struct MessageParameter: Encodable {
       model: Model,
       messages: [Message],
       maxTokens: Int,
-      system: String? = nil,
+      system: System? = nil,
       metadata: MetaData? = nil,
       stopSequences: [String]? = nil,
       stream: Bool = false,
