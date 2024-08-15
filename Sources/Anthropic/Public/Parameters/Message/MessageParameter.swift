@@ -80,43 +80,15 @@ public struct MessageParameter: Encodable {
    
    public enum System: Encodable {
       case text(String)
-      case objects([SystemObject])
+      case list([Cache])
       
       public func encode(to encoder: Encoder) throws {
          var container = encoder.singleValueContainer()
          switch self {
          case .text(let string):
             try container.encode(string)
-         case .objects(let objects):
+         case .list(let objects):
             try container.encode(objects)
-         }
-      }
-      
-      public struct SystemObject: Encodable {
-         let type: SystemObjectType
-         let text: String
-         let cacheControl: CacheControl?
-         
-         public init(type: SystemObjectType, text: String, cacheControl: CacheControl? = nil) {
-            self.type = type
-            self.text = text
-            self.cacheControl = cacheControl
-         }
-         
-         public enum SystemObjectType: String, Encodable {
-            case text
-         }
-         
-         public struct CacheControl: Encodable {
-            let type: CacheControlType
-            
-            public init(type: CacheControlType) {
-               self.type = type
-            }
-            
-            public enum CacheControlType: String, Encodable {
-               case ephemeral
-            }
          }
       }
    }
@@ -152,7 +124,8 @@ public struct MessageParameter: Encodable {
             case image(ImageSource)
             case toolUse(String, String, MessageResponse.Content.Input)
             case toolResult(String, String)
-            
+            case cache(Cache)
+
             // Custom encoding to handle different cases
             public func encode(to encoder: Encoder) throws {
                var container = encoder.container(keyedBy: CodingKeys.self)
@@ -172,20 +145,26 @@ public struct MessageParameter: Encodable {
                    try container.encode("tool_result", forKey: .type)
                    try container.encode(toolUseId, forKey: .toolUseId)
                    try container.encode(content, forKey: .content)
+               case .cache(let cache):
+                   try container.encode(cache.type.rawValue, forKey: .type)
+                   try container.encode(cache.text, forKey: .text)
+                   if let cacheControl = cache.cacheControl {
+                       try container.encode(cacheControl, forKey: .cacheControl)
+                   }
                }
             }
             
             enum CodingKeys: String, CodingKey {
-                case type
-                case source
-                case text
-
-                case id
-                case name
-                case input
-                
-                case toolUseId = "tool_use_id"
-                case content
+               case type
+               case source
+               case text
+               case id
+               case name
+               case input
+               
+               case toolUseId = "tool_use_id"
+               case content
+               case cacheControl = "cache_control"
             }
          }
          
@@ -406,6 +385,40 @@ public struct MessageParameter: Encodable {
          self.name = name
          self.description = description
          self.inputSchema = inputSchema
+      }
+   }
+   
+   /// [Prompt Caching](https://docs.anthropic.com/en/docs/build-with-claude/prompt-caching)
+   public struct Cache: Encodable {
+      let type: CacheType
+      let text: String
+      let cacheControl: CacheControl?
+      
+      public init(
+         type: CacheType = .text,
+         text: String,
+         cacheControl: CacheControl?)
+      {
+         self.type = type
+         self.text = text
+         self.cacheControl = cacheControl
+      }
+      
+      public enum CacheType: String, Encodable {
+         case text
+      }
+   }
+   
+   public struct CacheControl: Encodable {
+      
+      let type: CacheControlType
+      
+      public init(type: CacheControlType) {
+         self.type = type
+      }
+      
+      public enum CacheControlType: String, Encodable {
+         case ephemeral
       }
    }
    
