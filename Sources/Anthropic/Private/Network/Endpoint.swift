@@ -59,7 +59,7 @@ extension Endpoint {
       version: String,
       method: HTTPMethod,
       params: Encodable? = nil,
-      beta: String? = nil,
+      betaHeaders: [String]? = nil,
       queryItems: [URLQueryItem] = [])
       throws -> URLRequest
    {
@@ -67,8 +67,8 @@ extension Endpoint {
       request.addValue("application/json", forHTTPHeaderField: "Content-Type")
       request.addValue("\(apiKey)", forHTTPHeaderField: "x-api-key")
       request.addValue("\(version)", forHTTPHeaderField: "anthropic-version")
-      if let beta {
-         request.addValue("\(beta)", forHTTPHeaderField: "anthropic-beta")
+      if let betaHeaders {
+         request.addValue("\(betaHeaders.joined(separator: ","))", forHTTPHeaderField: "anthropic-beta")
       }
       request.httpMethod = method.rawValue
       if let params {

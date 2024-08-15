@@ -21,7 +21,9 @@ struct ApiKeyIntroView: View {
             }
             .padding()
             .textFieldStyle(.roundedBorder)
-            NavigationLink(destination: OptionsListView(service: AnthropicServiceFactory.service(apiKey: apiKey))) {
+            NavigationLink(destination: OptionsListView(service: AnthropicServiceFactory.service(
+               apiKey: apiKey,
+               betaHeaders: ["prompt-caching-2024-07-31", "max-tokens-3-5-sonnet-2024-07-15"]))) {
                Text("Continue")
                   .padding()
                   .padding(.horizontal, 48)

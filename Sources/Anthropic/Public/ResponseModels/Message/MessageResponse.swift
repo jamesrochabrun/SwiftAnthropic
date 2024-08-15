@@ -186,5 +186,13 @@ public struct MessageResponse: Decodable {
       
       /// The number of output tokens which were used.
       public let outputTokens: Int
+      
+      /// [Prompt Caching](https://docs.anthropic.com/en/docs/build-with-claude/prompt-caching#how-can-i-track-the-effectiveness-of-my-caching-strategy)
+      /// You can monitor cache performance using the cache_creation_input_tokens and cache_read_input_tokens fields in the API response.
+      public let cacheCreationInputTokens: Int?
+      
+      /// [Prompt Caching](https://docs.anthropic.com/en/docs/build-with-claude/prompt-caching#how-can-i-track-the-effectiveness-of-my-caching-strategy)
+      /// You can monitor cache performance using the cache_creation_input_tokens and cache_read_input_tokens fields in the API response.
+      public let cacheReadInputTokens: Int?
    }
 }
