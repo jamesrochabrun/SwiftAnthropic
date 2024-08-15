@@ -28,6 +28,7 @@ An open-source Swift package designed for effortless interaction with [Anthropic
 - [Text Completion Stream](#text-completion-stream)
 - [Message](#message)
    - [Function Calling](#function-calling)
+   - [Prompt Caching](#prompt-caching)
 - [Message Stream](#message-stream)
 - [Vision](#vision)
 - [Examples](#demo)
@@ -806,6 +807,91 @@ Here's an example API response with a tool_use content block:
 ```
 
 🚀 Tool use with stream enabled, is also supported. Please visit the [demo project for details](https://github.com/jamesrochabrun/SwiftAnthropic/tree/main/Examples/SwiftAnthropicExample/SwiftAnthropicExample/FunctionCalling)
+
+### Prompt Caching
+
+Prompt Caching is a powerful feature that optimizes your API usage by allowing resuming from specific prefixes in your prompts. This approach significantly reduces processing time and costs for repetitive tasks or prompts with consistent elements.
+For general guidance in Prompt Caching please visit the official [Anthropic Documentation](https://docs.anthropic.com/en/docs/build-with-claude/prompt-caching).
+
+<span style="background-color: #D3D3D3">
+
+/// Copied from Anthropic [website](https://docs.anthropic.com/en/docs/build-with-claude/prompt-caching#large-context-caching-example))
+
+Prompt Caching is in beta
+
+Prompt Caching is now in public beta! To access this feature, you’ll need to include the anthropic-beta: `prompt-caching-2024-07-31` header in your API requests.
+
+</span>
+
+
+How to use it with `SwiftAnthropic`:
+
+You can use it as a `System` role:
+
+```json
+    "system": [
+      {
+        "type": "text", 
+        "text": "You are an AI assistant tasked with analyzing literary works. Your goal is to provide insightful commentary on themes, characters, and writing style.\n"
+      },
+      {
+        "type": "text", 
+        "text": "<the entire contents of Pride and Prejudice>",
+        "cache_control": {"type": "ephemeral"}
+      }
+    ],
+```
+
+The above is a system role, it translates to this in `SwiftAnthropic`
+
+```swift
+let systemPrompt = "You are an AI assistant tasked with analyzing literary works. Your goal is to provide insightful commentary on themes, characters, and writing style"
+let someLargePieceOfContentLikeABook: String = "<the entire contents of Pride and Prejudice>"
+let systemContent = MessageParameter.Cache(text: systemPrompt, cacheControl: nil)
+let cache = MessageParameter.Cache(text: someLargePieceOfContentLikeABook, cacheControl:  .init(type: .ephemeral))
+let usersMessage = MessageParameter.Message(role: .user, content: .text("Analyze the major themes in Pride and Prejudice."))
+let parameters = MessageParameter(
+   model: .claude35Sonnet,
+   messages: [usersMessage],
+   maxTokens: 1024,
+   system: .list([
+      systemContent,
+      cache
+   ]))
+let request = try await service.createMessage(parameters)                
+```
+
+Using Prompt Caching in a Message:
+
+```swift
+let usersPrompt = "Summarize this transcription"
+let videoTranscription = "<Some_Long_Text>"
+let usersMessageContent = MessageParameter.Message.Content.ContentObject.text(usersPrompt)
+let cache = MessageParameter.Message.Content.ContentObject.cache(.init(text: videoTranscription, cacheControl: .init(type: .ephemeral)))
+let usersMessage = MessageParameter.Message(role: .user, content: .list([usersMessageContent, cache]))
+      let parameters = MessageParameter(
+         model: .claude35Sonnet,
+         messages: [usersMessage],
+         maxTokens: 1024,
+         system: .text("You are an AI assistant tasked with analyzing literary works"))
+```
+
+Using Prompt Caching in a Tool:
+
+```swift
+MessageParameter.Tool(
+   name: self.rawValue,
+   description: "Get the current weather in a given location",
+   inputSchema: .init(
+                  type: .object,
+                  properties: [
+                     "location": .init(type: .string, description: "The city and state, e.g. San Francisco, CA"),
+                     "unit": .init(type: .string, description: "The unit of temperature, either celsius or fahrenheit")
+                  ],
+                  required: ["location"]),
+   cacheControl: .init(type: .ephemeral))
+```
+
 
 Swift Response
 ```swift
