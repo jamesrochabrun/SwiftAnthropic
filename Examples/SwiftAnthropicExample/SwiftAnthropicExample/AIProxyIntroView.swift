@@ -55,7 +55,8 @@ struct AIProxyIntroView: View {
    private var aiproxyService: AnthropicService {
       return AnthropicServiceFactory.service(
          aiproxyPartialKey: partialKey,
-         aiproxyServiceURL: serviceURL
+         aiproxyServiceURL: serviceURL, 
+         anthropicBeta: "max-tokens-3-5-sonnet-2024-07-15"
       )
    }
 }

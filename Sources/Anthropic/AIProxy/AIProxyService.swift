@@ -32,13 +32,14 @@ struct AIProxyService: AnthropicService {
    /// Defaults to "2023-06-01"
    private var apiVersion: String
 
-   private static let betaHeader = "max-tokens-3-5-sonnet-2024-07-15"
+   private let betaHeader: String?
 
    init(
       partialKey: String,
       serviceURL: String,
       clientID: String? = nil,
       apiVersion: String = "2023-06-01",
+      betaHeader: String?,
       debugEnabled: Bool)
    {
       self.session = URLSession(
@@ -53,6 +54,7 @@ struct AIProxyService: AnthropicService {
       self.serviceURL = serviceURL
       self.clientID = clientID
       self.apiVersion = apiVersion
+      self.betaHeader = betaHeader
       self.debugEnabled = debugEnabled
    }
 
@@ -64,7 +66,7 @@ struct AIProxyService: AnthropicService {
    {
       var localParameter = parameter
       localParameter.stream = false
-      let request = try await AnthropicAPI(base: serviceURL, apiPath: .messages).request(aiproxyPartialKey: partialKey, clientID: clientID, version: apiVersion, method: .post, params: localParameter, beta: Self.betaHeader)
+      let request = try await AnthropicAPI(base: serviceURL, apiPath: .messages).request(aiproxyPartialKey: partialKey, clientID: clientID, version: apiVersion, method: .post, params: localParameter, beta: betaHeader)
       return try await fetch(type: MessageResponse.self, with: request, debugEnabled: debugEnabled)
    }
 
@@ -74,7 +76,7 @@ struct AIProxyService: AnthropicService {
    {
       var localParameter = parameter
       localParameter.stream = true
-      let request = try await AnthropicAPI(base: serviceURL, apiPath: .messages).request(aiproxyPartialKey: partialKey, clientID: clientID, version: apiVersion, method: .post, params: localParameter, beta: Self.betaHeader)
+      let request = try await AnthropicAPI(base: serviceURL, apiPath: .messages).request(aiproxyPartialKey: partialKey, clientID: clientID, version: apiVersion, method: .post, params: localParameter, beta: betaHeader)
       return try await fetchStream(type: MessageStreamResponse.self, with: request, debugEnabled: debugEnabled)
    }
 

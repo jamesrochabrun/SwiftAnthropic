@@ -14,15 +14,15 @@ struct DefaultAnthropicService: AnthropicService {
    let apiKey: String
    let apiVersion: String
    let basePath: String
+   let betaHeader: String?
    /// Set this flag to TRUE if you need to print request events in DEBUG builds.
    private let debugEnabled: Bool
    
-   private static let betaHeader = "max-tokens-3-5-sonnet-2024-07-15"
-
    init(
       apiKey: String,
       apiVersion: String = "2023-06-01",
       basePath: String,
+      betaHeader: String?,
       configuration: URLSessionConfiguration = .default,
       debugEnabled: Bool)
    {
@@ -33,6 +33,7 @@ struct DefaultAnthropicService: AnthropicService {
       self.apiKey = apiKey
       self.apiVersion = apiVersion
       self.basePath = basePath
+      self.betaHeader = betaHeader
       self.debugEnabled = debugEnabled
    }
    
@@ -44,7 +45,7 @@ struct DefaultAnthropicService: AnthropicService {
    {
       var localParameter = parameter
       localParameter.stream = false
-      let request = try AnthropicAPI(base: basePath, apiPath: .messages).request(apiKey: apiKey, version: apiVersion, method: .post, params: localParameter, beta: Self.betaHeader)
+      let request = try AnthropicAPI(base: basePath, apiPath: .messages).request(apiKey: apiKey, version: apiVersion, method: .post, params: localParameter, beta: betaHeader)
       return try await fetch(type: MessageResponse.self, with: request, debugEnabled: debugEnabled)
    }
    
@@ -54,7 +55,7 @@ struct DefaultAnthropicService: AnthropicService {
    {
       var localParameter = parameter
       localParameter.stream = true
-      let request = try AnthropicAPI(base: basePath, apiPath: .messages).request(apiKey: apiKey, version: apiVersion, method: .post, params: localParameter, beta: Self.betaHeader)
+      let request = try AnthropicAPI(base: basePath, apiPath: .messages).request(apiKey: apiKey, version: apiVersion, method: .post, params: localParameter, beta: betaHeader)
       return try await fetchStream(type: MessageStreamResponse.self, with: request, debugEnabled: debugEnabled)
    }
    

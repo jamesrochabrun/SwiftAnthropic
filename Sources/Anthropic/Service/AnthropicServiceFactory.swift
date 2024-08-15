@@ -23,6 +23,7 @@ public final class AnthropicServiceFactory {
       apiKey: String,
       apiVersion: String = "2023-06-01",
       basePath: String = "https://api.anthropic.com",
+      anthropicBeta: String?,
       configuration: URLSessionConfiguration = .default,
       debugEnabled: Bool = false)
       -> AnthropicService
@@ -30,7 +31,8 @@ public final class AnthropicServiceFactory {
       DefaultAnthropicService(
          apiKey: apiKey,
          apiVersion: apiVersion, 
-         basePath: basePath,
+         basePath: basePath, 
+         betaHeader: anthropicBeta,
          configuration: configuration,
          debugEnabled: debugEnabled)
    }
@@ -56,6 +58,7 @@ public final class AnthropicServiceFactory {
       aiproxyServiceURL: String,
       aiproxyClientID: String? = nil,
       apiVersion: String = "2023-06-01",
+      anthropicBeta: String?,
       debugEnabled: Bool = false)
       -> AnthropicService
    {
@@ -63,7 +66,8 @@ public final class AnthropicServiceFactory {
          partialKey: aiproxyPartialKey,
          serviceURL: aiproxyServiceURL,
          clientID: aiproxyClientID,
-         apiVersion: apiVersion,
+         apiVersion: apiVersion, 
+         betaHeader: anthropicBeta,
          debugEnabled: debugEnabled)
    }
 
