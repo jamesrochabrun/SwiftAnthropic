@@ -94,6 +94,14 @@ let basePath = "https://myservice.com"
 let service = AnthropicServiceFactory.service(apiKey: apiKey, apiVersion: apiVersion, basePath: basePath)
 ```
 
+For Beta features you MUST provide the Beta headers like this:
+
+```swift
+let apiKey = "YOUR_ANTHROPIC_API_KEY"
+let betaHeaders = [prompt-caching-2024-07-31", "max-tokens-3-5-sonnet-2024-07-15"]
+let service = AnthropicServiceFactory.service(apiKey: apiKey, betaHeaders: betaHeaders)
+```
+
 ### Text Completion
 
 Parameters:
