@@ -411,15 +411,6 @@ let message = try await service.createMessage(parameters)
 
 Tool use (function calling). Claude is capable of interacting with external client-side tools and functions, allowing you to equip Claude with your own custom tools to perform a wider variety of tasks.
 
-<span style="background-color: #D3D3D3">
-🎉
-Tool use public beta
-
-Anthropic is excited to announce that tool use is now in public beta! To access this feature, you'll need to include the anthropic-beta: tools-2024-04-04 header in your API requests.
-
-They will be iterating on this open beta over the coming weeks, so feel free to provide feedback using this [form](https://forms.gle/BFnYc6iCkWoRzFgk7).
-</span>
-
 Here's an example of how to provide tools to Claude using the Messages API:
 
 Usage
@@ -441,14 +432,6 @@ let parameters = MessageParameter(model: .claude3Opus, messages: [messageParamet
 
 let message = try await service.createMessage(parameters)
 ```
-
-<span style="background-color: #D3D3D3">
-⚠️ Please note that during the beta period:
-
-Streaming (stream=true) is not yet supported. They plan to add streaming support in a future beta version.
-While the feature is production-ready, they may introduce multiple beta versions before the final release.
-Tool use is not yet available on third-party platforms like Vertex AI or AWS Bedrock, but is coming soon.
-</span>
 
 When Claude decides to use one of the tools you've provided, it will return a response with a stop_reason of tool_use and one or more tool_use content blocks in the API response that include:
 
@@ -478,6 +461,8 @@ Here's an example API response with a tool_use content block:
   ]
 }
 ```
+
+🚀 Tool use with stream enabled, is also supported. Please visit the [demo project for details](https://github.com/jamesrochabrun/SwiftAnthropic/tree/main/Examples/SwiftAnthropicExample/SwiftAnthropicExample/FunctionCalling)
 
 Swift Response
 ```swift
