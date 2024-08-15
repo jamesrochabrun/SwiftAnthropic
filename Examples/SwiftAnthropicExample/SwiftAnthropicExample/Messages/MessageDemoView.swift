@@ -73,6 +73,8 @@ struct MessageDemoView: View {
                
                let messages = [MessageParameter.Message(role: .user, content: .list(finalInput))]
                
+               
+       
                prompt = ""
                let parameters = MessageParameter(
                   model: .claude35Sonnet,
@@ -351,3 +353,5 @@ Use intersector over intersection query. To learn more about ray tracing with Me
 
 Apply the best practices for intersection function, ray payload, intersection tags, and the intersector to make the best use of the hardware accelerated ray tracing. Thank you very much.
 """
+
+
