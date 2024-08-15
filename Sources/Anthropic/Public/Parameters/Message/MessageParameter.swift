@@ -221,6 +221,8 @@ public struct MessageParameter: Encodable {
       /// The parameters the functions accepts, described as a JSON Schema object. See the [guide](https://docs.anthropic.com/en/docs/build-with-claude/tool-use) for examples, and the [JSON Schema reference](https://json-schema.org/understanding-json-schema) for documentation about the format.
       /// To describe a function that accepts no parameters, provide the value `{"type": "object", "properties": {}}`.
       public let inputSchema: JSONSchema?
+      /// [Prompt Caching](https://docs.anthropic.com/en/docs/build-with-claude/prompt-caching#caching-tool-definitions)
+      public let cacheControl: CacheControl?
       
       public struct JSONSchema: Codable, Equatable {
          
@@ -380,11 +382,13 @@ public struct MessageParameter: Encodable {
       public init(
          name: String,
          description: String?,
-         inputSchema: JSONSchema?)
+         inputSchema: JSONSchema?,
+         cacheControl: CacheControl? = nil)
       {
          self.name = name
          self.description = description
          self.inputSchema = inputSchema
+         self.cacheControl = cacheControl
       }
    }
    
@@ -409,7 +413,7 @@ public struct MessageParameter: Encodable {
       }
    }
    
-   public struct CacheControl: Encodable {
+   public struct CacheControl: Codable, Equatable {
       
       let type: CacheControlType
       
@@ -417,7 +421,7 @@ public struct MessageParameter: Encodable {
          self.type = type
       }
       
-      public enum CacheControlType: String, Encodable {
+      public enum CacheControlType: String, Codable {
          case ephemeral
       }
    }
