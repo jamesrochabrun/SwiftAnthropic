@@ -77,7 +77,9 @@ public struct MessageParameter: Encodable {
    ///
    /// **cacheControl**: Prompt Caching
    let tools: [Tool]?
-   
+    
+   let toolChoice: ToolChoice?
+      
    public enum System: Encodable {
       case text(String)
       case list([Cache])
@@ -210,6 +212,22 @@ public struct MessageParameter: Encodable {
       // An external identifier for the user who is associated with the request.
       // This should be a uuid, hash value, or other opaque identifier. Anthropic may use this id to help detect abuse. Do not include any identifying information such as name, email address, or phone number.
       public let userId: UUID
+   }
+
+   public struct ToolChoice: Codable {
+      public enum ToolType: String, Codable {
+         case tool
+         case auto
+         case any
+      }
+      
+      let type: ToolType
+      let name: String
+      
+      public init(name: String, type: ToolType = .auto) {
+         self.type = type
+         self.name = name
+      }
    }
    
    public struct Tool: Codable, Equatable {
@@ -437,7 +455,9 @@ public struct MessageParameter: Encodable {
       temperature: Double? = nil,
       topK: Int? = nil,
       topP: Double? = nil,
-      tools: [Tool]? = nil)
+      tools: [Tool]? = nil,
+      toolChoice: ToolChoice? = nil
+   )
    {
       self.model = model.value
       self.messages = messages
@@ -450,6 +470,7 @@ public struct MessageParameter: Encodable {
       self.topK = topK
       self.topP = topP
       self.tools = tools
+      self.toolChoice = toolChoice
    }
 }
 
