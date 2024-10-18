@@ -275,6 +275,18 @@ public struct MessageParameter: Encodable {
    /// **cacheControl**: Prompt Caching
    let tools: [Tool]?
    
+   ///   Forcing tool use
+   ///
+   ///    In some cases, you may want Claude to use a specific tool to answer the user’s question, even if Claude thinks it can provide an answer without using a tool. You can do this by specifying the tool in the tool_choice field like so:
+   ///
+   ///    tool_choice = {"type": "tool", "name": "get_weather"}
+   ///    When working with the tool_choice parameter, we have three possible options:
+   ///
+   ///    `auto` allows Claude to decide whether to call any provided tools or not. This is the default value.
+   ///    `any` tells Claude that it must use one of the provided tools, but doesn’t force a particular tool.
+   ///    `tool` allows us to force Claude to always use a particular tool.
+   let toolChoice: ToolChoice?
+   
    public enum System: Encodable {
       case text(String)
       case list([Cache])
@@ -407,6 +419,25 @@ public struct MessageParameter: Encodable {
       // An external identifier for the user who is associated with the request.
       // This should be a uuid, hash value, or other opaque identifier. Anthropic may use this id to help detect abuse. Do not include any identifying information such as name, email address, or phone number.
       public let userId: UUID
+   }
+   
+   public struct ToolChoice: Codable {
+      public enum ToolType: String, Codable {
+         case tool
+         case auto
+         case any
+      }
+      
+      let type: ToolType
+      let name: String?
+      
+      public init(
+         type: ToolType,
+         name: String? = nil)
+      {
+         self.type = type
+         self.name = name
+      }
    }
    
    public struct Tool: Codable, Equatable {
@@ -634,7 +665,8 @@ public struct MessageParameter: Encodable {
       temperature: Double? = nil,
       topK: Int? = nil,
       topP: Double? = nil,
-      tools: [Tool]? = nil)
+      tools: [Tool]? = nil,
+      toolChoice: ToolChoice? = nil)
    {
       self.model = model.value
       self.messages = messages
@@ -647,6 +679,7 @@ public struct MessageParameter: Encodable {
       self.topK = topK
       self.topP = topP
       self.tools = tools
+      self.toolChoice = toolChoice
    }
 }
 ```

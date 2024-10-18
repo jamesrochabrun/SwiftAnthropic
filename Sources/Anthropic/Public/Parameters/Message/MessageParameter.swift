@@ -77,7 +77,17 @@ public struct MessageParameter: Encodable {
    ///
    /// **cacheControl**: Prompt Caching
    let tools: [Tool]?
-    
+      
+   ///   Forcing tool use
+   ///
+   ///    In some cases, you may want Claude to use a specific tool to answer the user’s question, even if Claude thinks it can provide an answer without using a tool. You can do this by specifying the tool in the tool_choice field like so:
+   ///
+   ///    tool_choice = {"type": "tool", "name": "get_weather"}
+   ///    When working with the tool_choice parameter, we have three possible options:
+   ///
+   ///    `auto` allows Claude to decide whether to call any provided tools or not. This is the default value.
+   ///    `any` tells Claude that it must use one of the provided tools, but doesn’t force a particular tool.
+   ///    `tool` allows us to force Claude to always use a particular tool.
    let toolChoice: ToolChoice?
       
    public enum System: Encodable {
@@ -222,9 +232,12 @@ public struct MessageParameter: Encodable {
       }
       
       let type: ToolType
-      let name: String
+      let name: String?
       
-      public init(name: String, type: ToolType = .auto) {
+      public init(
+         type: ToolType,
+         name: String? = nil)
+      {
          self.type = type
          self.name = name
       }
@@ -456,8 +469,7 @@ public struct MessageParameter: Encodable {
       topK: Int? = nil,
       topP: Double? = nil,
       tools: [Tool]? = nil,
-      toolChoice: ToolChoice? = nil
-   )
+      toolChoice: ToolChoice? = nil)
    {
       self.model = model.value
       self.messages = messages
