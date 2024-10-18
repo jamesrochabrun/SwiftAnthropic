@@ -124,7 +124,7 @@ extension AnthropicService {
       guard let httpResponse = response as? HTTPURLResponse else {
          throw APIError.requestFailed(description: "invalid response unable to get a valid HTTPURLResponse")
       }
-      printHTTPURLResponse(httpResponse)
+      printHTTPURLResponse(httpResponse, data: data)
       guard httpResponse.statusCode == 200 else {
          var errorMessage = "status code \(httpResponse.statusCode)"
          do {
