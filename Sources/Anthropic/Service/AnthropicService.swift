@@ -119,12 +119,16 @@ extension AnthropicService {
       debugEnabled: Bool)
       async throws -> T
    {
-      printCurlCommand(request)
+      if debugEnabled {
+         printCurlCommand(request)
+      }
       let (data, response) = try await session.data(for: request)
       guard let httpResponse = response as? HTTPURLResponse else {
          throw APIError.requestFailed(description: "invalid response unable to get a valid HTTPURLResponse")
       }
-      printHTTPURLResponse(httpResponse, data: data)
+      if debugEnabled {
+         printHTTPURLResponse(httpResponse, data: data)
+      }
       guard httpResponse.statusCode == 200 else {
          var errorMessage = "status code \(httpResponse.statusCode)"
          do {
@@ -179,13 +183,17 @@ extension AnthropicService {
       debugEnabled: Bool)
       async throws -> AsyncThrowingStream<T, Error>
    {
-      printCurlCommand(request)
+      if debugEnabled {
+         printCurlCommand(request)
+      }
       
       let (data, response) = try await session.bytes(for: request)
       guard let httpResponse = response as? HTTPURLResponse else {
          throw APIError.requestFailed(description: "invalid response unable to get a valid HTTPURLResponse")
       }
-      printHTTPURLResponse(httpResponse)
+      if debugEnabled {
+         printHTTPURLResponse(httpResponse)
+      }
       guard httpResponse.statusCode == 200 else {
          var errorMessage = "status code \(httpResponse.statusCode)"
          do {

@@ -45,6 +45,7 @@ import Foundation
 /// If you encounter "stop_reason": "max_tokens" in a completion response and want Claude to continue from where it left off, you can make a new request with the previous completion appended to the previous prompt.
 
 /// [More](https://docs.anthropic.com/claude/reference/selecting-a-model)
+/// [Models](https://docs.anthropic.com/en/docs/about-claude/models)
 public enum Model {
    
    case claudeInstant12
@@ -64,7 +65,7 @@ public enum Model {
       case .claude21: return "claude-2.1"
       case .claude3Opus: return "claude-3-opus-20240229"
       case .claude3Sonnet: return "claude-3-sonnet-20240229"
-      case .claude35Sonnet: return "claude-3-5-sonnet-20240620"
+      case .claude35Sonnet: return "claude-3-5-sonnet-20241022"
       case .claude3Haiku: return "claude-3-haiku-20240307"
       case .other(let model): return model
       }
