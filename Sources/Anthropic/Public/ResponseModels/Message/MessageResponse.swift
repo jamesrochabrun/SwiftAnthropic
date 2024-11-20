@@ -84,7 +84,7 @@ public struct MessageResponse: Decodable {
    public enum Content: Codable {
       public typealias Input = [String: DynamicContent]
       
-      public struct ToolUse: Decodable {
+      public struct ToolUse: Codable {
          public let id: String
          public let name: String
          public let input: [String: MessageResponse.Content.DynamicContent]
