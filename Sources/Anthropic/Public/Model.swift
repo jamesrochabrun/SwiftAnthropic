@@ -55,6 +55,7 @@ public enum Model {
    case claude3Sonnet
    case claude35Sonnet
    case claude3Haiku
+   case claude35Haiku
    
    case other(String)
 
@@ -67,6 +68,7 @@ public enum Model {
       case .claude3Sonnet: return "claude-3-sonnet-20240229"
       case .claude35Sonnet: return "claude-3-5-sonnet-latest"
       case .claude3Haiku: return "claude-3-haiku-20240307"
+      case .claude35Haiku: return "claude-3-5-haiku-latest"
       case .other(let model): return model
       }
    }
