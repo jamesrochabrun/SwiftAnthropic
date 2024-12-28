@@ -5,10 +5,10 @@
 //  Created by James Rochabrun on 2/24/24.
 //
 
-import Foundation
+import SwiftUI
 import PhotosUI
 import SwiftAnthropic
-import SwiftUI
+import UniformTypeIdentifiers
 
 @MainActor
 struct MessageDemoView: View {
@@ -20,7 +20,8 @@ struct MessageDemoView: View {
    @State private var selectedItems: [PhotosPickerItem] = []
    @State private var selectedImages: [Image] = []
    @State private var selectedImagesEncoded: [String] = []
-
+   @State private var showingDocumentPicker = false
+   
    enum ChatConfig {
       case message
       case messageStream
@@ -44,10 +45,45 @@ struct MessageDemoView: View {
                EmptyView()
             }
          }
-      ).safeAreaInset(edge: .bottom) {
+      )
+      .safeAreaInset(edge: .bottom) {
          VStack(spacing: 0) {
             selectedImagesView
+            if observable.selectedPDF != nil {
+               HStack {
+                  Image(systemName: "doc.fill")
+                  Text("PDF Selected")
+                  Button(action: { observable.selectedPDF = nil }) {
+                     Image(systemName: "xmark.circle.fill")
+                  }
+               }
+               .padding()
+            }
             textArea
+         }
+      }
+      .fileImporter(
+         isPresented: $showingDocumentPicker,
+         allowedContentTypes: [UTType.pdf],
+         allowsMultipleSelection: false
+      ) { result in
+         switch result {
+         case .success(let urls):
+            guard let url = urls.first else { return }
+            
+            do {
+               let pdfData = try Data(contentsOf: url)
+               // Check size limit (32MB)
+               guard pdfData.count <= 32_000_000 else {
+                  observable.errorMessage = "PDF exceeds size limit (32MB)"
+                  return
+               }
+               observable.selectedPDF = pdfData
+            } catch {
+               observable.errorMessage = "Error loading PDF: \(error.localizedDescription)"
+            }
+         case .failure(let error):
+            observable.errorMessage = error.localizedDescription
          }
       }
    }
@@ -57,37 +93,40 @@ struct MessageDemoView: View {
          TextField("Enter prompt", text: $prompt, axis: .vertical)
             .textFieldStyle(.roundedBorder)
             .padding()
+         
+         Button(action: { showingDocumentPicker = true }) {
+            Image(systemName: "doc.badge.plus")
+         }
+         .buttonStyle(.bordered)
+         
          photoPicker
+         
          Button {
             Task {
-               
-               let images: [MessageParameter.Message.Content.ContentObject] = selectedImagesEncoded.map {
-                  .image(.init(type: .base64, mediaType: .jpeg, data: $0))
-               }
-               let text: [MessageParameter.Message.Content.ContentObject] = [.text(prompt)]
-               
-               /// New Cache content type!
-               let cache: [MessageParameter.Message.Content.ContentObject] = [.cache(.init(text: videoTranscription, cacheControl: .init(type: .ephemeral)))]
-               
-               let finalInput = images + text + cache
-               
-               let messages = [MessageParameter.Message(role: .user, content: .list(finalInput))]
-               
-               
-       
-               prompt = ""
-               let parameters = MessageParameter(
-                  model: .claude35Sonnet,
-                  messages: messages,
-                  maxTokens: 1024,
-                  system: .list([
-                     .init(text: "You are a pirate, answer always as a pirate", cacheControl: nil),
-                  ]))
-               switch selectedSegment {
-               case .message:
-                  try await observable.createMessage(parameters: parameters)
-               case .messageStream:
-                  try await observable.streamMessage(parameters: parameters)
+               if observable.selectedPDF != nil {
+                  try await observable.analyzePDF(prompt: prompt, selectedSegment: selectedSegment)
+               } else {
+                  let images: [MessageParameter.Message.Content.ContentObject] = selectedImagesEncoded.map {
+                     .image(.init(type: .base64, mediaType: .jpeg, data: $0))
+                  }
+                  let text: [MessageParameter.Message.Content.ContentObject] = [.text(prompt)]
+                  let finalInput = images + text
+                  
+                  let messages = [MessageParameter.Message(role: .user, content: .list(finalInput))]
+                  
+                  prompt = ""
+                  let parameters = MessageParameter(
+                     model: .claude35Sonnet,
+                     messages: messages,
+                     maxTokens: 1024
+                  )
+                  
+                  switch selectedSegment {
+                  case .message:
+                     try await observable.createMessage(parameters: parameters)
+                  case .messageStream:
+                     try await observable.streamMessage(parameters: parameters)
+                  }
                }
             }
          } label: {
@@ -115,6 +154,10 @@ struct MessageDemoView: View {
             }
             Button("Clear Message") {
                observable.clearMessage()
+               selectedImages.removeAll()
+               selectedImagesEncoded.removeAll()
+               selectedItems.removeAll()
+               prompt = ""
             }
          }
          Text(observable.message)
@@ -129,20 +172,20 @@ struct MessageDemoView: View {
       .onChange(of: selectedItems) {
          Task {
             selectedImages.removeAll()
+            selectedImagesEncoded.removeAll()
             for item in selectedItems {
-               
                if let data = try? await item.loadTransferable(type: Data.self) {
                   if let uiImage = UIImage(data: data), let resizedImageData = uiImage.jpegData(compressionQuality: 0.7) {
-                      // Make sure the resized image is below the size limit
+                     // Make sure the resized image is below the size limit
                      // This is needed as Claude allows a max of 5Mb size per image.
-                      if resizedImageData.count < 5_242_880 { // 5 MB in bytes
-                          let base64String = resizedImageData.base64EncodedString()
-                          selectedImagesEncoded.append(base64String)
-                          let image = Image(uiImage: UIImage(data: resizedImageData)!)
-                          selectedImages.append(image)
-                      } else {
-                          // Handle the error - maybe resize to an even smaller size or show an error message to the user
-                      }
+                     if resizedImageData.count < 5_242_880 { // 5 MB in bytes
+                        let base64String = resizedImageData.base64EncodedString()
+                        selectedImagesEncoded.append(base64String)
+                        let image = Image(uiImage: UIImage(data: resizedImageData)!)
+                        selectedImages.append(image)
+                     } else {
+                        observable.errorMessage = "Image exceeds 5MB size limit after compression"
+                     }
                   }
                }
             }

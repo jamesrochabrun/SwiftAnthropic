@@ -16,7 +16,8 @@ import SwiftUI
    var message: String = ""
    var errorMessage: String = ""
    var isLoading = false
-
+   var selectedPDF: Data? = nil
+   
    init(service: AnthropicService) {
       self.service = service
    }
@@ -60,17 +61,62 @@ import SwiftUI
       }
    }
    
+   func analyzePDF(prompt: String, selectedSegment: MessageDemoView.ChatConfig) async throws {
+      guard let pdfData = selectedPDF else {
+         errorMessage = "No PDF selected"
+         return
+      }
+      
+      // Convert PDF to base64
+      let base64PDF = pdfData.base64EncodedString()
+      
+      do {
+         // Create document source
+         let documentSource = try MessageParameter.Message.Content.DocumentSource(data: base64PDF)
+         
+         // Create message with document and prompt
+         let message = MessageParameter.Message(
+            role: .user,
+            content: .list([
+               .document(documentSource),
+               .text(prompt.isEmpty ? "Please analyze this document and provide a summary" : prompt)
+            ])
+         )
+         
+         // Create parameters
+         let parameters = MessageParameter(
+            model: .claude35Sonnet,
+            messages: [message],
+            maxTokens: 1024
+         )
+         
+         // Send request based on selected mode
+         switch selectedSegment {
+         case .message:
+            try await createMessage(parameters: parameters)
+         case .messageStream:
+            try await streamMessage(parameters: parameters)
+         }
+         
+      } catch MessageParameter.Message.Content.DocumentSource.DocumentError.exceededSizeLimit {
+         errorMessage = "PDF exceeds size limit (32MB)"
+      } catch MessageParameter.Message.Content.DocumentSource.DocumentError.invalidBase64Data {
+         errorMessage = "Invalid PDF data"
+      } catch {
+         errorMessage = "Error analyzing PDF: \(error.localizedDescription)"
+      }
+   }
+   
    func cancelStream() {
       task?.cancel()
    }
    
    func clearMessage() {
       message = ""
+      selectedPDF = nil
+      errorMessage = ""
    }
    
    // MARK: Private
-   
    private var task: Task<Void, Never>? = nil
-
 }
-

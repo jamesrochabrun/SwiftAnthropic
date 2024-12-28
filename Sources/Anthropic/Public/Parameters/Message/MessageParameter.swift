@@ -134,6 +134,7 @@ public struct MessageParameter: Encodable {
          public enum ContentObject: Encodable {
             case text(String)
             case image(ImageSource)
+            case document(DocumentSource)
             case toolUse(String, String, MessageResponse.Content.Input)
             case toolResult(String, String)
             case cache(Cache)
@@ -147,6 +148,9 @@ public struct MessageParameter: Encodable {
                   try container.encode(text, forKey: .text)
                case .image(let source):
                   try container.encode("image", forKey: .type)
+                  try container.encode(source, forKey: .source)
+               case .document(let source):
+                  try container.encode("document", forKey: .type)
                   try container.encode(source, forKey: .source)
                case .toolUse(let id, let name, let input):
                    try container.encode("tool_use", forKey: .type)
@@ -173,7 +177,6 @@ public struct MessageParameter: Encodable {
                case id
                case name
                case input
-               
                case toolUseId = "tool_use_id"
                case content
                case cacheControl = "cache_control"
@@ -205,6 +208,68 @@ public struct MessageParameter: Encodable {
                self.type = type.rawValue
                self.mediaType = mediaType.rawValue
                self.data = data
+            }
+         }
+         
+         /// Represents a document source for PDF files to be processed by Claude.
+         /// - Note: Maximum file size is 32MB and maximum page count is 100 pages.
+         public struct DocumentSource: Encodable {
+            /// The type of document source (currently only supports base64)
+            public private(set) var type: String
+            /// The media type of the document (currently only supports PDF)
+            public private(set) var mediaType: String
+            /// The base64-encoded document data
+            public private(set) var data: String
+            /// Optional cache control settings
+            public let cacheControl: CacheControl?
+            
+            public enum DocumentError: Error {
+               case exceededSizeLimit
+               case invalidBase64Data
+            }
+            
+            public enum MediaType: String, Encodable {
+               case pdf = "application/pdf"
+               
+               var maxSize: Int {
+                  switch self {
+                  case .pdf: return 32_000_000 // 32MB
+                  }
+               }
+            }
+            
+            public enum DocumentSourceType: String, Encodable {
+               case base64
+            }
+            
+            public init(
+               type: DocumentSourceType = .base64,
+               mediaType: MediaType = .pdf,
+               data: String,
+               cacheControl: CacheControl? = nil)
+               throws
+            {
+               // Validate base64 data
+               guard let decodedData = Data(base64Encoded: data) else {
+                  throw DocumentError.invalidBase64Data
+               }
+               
+               // Validate size limit
+               guard decodedData.count <= mediaType.maxSize else {
+                  throw DocumentError.exceededSizeLimit
+               }
+               
+               self.type = type.rawValue
+               self.mediaType = mediaType.rawValue
+               self.data = data
+               self.cacheControl = cacheControl
+            }
+            
+            private enum CodingKeys: String, CodingKey {
+               case type
+               case mediaType = "media_type"
+               case data
+               case cacheControl = "cache_control"
             }
          }
       }
