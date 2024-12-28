@@ -182,6 +182,14 @@ public struct MessageParameter: Encodable {
                case cacheControl = "cache_control"
                case isError = "is_error"
             }
+                        
+            public static func toolResult(toolUseId: String, content: String) -> ContentObject {
+                return .toolResult(toolUseId, content, nil)
+            }
+            
+            public static func toolResult(toolUseId: String, content: String, isError: Bool) -> ContentObject {
+                return .toolResult(toolUseId, content, isError)
+            }
          }
          
          public struct ImageSource: Encodable {
