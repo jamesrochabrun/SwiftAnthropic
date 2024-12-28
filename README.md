@@ -887,7 +887,6 @@ Prompt Caching is now in public beta! To access this feature, you’ll need to i
 
 </span>
 
-
 How to use it with `SwiftAnthropic`:
 
 You can use it as a `System` role:
@@ -1177,6 +1176,40 @@ You can also run the Demo project located on the [Examples](https://github.com/j
 
 <img width="350" alt="Anthropic" src="https://github.com/jamesrochabrun/SwiftAnthropic/assets/5378604/c2d39617-e8ab-44aa-ac2d-f01d94bb8bfc">
 
+### PDF Support
+
+Claude can now analyze PDFs through the Messages API. Here's a simple example:
+
+```swift
+let maxTokens = 1024
+let prompt = "Please analyze this document"
+
+// Load PDF data
+let pdfData = // your PDF data
+let base64PDF = pdfData.base64EncodedString()
+
+// Create document source
+let documentSource = try MessageParameter.Message.Content.DocumentSource(data: base64PDF)
+
+// Create message with document and prompt
+let message = MessageParameter.Message(
+    role: .user,
+    content: .list([
+        .document(documentSource),
+        .text(prompt)
+    ])
+)
+
+// Create parameters
+let parameters = MessageParameter(
+    model: .claude35Sonnet,
+    messages: [message],
+    maxTokens: maxTokens
+)
+
+// Send request
+let response = try await service.createMessage(parameters)
+```
 
 ## AIProxy
 
