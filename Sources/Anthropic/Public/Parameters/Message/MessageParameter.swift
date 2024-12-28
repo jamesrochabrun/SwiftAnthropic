@@ -233,13 +233,22 @@ public struct MessageParameter: Encodable {
       
       let type: ToolType
       let name: String?
+      let disableParallelToolUse: Bool?
       
       public init(
          type: ToolType,
-         name: String? = nil)
+         name: String? = nil,
+         disableParallelToolUse: Bool? = nil)
       {
          self.type = type
          self.name = name
+         self.disableParallelToolUse = disableParallelToolUse
+      }
+      
+      private enum CodingKeys: String, CodingKey {
+         case type
+         case name
+         case disableParallelToolUse = "disable_parallel_tool_use"
       }
    }
    

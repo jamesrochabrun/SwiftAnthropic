@@ -847,6 +847,29 @@ Here's an example API response with a tool_use content block:
 }
 ```
 
+*Disabling parallel tool use*
+
+By default, Claude may use multiple tools to answer a user query. You can disable this behavior by setting disable_parallel_tool_use=true in the tool_choice field.
+
+When tool_choice type is auto, this ensures that Claude uses at most one tool
+When tool_choice type is any or tool, this ensures that Claude uses exactly one tool
+
+Usage
+```swift
+let toolChoice = ToolChoice(
+    type: .auto,
+    disableParallelToolUse: true
+)
+
+let messageParameter = MessageParameter(
+    model: model,
+    messages: messages,
+    maxTokens: maxTokens,
+    toolChoice: toolChoice
+    // ... other parameters
+)
+```
+
 🚀 Tool use with stream enabled, is also supported. Please visit the [demo project for details](https://github.com/jamesrochabrun/SwiftAnthropic/tree/main/Examples/SwiftAnthropicExample/SwiftAnthropicExample/FunctionCalling)
 
 ### Prompt Caching
