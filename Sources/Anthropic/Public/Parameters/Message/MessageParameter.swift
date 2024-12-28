@@ -135,7 +135,7 @@ public struct MessageParameter: Encodable {
             case text(String)
             case image(ImageSource)
             case toolUse(String, String, MessageResponse.Content.Input)
-            case toolResult(String, String)
+            case toolResult(String, String, Bool?)
             case cache(Cache)
 
             // Custom encoding to handle different cases
@@ -153,10 +153,13 @@ public struct MessageParameter: Encodable {
                    try container.encode(id, forKey: .id)
                    try container.encode(name, forKey: .name)
                    try container.encode(input, forKey: .input)
-               case .toolResult(let toolUseId, let content):
+               case .toolResult(let toolUseId, let content, let isError):
                    try container.encode("tool_result", forKey: .type)
                    try container.encode(toolUseId, forKey: .toolUseId)
                    try container.encode(content, forKey: .content)
+                   if let isError = isError {
+                       try container.encode(isError, forKey: .isError)
+                   }
                case .cache(let cache):
                    try container.encode(cache.type.rawValue, forKey: .type)
                    try container.encode(cache.text, forKey: .text)
@@ -177,6 +180,7 @@ public struct MessageParameter: Encodable {
                case toolUseId = "tool_use_id"
                case content
                case cacheControl = "cache_control"
+               case isError = "is_error"
             }
          }
          
