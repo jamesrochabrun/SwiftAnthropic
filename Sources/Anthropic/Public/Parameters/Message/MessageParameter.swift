@@ -157,9 +157,7 @@ public struct MessageParameter: Encodable {
                    try container.encode("tool_result", forKey: .type)
                    try container.encode(toolUseId, forKey: .toolUseId)
                    try container.encode(content, forKey: .content)
-                   if let isError = isError {
-                       try container.encode(isError, forKey: .isError)
-                   }
+                   try container.encodeIfPresent(isError, forKey: .isError)
                case .cache(let cache):
                    try container.encode(cache.type.rawValue, forKey: .type)
                    try container.encode(cache.text, forKey: .text)
