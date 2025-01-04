@@ -1211,6 +1211,50 @@ let parameters = MessageParameter(
 let response = try await service.createMessage(parameters)
 ```
 
+### Count Tokens
+
+Parameters:
+```swift
+public struct MessageTokenCountParameter: Encodable {
+    /// The model that will complete your prompt.
+    /// See [models](https://docs.anthropic.com/claude/reference/selecting-a-model) for additional details and options.
+    public let model: String
+    
+    /// Input messages.
+    /// Our models are trained to operate on alternating user and assistant conversational turns.
+    /// Each input message must be an object with a role and content.
+    public let messages: [MessageParameter.Message]
+    
+    /// System prompt.
+    /// A system prompt is a way of providing context and instructions to Claude.
+    /// System role can be either a simple String or an array of objects, use the objects array for prompt caching.
+    public let system: MessageParameter.System?
+    
+    /// Tools that can be used in the messages
+    public let tools: [MessageParameter.Tool]?
+}
+```
+
+Response:
+```swift
+public struct MessageInputTokens: Decodable {
+   
+   /// The total number of tokens across the provided list of messages, system prompt, and tools.
+   public let inputTokens: Int
+}
+```
+
+Usage:
+```swift
+let messageParameter = MessageParameter.Message(role: .user, content: .text("Hello, Claude"))
+let parameters = MessageTokenCountParameter(
+    model: .claude3Sonnet,
+    messages: [messageParameter]
+)
+let tokenCount = try await service.countTokens(parameter: parameters)
+print("Input tokens: \(tokenCount.inputTokens)")
+```
+
 ## AIProxy
 
 ### What is it?

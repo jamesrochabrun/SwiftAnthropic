@@ -17,6 +17,7 @@ import SwiftUI
    var errorMessage: String = ""
    var isLoading = false
    var selectedPDF: Data? = nil
+   var inputTokensCount: String?
    
    init(service: AnthropicService) {
       self.service = service
@@ -59,6 +60,11 @@ import SwiftUI
             self.errorMessage = "\(error)"
          }
       }
+   }
+   
+   func countTokens(parameters: MessageTokenCountParameter) async throws {
+      let inputTokens = try await service.countTokens(parameter: parameters)
+      inputTokensCount = "\(inputTokens.inputTokens)"
    }
    
    func analyzePDF(prompt: String, selectedSegment: MessageDemoView.ChatConfig) async throws {

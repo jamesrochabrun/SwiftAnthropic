@@ -33,6 +33,9 @@ struct MessageDemoView: View {
             picker
             Text(observable.errorMessage)
                .foregroundColor(.red)
+            if let inputTokensCount = observable.inputTokensCount {
+               Text("Tokens: \(inputTokensCount)")
+            }
             messageView
          }
          .padding()
@@ -120,6 +123,10 @@ struct MessageDemoView: View {
                      messages: messages,
                      maxTokens: 1024
                   )
+                  
+                  // Input Tokens count
+                  let messageTokenCountParameter = MessageTokenCountParameter(model: .claude35Sonnet, messages: messages)
+                  try await observable.countTokens(parameters: messageTokenCountParameter)
                   
                   switch selectedSegment {
                   case .message:
