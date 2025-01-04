@@ -17,6 +17,7 @@ struct AnthropicAPI {
    enum APIPath {
       case messages
       case textCompletions
+      case countTokens
    }
 }
 
@@ -27,6 +28,7 @@ extension AnthropicAPI: Endpoint {
    var path: String {
       switch apiPath {
       case .messages: return "/v1/messages"
+      case .countTokens: return "/v1/messages/count_tokens"
       case .textCompletions: return "/v1/complete"
       }
    }

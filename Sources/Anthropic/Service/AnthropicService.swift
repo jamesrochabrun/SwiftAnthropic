@@ -65,7 +65,7 @@ public protocol AnthropicService {
    /// For more information, refer to [Anthropic's Message API documentation](https://docs.anthropic.com/claude/reference/messages_post).
    func createMessage(
       _ parameter: MessageParameter)
-   async throws -> MessageResponse
+      async throws -> MessageResponse
    
    /// Creates a message stream with the provided parameters.
    ///
@@ -80,7 +80,38 @@ public protocol AnthropicService {
    /// For more information, refer to [Anthropic's Stream Message API documentation](https://docs.anthropic.com/claude/reference/messages-streaming).
    func streamMessage(
       _ parameter: MessageParameter)
-   async throws -> AsyncThrowingStream<MessageStreamResponse, Error>
+      async throws -> AsyncThrowingStream<MessageStreamResponse, Error>
+   
+   /// Counts the number of tokens that would be used by a message for a given model.
+   ///
+   /// - Parameters:
+   ///   - parameter: The parameters used to count tokens, including the model, messages, system prompt, and tools.
+   ///
+   /// - Returns: A `MessageInputTokens` object containing the count of input tokens.
+   ///
+   /// - Throws: An error if the token counting request fails.
+   ///
+   /// Example usage:
+   /// ```swift
+   /// let parameter = MessageTokenCountParameter(
+   ///     model: .claude3Sonnet,
+   ///     messages: [
+   ///         .init(
+   ///             role: .user,
+   ///             content: .text("Hello, Claude!")
+   ///         )
+   ///     ]
+   /// )
+   ///
+   /// let tokenCount = try await client.countTokens(parameter: parameter)
+   /// print("Input tokens: \(tokenCount.inputTokens)")
+   /// ```
+   ///
+   /// For more details, see [Count Message tokens](https://docs.anthropic.com/en/api/messages-count-tokens)
+   func countTokens(
+       parameter: MessageTokenCountParameter)
+      async throws -> MessageInputTokens
+
    
    // MARK: Text Completion
    
@@ -91,7 +122,7 @@ public protocol AnthropicService {
    /// For more information, refer to [Anthropic's Text Completion API documentation](https://docs.anthropic.com/claude/reference/complete_post).
    func createTextCompletion(
       _ parameter: TextCompletionParameter)
-   async throws -> TextCompletionResponse
+      async throws -> TextCompletionResponse
    
    /// - Parameter parameters: Parameters for the create stream text completion request.
    /// - Returns: A [TextCompletionResponse](https://docs.anthropic.com/claude/reference/streaming).
@@ -100,7 +131,7 @@ public protocol AnthropicService {
    /// For more information, refer to [Anthropic's Text Completion API documentation](https://docs.anthropic.com/claude/reference/streaming).
    func createStreamTextCompletion(
       _ parameter: TextCompletionParameter)
-   async throws -> AsyncThrowingStream<TextCompletionStreamResponse, Error>
+      async throws -> AsyncThrowingStream<TextCompletionStreamResponse, Error>
 }
 
 extension AnthropicService {

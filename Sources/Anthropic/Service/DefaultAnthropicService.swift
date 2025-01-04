@@ -59,6 +59,14 @@ struct DefaultAnthropicService: AnthropicService {
       return try await fetchStream(type: MessageStreamResponse.self, with: request, debugEnabled: debugEnabled)
    }
    
+   func countTokens(
+      parameter: MessageTokenCountParameter)
+      async throws -> MessageInputTokens
+   {
+      let request = try AnthropicAPI(base: basePath, apiPath: .countTokens).request(apiKey: apiKey, version: apiVersion, method: .post, params: parameter, betaHeaders: betaHeaders)
+      return try await fetch(type: MessageInputTokens.self, with: request, debugEnabled: debugEnabled)
+   }
+   
    /// "messages-2023-12-15"
    // MARK: Text Completion
 

@@ -79,6 +79,14 @@ struct AIProxyService: AnthropicService {
       let request = try await AnthropicAPI(base: serviceURL, apiPath: .messages).request(aiproxyPartialKey: partialKey, clientID: clientID, version: apiVersion, method: .post, params: localParameter, betaHeaders: betaHeaders)
       return try await fetchStream(type: MessageStreamResponse.self, with: request, debugEnabled: debugEnabled)
    }
+   
+   func countTokens(
+      parameter: MessageTokenCountParameter)
+      async throws -> MessageInputTokens
+   {
+      let request = try await AnthropicAPI(base: serviceURL, apiPath: .countTokens).request(aiproxyPartialKey: partialKey, clientID: clientID, version: apiVersion, method: .post, params: parameter, betaHeaders: betaHeaders)
+      return try await fetch(type: MessageInputTokens.self, with: request, debugEnabled: debugEnabled)
+   }
 
    // MARK: Text Completion
 
