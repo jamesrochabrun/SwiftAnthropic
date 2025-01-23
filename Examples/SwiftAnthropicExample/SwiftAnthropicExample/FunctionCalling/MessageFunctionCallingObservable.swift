@@ -36,7 +36,7 @@ import SwiftUI
             isLoading = false
             for content in message.content {
                switch content {
-               case .text(let text):
+               case .text(let text, _):
                   self.message = text
                case .toolUse(let toolUSe):
                   toolUse = toolUSe
