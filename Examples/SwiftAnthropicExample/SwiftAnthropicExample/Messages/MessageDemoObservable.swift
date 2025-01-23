@@ -53,12 +53,25 @@ import SwiftUI
    {
       task = Task {
          do {
+            var citationCitedText = ""
             isLoading = true
             let stream = try await service.streamMessage(parameters)
             isLoading = false
             for try await result in stream {
                let content = result.delta?.text ?? ""
                self.message += content
+               switch result.delta?.citation {
+               case .charLocation(let charLocation):
+                  citationCitedText += charLocation.citedText ?? ""
+               case .contentBlockLocation(let blockLocation):
+                  citationCitedText += blockLocation.citedText ?? ""
+               case .pageLocation(let pageLocation):
+                  citationCitedText += pageLocation.citedText ?? ""
+               default: break
+               }
+            }
+            if !citationCitedText.isEmpty {
+               debugPrint("Citation Text: \n \(citationCitedText)")
             }
          } catch {
             self.errorMessage = "\(error)"

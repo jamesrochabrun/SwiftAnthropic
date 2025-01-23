@@ -50,6 +50,9 @@ public struct MessageStreamResponse: Decodable {
       
       /// type = tool_use
       public let partialJson: String?
+      
+      // type = citations_delta
+      public let citation: MessageResponse.Citation?
 
       public let stopReason: String?
       
@@ -64,8 +67,10 @@ public struct MessageStreamResponse: Decodable {
       /// `text` type
       public let text: String?
       
-      /// `tool_use` type
+      // Citations for text type
+      public let citations: [MessageResponse.Citation]?
       
+      /// `tool_use` type
       public let input: [String: MessageResponse.Content.DynamicContent]?
       
       public let name: String?
