@@ -31,6 +31,9 @@ An open-source Swift package designed for effortless interaction with [Anthropic
    - [Prompt Caching](#prompt-caching)
 - [Message Stream](#message-stream)
 - [Vision](#vision)
+- [PDF Support](#pdf-support)
+- [Citations](#citations)
+- [Count Tokens](#count-tokens)
 - [Examples](#demo)
 
 ## Getting an API Key
@@ -1189,7 +1192,7 @@ let pdfData = // your PDF data
 let base64PDF = pdfData.base64EncodedString()
 
 // Create document source
-let documentSource = try MessageParameter.Message.Content.DocumentSource(data: base64PDF)
+let documentSource = try MessageParameter.Message.Content.DocumentSource.pdf(base64Data: base64PDF)
 
 // Create message with document and prompt
 let message = MessageParameter.Message(
@@ -1210,6 +1213,41 @@ let parameters = MessageParameter(
 // Send request
 let response = try await service.createMessage(parameters)
 ```
+
+### Citation Support
+
+```swift
+let maxTokens = 1024
+let prompt = "Please analyze this document"
+
+// Load PDF data
+let pdfData = // your PDF data
+let base64PDF = pdfData.base64EncodedString()
+
+// Create document source
+let documentSource = try MessageParameter.Message.Content.DocumentSource.pdf(base64Data: base64PDF, citations: .init(enabled: true))
+
+// Create message with document and prompt
+let message = MessageParameter.Message(
+    role: .user,
+    content: .list([
+        .document(documentSource),
+        .text(prompt)
+    ])
+)
+
+// Create parameters
+let parameters = MessageParameter(
+    model: .claude35Sonnet,
+    messages: [message],
+    maxTokens: maxTokens
+)
+
+// Send request
+let response = try await service.streamMessage(parameters)
+```
+
+For more information on how to use Citations in your app, please visit the official [Anthropic documentation](https://docs.anthropic.com/en/docs/build-with-claude/citations).
 
 ### Count Tokens
 

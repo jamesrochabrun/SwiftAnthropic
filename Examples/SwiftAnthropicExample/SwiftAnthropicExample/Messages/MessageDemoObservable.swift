@@ -32,8 +32,12 @@ import SwiftUI
             let message = try await service.createMessage(parameters)
             isLoading = false
             switch message.content.first {
-            case .text(let text):
+            case .text(let text, let citations):
+               // We need to concatenate the text response.
                self.message = text
+               if let citations {
+                  dump(citations)
+               }
             default:
                /// Function call not implemented on this demo
                break
@@ -49,12 +53,25 @@ import SwiftUI
    {
       task = Task {
          do {
+            var citationCitedText = ""
             isLoading = true
             let stream = try await service.streamMessage(parameters)
             isLoading = false
             for try await result in stream {
                let content = result.delta?.text ?? ""
                self.message += content
+               switch result.delta?.citation {
+               case .charLocation(let charLocation):
+                  citationCitedText += charLocation.citedText ?? ""
+               case .contentBlockLocation(let blockLocation):
+                  citationCitedText += blockLocation.citedText ?? ""
+               case .pageLocation(let pageLocation):
+                  citationCitedText += pageLocation.citedText ?? ""
+               default: break
+               }
+            }
+            if !citationCitedText.isEmpty {
+               debugPrint("Citation Text: \n \(citationCitedText)")
             }
          } catch {
             self.errorMessage = "\(error)"
@@ -77,8 +94,8 @@ import SwiftUI
       let base64PDF = pdfData.base64EncodedString()
       
       do {
-         // Create document source
-         let documentSource = try MessageParameter.Message.Content.DocumentSource(data: base64PDF)
+         // Create document source with citations enabled
+         let documentSource = try MessageParameter.Message.Content.DocumentSource.pdf(base64Data: base64PDF, citations: .init(enabled: true))
          
          // Create message with document and prompt
          let message = MessageParameter.Message(

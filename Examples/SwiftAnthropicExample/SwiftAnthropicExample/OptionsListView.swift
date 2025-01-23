@@ -21,25 +21,25 @@ struct OptionsListView: View {
       case message = "Message"
       case messageFunctionCall = "Function Call"
 
-      var id: String { rawValue }
+      var id: Self { self }
    }
 
    var body: some View {
       List(APIOption.allCases, id: \.self, selection: $selection) { option in
          Text(option.rawValue)
-            .sheet(item: $selection) { selection in
-               VStack {
-                  Text(selection.rawValue)
-                     .font(.largeTitle)
-                     .padding()
-                  switch selection {
-                  case .message:
-                     MessageDemoView(observable: .init(service: service))
-                  case .messageFunctionCall:
-                     MessageFunctionCallingDemoView(observable: .init(service: service))
-                  }
-               }
+      }
+      .sheet(item: $selection) { selection in
+         VStack {
+            Text(selection.rawValue)
+               .font(.largeTitle)
+               .padding()
+            switch selection {
+            case .message:
+               MessageDemoView(observable: .init(service: service))
+            case .messageFunctionCall:
+               MessageFunctionCallingDemoView(observable: .init(service: service))
             }
+         }
       }
    }
 }

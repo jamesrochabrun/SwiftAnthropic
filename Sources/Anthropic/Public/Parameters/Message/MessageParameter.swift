@@ -77,7 +77,7 @@ public struct MessageParameter: Encodable {
    ///
    /// **cacheControl**: Prompt Caching
    let tools: [Tool]?
-      
+   
    ///   Forcing tool use
    ///
    ///    In some cases, you may want Claude to use a specific tool to answer the user’s question, even if Claude thinks it can provide an answer without using a tool. You can do this by specifying the tool in the tool_choice field like so:
@@ -89,7 +89,7 @@ public struct MessageParameter: Encodable {
    ///    `any` tells Claude that it must use one of the provided tools, but doesn’t force a particular tool.
    ///    `tool` allows us to force Claude to always use a particular tool.
    let toolChoice: ToolChoice?
-      
+   
    public enum System: Encodable {
       case text(String)
       case list([Cache])
@@ -138,7 +138,7 @@ public struct MessageParameter: Encodable {
             case toolUse(String, String, MessageResponse.Content.Input)
             case toolResult(String, String, Bool?)
             case cache(Cache)
-
+            
             // Custom encoding to handle different cases
             public func encode(to encoder: Encoder) throws {
                var container = encoder.container(keyedBy: CodingKeys.self)
@@ -149,25 +149,29 @@ public struct MessageParameter: Encodable {
                case .image(let source):
                   try container.encode("image", forKey: .type)
                   try container.encode(source, forKey: .source)
-               case .document(let source):
+               case .document(let document):
                   try container.encode("document", forKey: .type)
-                  try container.encode(source, forKey: .source)
+                  // Encode the full document structure
+                  try container.encode(document.source, forKey: .source)
+                  try container.encodeIfPresent(document.title, forKey: .title)
+                  try container.encodeIfPresent(document.context, forKey: .context)
+                  try container.encodeIfPresent(document.citations, forKey: .citations)
                case .toolUse(let id, let name, let input):
-                   try container.encode("tool_use", forKey: .type)
-                   try container.encode(id, forKey: .id)
-                   try container.encode(name, forKey: .name)
-                   try container.encode(input, forKey: .input)
+                  try container.encode("tool_use", forKey: .type)
+                  try container.encode(id, forKey: .id)
+                  try container.encode(name, forKey: .name)
+                  try container.encode(input, forKey: .input)
                case .toolResult(let toolUseId, let content, let isError):
-                   try container.encode("tool_result", forKey: .type)
-                   try container.encode(toolUseId, forKey: .toolUseId)
-                   try container.encode(content, forKey: .content)
-                   try container.encodeIfPresent(isError, forKey: .isError)
+                  try container.encode("tool_result", forKey: .type)
+                  try container.encode(toolUseId, forKey: .toolUseId)
+                  try container.encode(content, forKey: .content)
+                  try container.encodeIfPresent(isError, forKey: .isError)
                case .cache(let cache):
-                   try container.encode(cache.type.rawValue, forKey: .type)
-                   try container.encode(cache.text, forKey: .text)
-                   if let cacheControl = cache.cacheControl {
-                       try container.encode(cacheControl, forKey: .cacheControl)
-                   }
+                  try container.encode(cache.type.rawValue, forKey: .type)
+                  try container.encode(cache.text, forKey: .text)
+                  if let cacheControl = cache.cacheControl {
+                     try container.encode(cacheControl, forKey: .cacheControl)
+                  }
                }
             }
             
@@ -175,6 +179,9 @@ public struct MessageParameter: Encodable {
                case type
                case source
                case text
+               case title
+               case context
+               case citations
                case id
                case name
                case input
@@ -183,10 +190,10 @@ public struct MessageParameter: Encodable {
                case cacheControl = "cache_control"
                case isError = "is_error"
             }
-                        
+            
             public static func toolResult(_ toolUseId: String, _ content: String) -> ContentObject {
-                return .toolResult(toolUseId, content, nil)
-            }                     
+               return .toolResult(toolUseId, content, nil)
+            }
          }
          
          public struct ImageSource: Encodable {
@@ -220,14 +227,29 @@ public struct MessageParameter: Encodable {
          /// Represents a document source for PDF files to be processed by Claude.
          /// - Note: Maximum file size is 32MB and maximum page count is 100 pages.
          public struct DocumentSource: Encodable {
-            /// The type of document source (currently only supports base64)
-            public private(set) var type: String
-            /// The media type of the document (currently only supports PDF)
-            public private(set) var mediaType: String
-            /// The base64-encoded document data
-            public private(set) var data: String
-            /// Optional cache control settings
-            public let cacheControl: CacheControl?
+            /// The source information
+            public let source: Source
+            /// Optional title for the document
+            public let title: String?
+            /// Optional context for the document
+            public let context: String?
+            /// Optional citations configuration
+            public let citations: Citations?
+            
+            public struct Source: Encodable {
+               /// The type of document source
+               public let type: String
+               /// The media type of the document
+               public let mediaType: String
+               /// The document data
+               public let data: String
+               
+               private enum CodingKeys: String, CodingKey {
+                  case type
+                  case mediaType = "media_type"
+                  case data
+               }
+            }
             
             public enum DocumentError: Error {
                case exceededSizeLimit
@@ -236,46 +258,92 @@ public struct MessageParameter: Encodable {
             
             public enum MediaType: String, Encodable {
                case pdf = "application/pdf"
+               case plainText = "text/plain"
                
                var maxSize: Int {
                   switch self {
                   case .pdf: return 32_000_000 // 32MB
+                  case .plainText: return 32_000_000
                   }
                }
             }
             
             public enum DocumentSourceType: String, Encodable {
                case base64
+               case text
+            }
+            
+            public struct Citations: Encodable {
+               public let enabled: Bool
+               
+               public init(enabled: Bool) {
+                  self.enabled = enabled
+               }
             }
             
             public init(
                type: DocumentSourceType = .base64,
-               mediaType: MediaType = .pdf,
+               mediaType: MediaType,
                data: String,
-               cacheControl: CacheControl? = nil)
-               throws
-            {
-               // Validate base64 data
-               guard let decodedData = Data(base64Encoded: data) else {
-                  throw DocumentError.invalidBase64Data
+               title: String? = nil,
+               context: String? = nil,
+               citations: Citations? = nil
+            ) throws {
+               // For text type, no need to validate base64
+               if type == .base64 {
+                  // Validate base64 data
+                  guard let decodedData = Data(base64Encoded: data) else {
+                     throw DocumentError.invalidBase64Data
+                  }
+                  
+                  // Validate size limit
+                  guard decodedData.count <= mediaType.maxSize else {
+                     throw DocumentError.exceededSizeLimit
+                  }
                }
                
-               // Validate size limit
-               guard decodedData.count <= mediaType.maxSize else {
-                  throw DocumentError.exceededSizeLimit
-               }
-               
-               self.type = type.rawValue
-               self.mediaType = mediaType.rawValue
-               self.data = data
-               self.cacheControl = cacheControl
+               self.source = Source(
+                  type: type.rawValue,
+                  mediaType: mediaType.rawValue,
+                  data: data
+               )
+               self.title = title
+               self.context = context
+               self.citations = citations
             }
             
-            private enum CodingKeys: String, CodingKey {
-               case type
-               case mediaType = "media_type"
-               case data
-               case cacheControl = "cache_control"
+            /// Creates a plain text document source
+            public static func plainText(
+               data: String,
+               title: String? = nil,
+               context: String? = nil,
+               citations: Citations? = nil
+            ) throws -> DocumentSource {
+               try DocumentSource(
+                  type: .text,
+                  mediaType: .plainText,
+                  data: data,
+                  title: title,
+                  context: context,
+                  citations: citations
+               )
+            }
+            
+            /// Creates a PDF document source
+            public static func pdf(
+               base64Data: String,
+               title: String? = nil,
+               context: String? = nil,
+               citations: Citations? = nil
+            ) throws -> DocumentSource {
+               try DocumentSource(
+                  type: .base64,
+                  mediaType: .pdf,
+                  data: base64Data,
+                  title: title,
+                  context: context,
+                  citations: citations
+               )
             }
          }
       }
@@ -294,7 +362,7 @@ public struct MessageParameter: Encodable {
       // This should be a uuid, hash value, or other opaque identifier. Anthropic may use this id to help detect abuse. Do not include any identifying information such as name, email address, or phone number.
       public let userId: UUID
    }
-
+   
    public struct ToolChoice: Codable {
       public enum ToolType: String, Codable {
          case tool
