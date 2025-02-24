@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 60;
+	objectVersion = 70;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -63,6 +63,10 @@
 		7BF304DF2BBFBE1000671273 /* MessageFunctionCallingObservable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MessageFunctionCallingObservable.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		7B94207B2D6D2C9D0068E055 /* Thinking */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Thinking; sourceTree = "<group>"; };
+/* End PBXFileSystemSynchronizedRootGroup section */
+
 /* Begin PBXFrameworksBuildPhase section */
 		7B3287CC2B8B1260002C7FEF /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
@@ -112,6 +116,7 @@
 		7B3287D12B8B1260002C7FEF /* SwiftAnthropicExample */ = {
 			isa = PBXGroup;
 			children = (
+				7B94207B2D6D2C9D0068E055 /* Thinking */,
 				0DCD68B22C5B049A00CFDE84 /* ServiceSelectionView.swift */,
 				0DCD68B42C5B057000CFDE84 /* AIProxyIntroView.swift */,
 				7B3287D22B8B1260002C7FEF /* SwiftAnthropicExampleApp.swift */,
@@ -183,6 +188,9 @@
 			buildRules = (
 			);
 			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				7B94207B2D6D2C9D0068E055 /* Thinking */,
 			);
 			name = SwiftAnthropicExample;
 			packageProductDependencies = (
