@@ -1,5 +1,5 @@
 //
-//  ThinkingStreamHandler.swift
+//  StreamHandler.swift
 //  SwiftAnthropic
 //
 //  Created by James Rochabrun on 2/24/25.
@@ -7,7 +7,7 @@
 
 import Foundation
 
-public final class ThinkingStreamHandler {
+public final class StreamHandler {
    
    public init() {}
    
@@ -88,6 +88,11 @@ public final class ThinkingStreamHandler {
       return toolUseBlocks
    }
    
+   // Get accumulated JSON for a specific tool use ID
+   public func getAccumulatedJson(forToolUseId id: String) -> String? {
+      return toolUseJsonMap[id]
+   }
+   
    // Current thinking content being collected
    private var currentThinking = ""
    // Current signature being collected
@@ -96,6 +101,8 @@ public final class ThinkingStreamHandler {
    private var currentResponse = ""
    // Current tool use block being collected
    private var currentToolUse: ToolUseBlock?
+   // Accumulated JSON for the current tool use
+   private var currentToolUseJson = ""
    
    // Track the current active content block index and type
    private var currentBlockIndex: Int? = nil
@@ -107,12 +114,24 @@ public final class ThinkingStreamHandler {
    private var redactedThinkingBlocks: [String] = []
    // Stored tool use blocks
    private var toolUseBlocks: [ToolUseBlock] = []
+   // Map of tool use IDs to their accumulated JSON
+   private var toolUseJsonMap: [String: String] = [:]
    
    // Structure to store tool use information
    public struct ToolUseBlock {
       public let id: String
       public let name: String
       public let input: MessageResponse.Content.Input
+      
+      // Added for convenience
+      public var accumulatedJson: String?
+      
+      public init(id: String, name: String, input: MessageResponse.Content.Input, accumulatedJson: String? = nil) {
+         self.id = id
+         self.name = name
+         self.input = input
+         self.accumulatedJson = accumulatedJson
+      }
    }
    
    private func handleContentBlockStart(_ event: MessageStreamResponse) {
@@ -135,8 +154,11 @@ public final class ThinkingStreamHandler {
          debugPrint("\nStarting text response...")
       case "tool_use":
          if let id = contentBlock.id, let name = contentBlock.name {
+            // Initialize the JSON accumulator for this tool use
+            currentToolUseJson = ""
+            // Create the tool use block with initial input (may be empty)
             currentToolUse = ToolUseBlock(id: id, name: name, input: contentBlock.input ?? [:])
-            debugPrint("\nStarting tool use block: \(name)")
+            debugPrint("\nStarting tool use block: \(name) with ID: \(id)")
          }
       default:
          debugPrint("\nStarting \(contentBlock.type) block...")
@@ -168,10 +190,20 @@ public final class ThinkingStreamHandler {
             currentResponse += text
             debugPrint(text, terminator: "")
          }
-      case "tool_use":
-         if let partialJson = delta.partialJson {
-            debugPrint("\nReceived partial tool use JSON: \(partialJson)")
-            // In a real implementation, you might need to handle partial JSON updates
+      case "tool_use_delta":
+         if let partialJson = delta.partialJson, let currentId = currentToolUse?.id {
+            // Accumulate the JSON
+            currentToolUseJson += partialJson
+            // Update the map
+            toolUseJsonMap[currentId] = currentToolUseJson
+            debugPrint("\nAccumulated tool use JSON for \(currentId): \(partialJson)")
+            
+            // Try to parse the accumulated JSON if it might be complete
+            if isValidJson(currentToolUseJson) {
+               debugPrint("\nValid JSON detected for tool use \(currentId)")
+               // Here you could attempt to update the tool use input if needed
+               updateToolUseInputIfPossible(toolUseId: currentId, json: currentToolUseJson)
+            }
          }
       default:
          if let type = delta.type {
@@ -189,14 +221,38 @@ public final class ThinkingStreamHandler {
          currentThinking = ""
          signature = nil
       } else if currentBlockType == "tool_use" && currentToolUse != nil {
-         if let toolUse = currentToolUse {
-            toolUseBlocks.append(toolUse)
+         if let toolUse = currentToolUse, let id = currentToolUse?.id {
+            // Create a new ToolUseBlock with the accumulated JSON
+            let updatedToolUse = ToolUseBlock(
+               id: toolUse.id,
+               name: toolUse.name,
+               input: toolUse.input,
+               accumulatedJson: toolUseJsonMap[id]
+            )
+            
+            toolUseBlocks.append(updatedToolUse)
+            debugPrint("\nStored tool use block with ID: \(id) and accumulated JSON")
          }
          currentToolUse = nil
+         currentToolUseJson = ""
       }
       
       // Reset tracking
       currentBlockType = nil
+   }
+   
+   // Check if a string is valid JSON
+   private func isValidJson(_ jsonString: String) -> Bool {
+      guard !jsonString.isEmpty else { return false }
+      return (try? JSONSerialization.jsonObject(with: Data(jsonString.utf8))) != nil
+   }
+   
+   // Try to update the tool use input from accumulated JSON
+   private func updateToolUseInputIfPossible(toolUseId: String, json: String) {
+      // This would be implemented based on your specific needs
+      // For example, you might decode the JSON and update the corresponding input
+      // This is just a placeholder for where you would implement that logic
+      debugPrint("\nWould update tool use input for \(toolUseId) based on JSON if implemented")
    }
    
    // Reset all stored data
@@ -205,11 +261,13 @@ public final class ThinkingStreamHandler {
       signature = nil
       currentResponse = ""
       currentToolUse = nil
+      currentToolUseJson = ""
       currentBlockIndex = nil
       currentBlockType = nil
       thinkingBlocks.removeAll()
       redactedThinkingBlocks.removeAll()
       toolUseBlocks.removeAll()
+      toolUseJsonMap.removeAll()
    }
    
    // Print a summary of what was collected
@@ -218,6 +276,7 @@ public final class ThinkingStreamHandler {
       debugPrint("Number of thinking blocks: \(thinkingBlocks.count)")
       debugPrint("Number of redacted thinking blocks: \(redactedThinkingBlocks.count)")
       debugPrint("Number of tool use blocks: \(toolUseBlocks.count)")
+      debugPrint("Number of tool use JSON objects: \(toolUseJsonMap.count)")
       debugPrint("Final response length: \(currentResponse.count) characters")
    }
 }

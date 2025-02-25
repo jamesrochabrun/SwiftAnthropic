@@ -23,7 +23,7 @@ import SwiftUI
    private var messages: [MessageParameter.Message] = []
    
    // Handler for processing thinking content
-   private var thinkingStreamHandler = ThinkingStreamHandler()
+   private var streamHandler = StreamHandler()
    
    init(service: AnthropicService) {
       self.service = service
@@ -40,7 +40,7 @@ import SwiftUI
       message = ""
       thinkingContentMessage = ""
       errorMessage = ""
-      thinkingStreamHandler.reset() // Clear previous stream data
+      streamHandler.reset() // Clear previous stream data
       
       // Add user message to conversation
       let userMessage = MessageParameter.Message(
@@ -76,17 +76,17 @@ import SwiftUI
          // Process stream events
          for try await result in stream {
             // Use the ThinkingStreamHandler to process events
-            thinkingStreamHandler.handleStreamEvent(result)
+            streamHandler.handleStreamEvent(result)
             
             // Update UI elements based on event type
             updateUIFromStreamEvent(result)
          }
          
          // Once streaming is complete, store assistant's response in conversation history
-         let finalMessage = thinkingStreamHandler.textResponse
+         let finalMessage = streamHandler.textResponse
          if !finalMessage.isEmpty {
             // Get thinking blocks from the handler
-            let thinkingBlocks = thinkingStreamHandler.getThinkingBlocksForAPI()
+            let thinkingBlocks = streamHandler.getThinkingBlocksForAPI()
             
             // Create content objects: thinking blocks + text
             var contentObjects = thinkingBlocks
@@ -137,6 +137,6 @@ import SwiftUI
       errorMessage = ""
       messages.removeAll()
       inputTokensCount = nil
-      thinkingStreamHandler.reset()
+      streamHandler.reset()
    }
 }
