@@ -142,4 +142,8 @@ import SwiftUI
    
    // MARK: Private
    private var task: Task<Void, Never>? = nil
+   // Track the current active content block
+   private var currentThinking = ""
+   private var currentBlockType: String?
+   private var currentBlockIndex: Int?
 }

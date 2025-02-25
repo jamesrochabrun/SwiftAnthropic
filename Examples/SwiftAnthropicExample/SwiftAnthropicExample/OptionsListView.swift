@@ -20,6 +20,7 @@ struct OptionsListView: View {
       
       case message = "Message"
       case messageFunctionCall = "Function Call"
+      case thinking = "Thinking Mode"
 
       var id: Self { self }
    }
@@ -38,6 +39,9 @@ struct OptionsListView: View {
                MessageDemoView(observable: .init(service: service))
             case .messageFunctionCall:
                MessageFunctionCallingDemoView(observable: .init(service: service))
+            case .thinking:
+               ThinkingModeMessageDemoView(observable: .init(service: service))
+                                           
             }
          }
       }

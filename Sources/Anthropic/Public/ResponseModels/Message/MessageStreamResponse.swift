@@ -48,6 +48,12 @@ public struct MessageStreamResponse: Decodable {
       /// type = text
       public let text: String?
       
+      /// type = thinking_delta
+      public let thinking: String?
+      
+      /// type = signature_delta
+      public let signature: String?
+      
       /// type = tool_use
       public let partialJson: String?
       
@@ -61,11 +67,17 @@ public struct MessageStreamResponse: Decodable {
    
    public struct ContentBlock: Decodable {
       
-      // Can be of type `text` or `tool_use`
+      // Can be of type `text`, `tool_use`, `thinking`, or `redacted_thinking`
       public let type: String
       
       /// `text` type
       public let text: String?
+      
+      /// `thinking` type
+      public let thinking: String?
+      
+      /// `redacted_thinking` type
+      public let data: String?
       
       // Citations for text type
       public let citations: [MessageResponse.Citation]?
@@ -92,5 +104,28 @@ public struct MessageStreamResponse: Decodable {
       case messageStart = "message_start"
       case messageDelta = "message_delta"
       case messageStop = "message_stop"
+   }
+}
+
+extension MessageStreamResponse {
+   
+   /// Helper to check if the delta contains thinking content
+   public var isThinkingDelta: Bool {
+      return delta?.type == "thinking_delta"
+   }
+   
+   /// Helper to check if the delta contains a signature update
+   public var isSignatureDelta: Bool {
+      return delta?.type == "signature_delta"
+   }
+   
+   /// Helper to check if the content block is a thinking block
+   public var isThinkingBlock: Bool {
+      return contentBlock?.type == "thinking"
+   }
+   
+   /// Helper to check if the content block is a redacted thinking block
+   public var isRedactedThinkingBlock: Bool {
+      return contentBlock?.type == "redacted_thinking"
    }
 }

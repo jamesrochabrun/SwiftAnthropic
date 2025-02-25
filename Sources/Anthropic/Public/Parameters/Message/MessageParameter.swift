@@ -90,6 +90,11 @@ public struct MessageParameter: Encodable {
    ///    `tool` allows us to force Claude to always use a particular tool.
    let toolChoice: ToolChoice?
    
+   /// Extended thinking mode configuration
+   /// Controls whether Claude's extended thinking/reasoning mode is enabled
+   /// and specifies token budget allocated for thinking before responding.
+   public let thinking: Thinking?
+   
    public enum System: Encodable {
       case text(String)
       case list([Cache])
@@ -138,6 +143,8 @@ public struct MessageParameter: Encodable {
             case toolUse(String, String, MessageResponse.Content.Input)
             case toolResult(String, String, Bool?)
             case cache(Cache)
+            case thinking(String, String)  // (thinking content, signature)
+            case redactedThinking(String)  // data field for redacted thinking
             
             // Custom encoding to handle different cases
             public func encode(to encoder: Encoder) throws {
@@ -172,6 +179,13 @@ public struct MessageParameter: Encodable {
                   if let cacheControl = cache.cacheControl {
                      try container.encode(cacheControl, forKey: .cacheControl)
                   }
+               case .thinking(let thinking, let signature):
+                  try container.encode("thinking", forKey: .type)
+                  try container.encode(thinking, forKey: .thinking)
+                  try container.encode(signature, forKey: .signature)
+               case .redactedThinking(let data):
+                  try container.encode("redacted_thinking", forKey: .type)
+                  try container.encode(data, forKey: .data)
                }
             }
             
@@ -189,6 +203,9 @@ public struct MessageParameter: Encodable {
                case content
                case cacheControl = "cache_control"
                case isError = "is_error"
+               case thinking
+               case signature
+               case data
             }
             
             public static func toolResult(_ toolUseId: String, _ content: String) -> ContentObject {
@@ -605,6 +622,27 @@ public struct MessageParameter: Encodable {
       }
    }
    
+   public struct Thinking: Encodable {
+      /// The type of thinking, currently only "enabled" is supported
+      let type: ThinkingType
+      /// Token budget allocated for extended thinking (maximum number of tokens to use for thinking)
+      let budgetTokens: Int
+      
+      public enum ThinkingType: String, Encodable {
+         case enabled
+      }
+      
+      private enum CodingKeys: String, CodingKey {
+         case type
+         case budgetTokens = "budget_tokens"
+      }
+      
+      public init(type: ThinkingType = .enabled, budgetTokens: Int) {
+         self.type = type
+         self.budgetTokens = budgetTokens
+      }
+   }
+   
    public init(
       model: Model,
       messages: [Message],
@@ -617,7 +655,8 @@ public struct MessageParameter: Encodable {
       topK: Int? = nil,
       topP: Double? = nil,
       tools: [Tool]? = nil,
-      toolChoice: ToolChoice? = nil)
+      toolChoice: ToolChoice? = nil,
+      thinking: Thinking? = nil)
    {
       self.model = model.value
       self.messages = messages
@@ -631,6 +670,7 @@ public struct MessageParameter: Encodable {
       self.topP = topP
       self.tools = tools
       self.toolChoice = toolChoice
+      self.thinking = thinking
    }
 }
 

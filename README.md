@@ -7,6 +7,7 @@
 [![swiftui-version](https://img.shields.io/badge/swiftui-brightgreen)](https://developer.apple.com/documentation/swiftui)
 [![xcode-version](https://img.shields.io/badge/xcode-15%20-brightgreen)](https://developer.apple.com/xcode/)
 [![swift-package-manager](https://img.shields.io/badge/package%20manager-compatible-brightgreen.svg?logo=data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyB3aWR0aD0iNjJweCIgaGVpZ2h0PSI0OXB4IiB2aWV3Qm94PSIwIDAgNjIgNDkiIHZlcnNpb249IjEuMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayI+CiAgICA8IS0tIEdlbmVyYXRvcjogU2tldGNoIDYzLjEgKDkyNDUyKSAtIGh0dHBzOi8vc2tldGNoLmNvbSAtLT4KICAgIDx0aXRsZT5Hcm91cDwvdGl0bGU+CiAgICA8ZGVzYz5DcmVhdGVkIHdpdGggU2tldGNoLjwvZGVzYz4KICAgIDxnIGlkPSJQYWdlLTEiIHN0cm9rZT0ibm9uZSIgc3Ryb2tlLXdpZHRoPSIxIiBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPgogICAgICAgIDxnIGlkPSJHcm91cCIgZmlsbC1ydWxlPSJub256ZXJvIj4KICAgICAgICAgICAgPHBvbHlnb24gaWQ9IlBhdGgiIGZpbGw9IiNEQkI1NTEiIHBvaW50cz0iNTEuMzEwMzQ0OCAwIDEwLjY4OTY1NTIgMCAwIDEzLjUxNzI0MTQgMCA0OSA2MiA0OSA2MiAxMy41MTcyNDE0Ij48L3BvbHlnb24+CiAgICAgICAgICAgIDxwb2x5Z29uIGlkPSJQYXRoIiBmaWxsPSIjRjdFM0FGIiBwb2ludHM9IjI3IDI1IDMxIDI1IDM1IDI1IDM3IDI1IDM3IDE0IDI1IDE0IDI1IDI1Ij48L3BvbHlnb24+CiAgICAgICAgICAgIDxwb2x5Z29uIGlkPSJQYXRoIiBmaWxsPSIjRUZDNzVFIiBwb2ludHM9IjEwLjY4OTY1NTIgMCAwIDE0IDYyIDE0IDUxLjMxMDM0NDggMCI+PC9wb2x5Z29uPgogICAgICAgICAgICA8cG9seWdvbiBpZD0iUmVjdGFuZ2xlIiBmaWxsPSIjRjdFM0FGIiBwb2ludHM9IjI3IDAgMzUgMCAzNyAxNCAyNSAxNCI+PC9wb2x5Z29uPgogICAgICAgIDwvZz4KICAgIDwvZz4KPC9zdmc+)](https://github.com/apple/swift-package-manager)
+[![Buy me a coffee](https://img.shields.io/badge/Buy%20me%20a%20coffee-048754?logo=buymeacoffee)](https://buymeacoffee.com/jamesrochabrun)
 
 An open-source Swift package designed for effortless interaction with [Anthropic's public API](https://docs.anthropic.com/claude/reference/getting-started-with-the-api).
 
@@ -34,6 +35,7 @@ An open-source Swift package designed for effortless interaction with [Anthropic
 - [PDF Support](#pdf-support)
 - [Citations](#citations)
 - [Count Tokens](#count-tokens)
+- [Extended Thinking](#extended-thinking)
 - [Examples](#demo)
 
 ## Getting an API Key
@@ -1292,6 +1294,379 @@ let parameters = MessageTokenCountParameter(
 let tokenCount = try await service.countTokens(parameter: parameters)
 print("Input tokens: \(tokenCount.inputTokens)")
 ```
+
+## Extended Thinking
+
+Claude 3.7 Sonnet offers enhanced reasoning capabilities with extended thinking mode. This feature allows Claude to perform step-by-step reasoning before providing a final answer, improving response quality for complex tasks.
+
+#### Extended Thinking Parameters
+
+```swift
+public struct Thinking: Encodable {
+    /// The type of thinking, currently only "enabled" is supported
+    let type: ThinkingType
+    /// Token budget allocated for extended thinking (maximum number of tokens to use for thinking)
+    let budgetTokens: Int
+    
+    public enum ThinkingType: String, Encodable {
+        case enabled
+    }
+    
+    private enum CodingKeys: String, CodingKey {
+        case type
+        case budgetTokens = "budget_tokens"
+    }
+    
+    public init(type: ThinkingType = .enabled, budgetTokens: Int) {
+        self.type = type
+        self.budgetTokens = budgetTokens
+    }
+}
+```
+
+#### Basic Non-Streaming Example
+
+```swift
+// Create a message with thinking enabled
+let userMessage = MessageParameter.Message(
+    role: .user,
+    content: .text("What would happen if we doubled the Earth's gravity overnight?")
+)
+
+// Enable thinking with a budget of 16,000 tokens
+let parameters = MessageParameter(
+    model: .claude37Sonnet,
+    messages: [userMessage],
+    maxTokens: 4000,
+    thinking: .init(budgetTokens: 16000)
+)
+
+// Make API call
+let response = try await service.createMessage(parameters)
+
+// Process the response
+var thinkingContent = ""
+var responseText = ""
+
+for content in response.content {
+    switch content {
+    case .text(let text, _):
+        responseText = text
+        print("Final answer: \(text)")
+    case .thinking(let thinking):
+        thinkingContent = thinking.thinking
+        print("Thinking process: \(thinkingContent)")
+    case .redactedThinking(_):
+        print("Some thinking was redacted for safety reasons")
+    default:
+        break
+    }
+}
+```
+
+#### Multi-Turn Conversation (Non-Streaming)
+
+For multi-turn conversations, include the thinking blocks as part of the assistant message in the conversation history:
+
+```swift
+// Conversation history
+var messages: [MessageParameter.Message] = []
+
+// First user message
+let firstUserMessage = MessageParameter.Message(
+    role: .user,
+    content: .text("What would happen if we doubled the Earth's gravity overnight?")
+)
+messages.append(firstUserMessage)
+
+// Create parameters with thinking enabled
+let parameters = MessageParameter(
+    model: .claude37Sonnet,
+    messages: messages,
+    maxTokens: 4000,
+    thinking: .init(budgetTokens: 16000)
+)
+
+// Make API call
+let response = try await service.createMessage(parameters)
+
+// Process the response and extract thinking blocks and text
+var thinkingBlocks: [MessageParameter.Message.Content.ContentObject] = []
+var responseText = ""
+
+for content in response.content {
+    switch content {
+    case .text(let text, _):
+        responseText = text
+    case .thinking(let thinking):
+        if let signature = thinking.signature {
+            thinkingBlocks.append(.thinking(thinking.thinking, signature))
+        }
+    case .redactedThinking(let data):
+        thinkingBlocks.append(.redactedThinking(data))
+    default:
+        break
+    }
+}
+
+// Create all content objects for the assistant message
+var contentObjects = thinkingBlocks
+contentObjects.append(.text(responseText))
+
+// Save assistant's response to conversation history with thinking blocks included
+messages.append(MessageParameter.Message(
+    role: .assistant,
+    content: .list(contentObjects)
+))
+
+// For the next turn, add the user's new message
+let secondUserPrompt = "How would this affect human evolution over the next thousand years?"
+messages.append(MessageParameter.Message(
+    role: .user,
+    content: .text(secondUserPrompt)
+))
+
+// Create new parameters using the existing messages array
+let nextParameters = MessageParameter(
+    model: .claude37Sonnet,
+    messages: messages,
+    maxTokens: 4000,
+    thinking: .init(budgetTokens: 16000)
+)
+
+// Continue the conversation...
+let nextResponse = try await service.createMessage(nextParameters)
+
+// Process the next response...
+```
+
+#### Streaming with Extended Thinking
+
+For streaming responses with thinking enabled, you can use the provided StreamHandler or implement your own solution:
+
+```swift
+// StreamHandler to collect thinking blocks from the stream
+let streamHandler = StreamHandler()
+
+// Conversation history
+var messages: [MessageParameter.Message] = []
+
+// Add user message
+let userMessage = MessageParameter.Message(
+    role: .user,
+    content: .text("Solve this math problem: If a train travels at 120 km/h, how long will it take to cover 450 km?")
+)
+messages.append(userMessage)
+
+// Create parameters with thinking enabled and streaming
+let parameters = MessageParameter(
+    model: .claude37Sonnet,
+    messages: messages,
+    maxTokens: 4000,
+    stream: true,
+    thinking: .init(budgetTokens: 8000)
+)
+
+// Start streaming
+let stream = try await service.streamMessage(parameters)
+
+// Process stream events
+for try await event in stream {
+    // Let the handler process the event
+    streamHandler.handleStreamEvent(event)
+    
+    // Update UI as needed
+    if let delta = event.delta {
+        switch delta.type {
+        case "thinking_delta":
+            if let thinking = delta.thinking {
+                print("Thinking: \(thinking)", terminator: "")
+            }
+        case "text_delta":
+            if let text = delta.text {
+                print("Response: \(text)", terminator: "")
+            }
+        default:
+            break
+        }
+    }
+}
+
+// After streaming is complete, get the final text response
+let finalResponse = streamHandler.textResponse
+
+// Get thinking blocks
+let thinkingBlocks = streamHandler.getThinkingBlocksForAPI()
+
+// Create all content objects for the assistant message
+var contentObjects = thinkingBlocks
+contentObjects.append(.text(finalResponse))
+
+// Save assistant's response to conversation history with thinking blocks included
+messages.append(MessageParameter.Message(
+    role: .assistant,
+    content: .list(contentObjects)
+))
+
+// For the next turn, add the user's new message
+let secondUserPrompt = "Can you explain the solution in more detail?"
+messages.append(MessageParameter.Message(
+    role: .user,
+    content: .text(secondUserPrompt)
+))
+
+// Continue the conversation with the next request
+// (Using the same pattern)
+```
+
+#### StreamHandler Implementation
+
+The StreamHandler is a utility class that helps collect thinking blocks and their signatures from streaming events. Note that this is a convenience implementation - engineers can create their own implementation as the API supports the necessary endpoints and provides decoders:
+
+```swift
+public final class StreamHandler {
+   
+    public init() {}
+    
+    // Current thinking content being collected
+    private var currentThinking = ""
+    // Current signature being collected
+    private var signature: String?
+    // Current text response being collected
+    private var currentResponse = ""
+    
+    // Track the current active content block index and type
+    private var currentBlockIndex: Int?
+    private var currentBlockType: String?
+    
+    // Store all collected thinking blocks
+    private var thinkingBlocks: [(thinking: String, signature: String?)] = []
+    // Stored redacted thinking blocks
+    private var redactedThinkingBlocks: [String] = []
+    
+    // Process a stream event
+    public func handleStreamEvent(_ event: MessageStreamResponse) {
+        switch event.streamEvent {
+        case .contentBlockStart:
+            handleContentBlockStart(event)
+        case .contentBlockDelta:
+            handleContentBlockDelta(event)
+        case .contentBlockStop:
+            handleContentBlockStop()
+        case .messageStart, .messageDelta, .messageStop, .none:
+            break
+        }
+    }
+    
+    // Get the thinking blocks for use in subsequent API calls
+    public func getThinkingBlocksForAPI() -> [MessageParameter.Message.Content.ContentObject] {
+        var blocks: [MessageParameter.Message.Content.ContentObject] = []
+        
+        // Add regular thinking blocks
+        for block in thinkingBlocks {
+            if let signature = block.signature {
+                blocks.append(.thinking(block.thinking, signature))
+            }
+        }
+        
+        // Add redacted thinking blocks if any
+        for data in redactedThinkingBlocks {
+            blocks.append(.redactedThinking(data))
+        }
+        
+        return blocks
+    }
+    
+    // Get text response content
+    public var textResponse: String {
+        return currentResponse
+    }
+    
+    // Reset all stored data
+    public func reset() {
+        currentThinking = ""
+        signature = nil
+        currentResponse = ""
+        currentBlockIndex = nil
+        currentBlockType = nil
+        thinkingBlocks.removeAll()
+        redactedThinkingBlocks.removeAll()
+    }
+    
+    // Private implementation details...
+    private func handleContentBlockStart(_ event: MessageStreamResponse) {
+        guard let contentBlock = event.contentBlock, let index = event.index else { return }
+        
+        currentBlockIndex = index
+        currentBlockType = contentBlock.type
+        
+        switch contentBlock.type {
+        case "thinking":
+            currentThinking = contentBlock.thinking ?? ""
+        case "redacted_thinking":
+            if let data = contentBlock.data {
+                redactedThinkingBlocks.append(data)
+            }
+        case "text":
+            currentResponse = contentBlock.text ?? ""
+        default:
+            break
+        }
+    }
+    
+    private func handleContentBlockDelta(_ event: MessageStreamResponse) {
+        guard let delta = event.delta, let index = event.index else { return }
+        
+        if currentBlockIndex != index {
+            currentBlockIndex = index
+        }
+        
+        switch delta.type {
+        case "thinking_delta":
+            if let thinking = delta.thinking {
+                currentThinking += thinking
+            }
+        case "signature_delta":
+            if let sig = delta.signature {
+                signature = sig
+            }
+        case "text_delta":
+            if let text = delta.text {
+                currentResponse += text
+            }
+        default:
+            break
+        }
+    }
+    
+    private func handleContentBlockStop() {
+        if currentBlockType == "thinking" && !currentThinking.isEmpty {
+            thinkingBlocks.append((thinking: currentThinking, signature: signature))
+            
+            currentThinking = ""
+            signature = nil
+        }
+        
+        currentBlockType = nil
+    }
+}
+```
+
+#### Important Notes About Extended Thinking
+
+- **Preserving Thinking Blocks**: In multi-turn conversations, thinking blocks should be included directly within the assistant's message content. This ensures Claude maintains reasoning continuity across turns.
+
+- **Token Budget**: The minimum thinking budget is 1,024 tokens. Larger budgets (16,000+ tokens) are recommended for complex tasks.
+
+- **Redacted Thinking**: Some thinking content may be flagged by safety systems and returned as redacted_thinking blocks, which should be preserved.
+
+- **Token Billing**: All thinking tokens (including redacted thinking) are billed as output tokens.
+
+- **Previous Turns**: In multi-turn conversations, thinking blocks from previous turns don't count against your context window.
+
+- **Compatibility**: Thinking mode isn't compatible with temperature, top_p, top_k modifications, or forced tool use.
+
+For more detailed information, refer to the [Anthropic Extended Thinking documentation](https://docs.anthropic.com/claude/docs/build-with-claude/extended-thinking).
 
 ## AIProxy
 
