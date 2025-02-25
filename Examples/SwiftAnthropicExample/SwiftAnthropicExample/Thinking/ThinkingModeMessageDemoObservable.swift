@@ -21,14 +21,8 @@ import SwiftUI
    
    // State for managing conversation
    private var messages: [MessageParameter.Message] = []
-   private var collectedThinkingBlocks: [MessageParameter.Message.Content.ContentObject] = []
    
-   // Track the current active content block
-   private var currentThinking = ""
-   private var currentBlockType: String?
-   private var currentBlockIndex: Int?
-   private var signature: String?
-   
+   // Handler for processing thinking content
    private var thinkingStreamHandler = ThinkingStreamHandler()
    
    init(service: AnthropicService) {
@@ -42,6 +36,12 @@ import SwiftUI
          return
       }
       
+      // Reset state for new response
+      message = ""
+      thinkingContentMessage = ""
+      errorMessage = ""
+      thinkingStreamHandler.reset() // Clear previous stream data
+      
       // Add user message to conversation
       let userMessage = MessageParameter.Message(
          role: .user,
@@ -49,15 +49,10 @@ import SwiftUI
       )
       messages.append(userMessage)
       
-      // Clear current state for new response
-      message = ""
-      thinkingContentMessage = ""
-      errorMessage = ""
-      
       // Create parameters with thinking enabled
       let parameters = MessageParameter(
          model: .claude37Sonnet,
-         messages: collectedThinkingBlocksAsMessages() + messages,
+         messages: messages,
          maxTokens: 20000,
          stream: true,
          thinking: .init(budgetTokens: budgetTokens)
@@ -80,20 +75,32 @@ import SwiftUI
          
          // Process stream events
          for try await result in stream {
+            // Use the ThinkingStreamHandler to process events
             thinkingStreamHandler.handleStreamEvent(result)
-            processStreamEvent(result)
+            
+            // Update UI elements based on event type
+            updateUIFromStreamEvent(result)
          }
          
          // Once streaming is complete, store assistant's response in conversation history
-         if !message.isEmpty {
+         let finalMessage = thinkingStreamHandler.textResponse
+         if !finalMessage.isEmpty {
+            // Get thinking blocks from the handler
+            let thinkingBlocks = thinkingStreamHandler.getThinkingBlocksForAPI()
+            
+            // Create content objects: thinking blocks + text
+            var contentObjects = thinkingBlocks
+            contentObjects.append(.text(finalMessage))
+            
+            // Create assistant message with both thinking blocks and text
             let assistantMessage = MessageParameter.Message(
                role: .assistant,
-               content: .text(message)
+               content: .list(contentObjects)
             )
-            messages.append(assistantMessage)
             
-            // Store thinking blocks for next turn
-            collectedThinkingBlocks = thinkingStreamHandler.getThinkingBlocksForAPI()
+            // Add to conversation history
+            messages.append(assistantMessage)
+            message = finalMessage // Update UI
          }
          
          isLoading = false
@@ -103,82 +110,25 @@ import SwiftUI
       }
    }
    
-   // Helper to convert stored thinking blocks to messages array
-   private func collectedThinkingBlocksAsMessages() -> [MessageParameter.Message] {
-      if collectedThinkingBlocks.isEmpty {
-         return []
-      }
-      
-      // Create an assistant message with the collected thinking blocks
-      return [
-         MessageParameter.Message(
-            role: .assistant,
-            content: .list(collectedThinkingBlocks)
-         )
-      ]
-   }
-   
-   // Process stream events
-   private func processStreamEvent(_ event: MessageStreamResponse) {
-      switch event.streamEvent {
-      case .contentBlockStart:
-         handleContentBlockStart(event)
-      case .contentBlockDelta:
-         handleContentBlockDelta(event)
-      case .contentBlockStop:
-         handleContentBlockStop()
-      default:
-         break
-      }
-   }
-   
-   private func handleContentBlockStart(_ event: MessageStreamResponse) {
-      guard let contentBlock = event.contentBlock, let index = event.index else { return }
-      
-      currentBlockIndex = index
-      currentBlockType = contentBlock.type
-      
-      // Initialize based on block type
-      if contentBlock.type == "thinking" {
-         currentThinking = contentBlock.thinking ?? ""
-      } else if contentBlock.type == "redacted_thinking" {
-         // Handle redacted thinking (encrypted content)
-         print("Encountered redacted thinking block")
-      }
-   }
-   
-   private func handleContentBlockDelta(_ event: MessageStreamResponse) {
-      guard let delta = event.delta, let index = event.index else { return }
-      
-      // Ensure we're tracking the correct block
-      if currentBlockIndex != index {
-         currentBlockIndex = index
-      }
-      
-      // Process based on delta type
-      switch delta.type {
-      case "thinking_delta":
-         if let thinking = delta.thinking {
-            currentThinking += thinking
-            
-            // Update the thinking content message for display
-            thinkingContentMessage = currentThinking
+   // Just update UI elements based on stream events, no need to track state
+   private func updateUIFromStreamEvent(_ event: MessageStreamResponse) {
+      // Update UI elements based on deltas
+      if let delta = event.delta {
+         switch delta.type {
+         case "thinking_delta":
+            if let thinking = delta.thinking {
+               // Update the thinking content shown in UI
+               thinkingContentMessage += thinking
+            }
+         case "text_delta":
+            if let text = delta.text {
+               // Update the message shown in UI
+               message += text
+            }
+         default:
+            break
          }
-      case "signature_delta":
-         if let sig = delta.signature {
-            signature = sig
-         }
-      case "text_delta":
-         if let text = delta.text {
-            message += text
-         }
-      default:
-         break
       }
-   }
-   
-   private func handleContentBlockStop() {
-      currentBlockType = nil
    }
    
    func clearConversation() {
@@ -186,7 +136,7 @@ import SwiftUI
       thinkingContentMessage = ""
       errorMessage = ""
       messages.removeAll()
-      collectedThinkingBlocks.removeAll()
       inputTokensCount = nil
+      thinkingStreamHandler.reset()
    }
 }

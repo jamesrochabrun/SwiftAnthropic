@@ -76,7 +76,7 @@ public struct MessageResponse: Decodable {
       public struct ToolUse: Codable {
          public let id: String
          public let name: String
-         public let input: [String: MessageResponse.Content.DynamicContent]
+         public let input: Input
       }
       
       public struct Thinking: Codable {
