@@ -41,6 +41,8 @@ public struct MessageStreamResponse: Decodable {
       StreamEvent(rawValue: type)
    }
    
+   public let error: Error?
+   
    public struct Delta: Decodable {
       
       public let type: String?
@@ -93,6 +95,15 @@ public struct MessageStreamResponse: Decodable {
          guard let name, let id else { return nil }
          return .init(id: id, name: name, input: input ?? [:])
       }
+   }
+   
+   public struct Error: Decodable {
+      
+      /// The error type, for example "overloaded_error"
+      public let type: String
+      
+      /// The error message, for example "Overloaded"
+      public let message: String
    }
    
    /// https://docs.anthropic.com/en/api/messages-streaming#event-types
