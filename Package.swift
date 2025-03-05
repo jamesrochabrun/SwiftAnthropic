@@ -15,11 +15,17 @@ let package = Package(
             name: "SwiftAnthropic",
             targets: ["SwiftAnthropic"]),
     ],
+    dependencies: [
+      .package(url: "https://github.com/gsabran/mcp-swift-sdk", branch: "main")
+    ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
         // Targets can depend on other targets in this package and products from dependencies.
         .target(
-            name: "SwiftAnthropic"),
+            name: "SwiftAnthropic",
+            dependencies: [
+               .product(name: "MCPClient", package: "mcp-swift-sdk"),
+            ]),
         .testTarget(
             name: "SwiftAnthropicTests",
             dependencies: ["SwiftAnthropic"]),
