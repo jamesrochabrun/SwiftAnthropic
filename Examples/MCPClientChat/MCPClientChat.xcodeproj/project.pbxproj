@@ -1,0 +1,623 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		7BDD62DB2D764B3D00E18088 /* SwiftAnthropic in Frameworks */ = {isa = PBXBuildFile; productRef = 7BDD62DA2D764B3D00E18088 /* SwiftAnthropic */; };
+		7BDD62ED2D764B7C00E18088 /* MCPClient in Frameworks */ = {isa = PBXBuildFile; productRef = 7BDD62EC2D764B7C00E18088 /* MCPClient */; };
+		7BDD644F2D7811BA00E18088 /* SwiftOpenAI in Frameworks */ = {isa = PBXBuildFile; productRef = 7BDD644E2D7811BA00E18088 /* SwiftOpenAI */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		7BDD62BB2D764A4C00E18088 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 7BDD62A12D764A4A00E18088 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 7BDD62A82D764A4A00E18088;
+			remoteInfo = MCPClientChat;
+		};
+		7BDD62C52D764A4C00E18088 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 7BDD62A12D764A4A00E18088 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 7BDD62A82D764A4A00E18088;
+			remoteInfo = MCPClientChat;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		7BDD62A92D764A4A00E18088 /* MCPClientChat.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MCPClientChat.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		7BDD62BA2D764A4C00E18088 /* MCPClientChatTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MCPClientChatTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		7BDD62C42D764A4C00E18088 /* MCPClientChatUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MCPClientChatUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		7BDD62AB2D764A4A00E18088 /* MCPClientChat */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = MCPClientChat;
+			sourceTree = "<group>";
+		};
+		7BDD62BD2D764A4C00E18088 /* MCPClientChatTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = MCPClientChatTests;
+			sourceTree = "<group>";
+		};
+		7BDD62C72D764A4C00E18088 /* MCPClientChatUITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = MCPClientChatUITests;
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		7BDD62A62D764A4A00E18088 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				7BDD62ED2D764B7C00E18088 /* MCPClient in Frameworks */,
+				7BDD644F2D7811BA00E18088 /* SwiftOpenAI in Frameworks */,
+				7BDD62DB2D764B3D00E18088 /* SwiftAnthropic in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		7BDD62B72D764A4C00E18088 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		7BDD62C12D764A4C00E18088 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		7BDD62A02D764A4A00E18088 = {
+			isa = PBXGroup;
+			children = (
+				7BDD62AB2D764A4A00E18088 /* MCPClientChat */,
+				7BDD62BD2D764A4C00E18088 /* MCPClientChatTests */,
+				7BDD62C72D764A4C00E18088 /* MCPClientChatUITests */,
+				7BDD62D92D764B3D00E18088 /* Frameworks */,
+				7BDD62AA2D764A4A00E18088 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		7BDD62AA2D764A4A00E18088 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				7BDD62A92D764A4A00E18088 /* MCPClientChat.app */,
+				7BDD62BA2D764A4C00E18088 /* MCPClientChatTests.xctest */,
+				7BDD62C42D764A4C00E18088 /* MCPClientChatUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		7BDD62D92D764B3D00E18088 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		7BDD62A82D764A4A00E18088 /* MCPClientChat */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 7BDD62CE2D764A4C00E18088 /* Build configuration list for PBXNativeTarget "MCPClientChat" */;
+			buildPhases = (
+				7BDD62A52D764A4A00E18088 /* Sources */,
+				7BDD62A62D764A4A00E18088 /* Frameworks */,
+				7BDD62A72D764A4A00E18088 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				7BDD62AB2D764A4A00E18088 /* MCPClientChat */,
+			);
+			name = MCPClientChat;
+			packageProductDependencies = (
+				7BDD62DA2D764B3D00E18088 /* SwiftAnthropic */,
+				7BDD62EC2D764B7C00E18088 /* MCPClient */,
+				7BDD644E2D7811BA00E18088 /* SwiftOpenAI */,
+			);
+			productName = MCPClientChat;
+			productReference = 7BDD62A92D764A4A00E18088 /* MCPClientChat.app */;
+			productType = "com.apple.product-type.application";
+		};
+		7BDD62B92D764A4C00E18088 /* MCPClientChatTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 7BDD62D12D764A4C00E18088 /* Build configuration list for PBXNativeTarget "MCPClientChatTests" */;
+			buildPhases = (
+				7BDD62B62D764A4C00E18088 /* Sources */,
+				7BDD62B72D764A4C00E18088 /* Frameworks */,
+				7BDD62B82D764A4C00E18088 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				7BDD62BC2D764A4C00E18088 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				7BDD62BD2D764A4C00E18088 /* MCPClientChatTests */,
+			);
+			name = MCPClientChatTests;
+			packageProductDependencies = (
+			);
+			productName = MCPClientChatTests;
+			productReference = 7BDD62BA2D764A4C00E18088 /* MCPClientChatTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		7BDD62C32D764A4C00E18088 /* MCPClientChatUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 7BDD62D42D764A4C00E18088 /* Build configuration list for PBXNativeTarget "MCPClientChatUITests" */;
+			buildPhases = (
+				7BDD62C02D764A4C00E18088 /* Sources */,
+				7BDD62C12D764A4C00E18088 /* Frameworks */,
+				7BDD62C22D764A4C00E18088 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				7BDD62C62D764A4C00E18088 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				7BDD62C72D764A4C00E18088 /* MCPClientChatUITests */,
+			);
+			name = MCPClientChatUITests;
+			packageProductDependencies = (
+			);
+			productName = MCPClientChatUITests;
+			productReference = 7BDD62C42D764A4C00E18088 /* MCPClientChatUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		7BDD62A12D764A4A00E18088 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1600;
+				LastUpgradeCheck = 1600;
+				TargetAttributes = {
+					7BDD62A82D764A4A00E18088 = {
+						CreatedOnToolsVersion = 16.0;
+					};
+					7BDD62B92D764A4C00E18088 = {
+						CreatedOnToolsVersion = 16.0;
+						TestTargetID = 7BDD62A82D764A4A00E18088;
+					};
+					7BDD62C32D764A4C00E18088 = {
+						CreatedOnToolsVersion = 16.0;
+						TestTargetID = 7BDD62A82D764A4A00E18088;
+					};
+				};
+			};
+			buildConfigurationList = 7BDD62A42D764A4A00E18088 /* Build configuration list for PBXProject "MCPClientChat" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 7BDD62A02D764A4A00E18088;
+			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				7BDD62D72D764ADA00E18088 /* XCRemoteSwiftPackageReference "SwiftAnthropic" */,
+				7BDD62D82D764B1800E18088 /* XCLocalSwiftPackageReference "../../../mcp-swift-sdk" */,
+				7BDD644D2D7811B300E18088 /* XCRemoteSwiftPackageReference "SwiftOpenAI" */,
+			);
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 7BDD62AA2D764A4A00E18088 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				7BDD62A82D764A4A00E18088 /* MCPClientChat */,
+				7BDD62B92D764A4C00E18088 /* MCPClientChatTests */,
+				7BDD62C32D764A4C00E18088 /* MCPClientChatUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		7BDD62A72D764A4A00E18088 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		7BDD62B82D764A4C00E18088 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		7BDD62C22D764A4C00E18088 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		7BDD62A52D764A4A00E18088 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		7BDD62B62D764A4C00E18088 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		7BDD62C02D764A4C00E18088 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		7BDD62BC2D764A4C00E18088 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 7BDD62A82D764A4A00E18088 /* MCPClientChat */;
+			targetProxy = 7BDD62BB2D764A4C00E18088 /* PBXContainerItemProxy */;
+		};
+		7BDD62C62D764A4C00E18088 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 7BDD62A82D764A4A00E18088 /* MCPClientChat */;
+			targetProxy = 7BDD62C52D764A4C00E18088 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		7BDD62CC2D764A4C00E18088 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		7BDD62CD2D764A4C00E18088 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+			};
+			name = Release;
+		};
+		7BDD62CF2D764A4C00E18088 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = MCPClientChat/MCPClientChat.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"MCPClientChat/Preview Content\"";
+				DEVELOPMENT_TEAM = CQ45U4X9K3;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = jamesRochabrun.MCPClientChat;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		7BDD62D02D764A4C00E18088 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = MCPClientChat/MCPClientChat.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"MCPClientChat/Preview Content\"";
+				DEVELOPMENT_TEAM = CQ45U4X9K3;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = jamesRochabrun.MCPClientChat;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		7BDD62D22D764A4C00E18088 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = CQ45U4X9K3;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = jamesRochabrun.MCPClientChatTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MCPClientChat.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/MCPClientChat";
+			};
+			name = Debug;
+		};
+		7BDD62D32D764A4C00E18088 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = CQ45U4X9K3;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = jamesRochabrun.MCPClientChatTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MCPClientChat.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/MCPClientChat";
+			};
+			name = Release;
+		};
+		7BDD62D52D764A4C00E18088 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = CQ45U4X9K3;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = jamesRochabrun.MCPClientChatUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_TARGET_NAME = MCPClientChat;
+			};
+			name = Debug;
+		};
+		7BDD62D62D764A4C00E18088 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = CQ45U4X9K3;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = jamesRochabrun.MCPClientChatUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_TARGET_NAME = MCPClientChat;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		7BDD62A42D764A4A00E18088 /* Build configuration list for PBXProject "MCPClientChat" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				7BDD62CC2D764A4C00E18088 /* Debug */,
+				7BDD62CD2D764A4C00E18088 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		7BDD62CE2D764A4C00E18088 /* Build configuration list for PBXNativeTarget "MCPClientChat" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				7BDD62CF2D764A4C00E18088 /* Debug */,
+				7BDD62D02D764A4C00E18088 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		7BDD62D12D764A4C00E18088 /* Build configuration list for PBXNativeTarget "MCPClientChatTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				7BDD62D22D764A4C00E18088 /* Debug */,
+				7BDD62D32D764A4C00E18088 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		7BDD62D42D764A4C00E18088 /* Build configuration list for PBXNativeTarget "MCPClientChatUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				7BDD62D52D764A4C00E18088 /* Debug */,
+				7BDD62D62D764A4C00E18088 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		7BDD62D82D764B1800E18088 /* XCLocalSwiftPackageReference "../../../mcp-swift-sdk" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = "../../../mcp-swift-sdk";
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		7BDD62D72D764ADA00E18088 /* XCRemoteSwiftPackageReference "SwiftAnthropic" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/jamesrochabrun/SwiftAnthropic";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
+		7BDD644D2D7811B300E18088 /* XCRemoteSwiftPackageReference "SwiftOpenAI" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/jamesrochabrun/SwiftOpenAI";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		7BDD62DA2D764B3D00E18088 /* SwiftAnthropic */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 7BDD62D72D764ADA00E18088 /* XCRemoteSwiftPackageReference "SwiftAnthropic" */;
+			productName = SwiftAnthropic;
+		};
+		7BDD62EC2D764B7C00E18088 /* MCPClient */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 7BDD62D82D764B1800E18088 /* XCLocalSwiftPackageReference "../../../mcp-swift-sdk" */;
+			productName = MCPClient;
+		};
+		7BDD644E2D7811BA00E18088 /* SwiftOpenAI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 7BDD644D2D7811B300E18088 /* XCRemoteSwiftPackageReference "SwiftOpenAI" */;
+			productName = SwiftOpenAI;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = 7BDD62A12D764A4A00E18088 /* Project object */;
+}

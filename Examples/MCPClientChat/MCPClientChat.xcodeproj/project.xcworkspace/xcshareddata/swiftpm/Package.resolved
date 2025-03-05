@@ -1,0 +1,59 @@
+{
+  "originHash" : "ea89bc09a647584f246cc2ccc1334b5e579f0d3a53f72aa83011d8c436a3060f",
+  "pins" : [
+    {
+      "identity" : "jsonrpc",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/ChimeHQ/JSONRPC",
+      "state" : {
+        "revision" : "ef61a695bafa0e07080dadac65a0c59b37880548"
+      }
+    },
+    {
+      "identity" : "swift-json-schema",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/ajevans99/swift-json-schema",
+      "state" : {
+        "revision" : "707fc4c2d53138e8fbb4ee9e6669b050ba4b2239",
+        "version" : "0.3.2"
+      }
+    },
+    {
+      "identity" : "swift-memberwise-init-macro",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/gohanlon/swift-memberwise-init-macro",
+      "state" : {
+        "revision" : "21ca6d8c8f9e4ce27e92f82da294e0d91953b8b6",
+        "version" : "0.5.1"
+      }
+    },
+    {
+      "identity" : "swift-syntax",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/swiftlang/swift-syntax",
+      "state" : {
+        "revision" : "0687f71944021d616d34d922343dcef086855920",
+        "version" : "600.0.1"
+      }
+    },
+    {
+      "identity" : "swiftanthropic",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/jamesrochabrun/SwiftAnthropic",
+      "state" : {
+        "branch" : "main",
+        "revision" : "e71ff4df0a2ab4e85fb492f02322980858a8157c"
+      }
+    },
+    {
+      "identity" : "swiftopenai",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/jamesrochabrun/SwiftOpenAI",
+      "state" : {
+        "branch" : "main",
+        "revision" : "8bb0ffc621b27f7cb40d49bb1166ee19862224b4"
+      }
+    }
+  ],
+  "version" : 3
+}
