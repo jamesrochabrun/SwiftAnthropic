@@ -29,6 +29,7 @@ An open-source Swift package designed for effortless interaction with [Anthropic
 - [Text Completion Stream](#text-completion-stream)
 - [Message](#message)
    - [Function Calling](#function-calling)
+      - [Text Editor Tool](#text-editor-tool)
    - [Prompt Caching](#prompt-caching)
 - [Message Stream](#message-stream)
 - [Vision](#vision)
@@ -806,7 +807,7 @@ Here's an example of how to provide tools to Claude using the Messages API:
 Usage
 ```swift
 let maxTokens = 1024
-let weatherTool = MessageParameter.Tool(
+let weatherTool = MessageParameter.Tool.function(
             name: "get_weather", 
             description: "Get the current weather in a given location",
             inputSchema: .init(
@@ -876,6 +877,103 @@ let messageParameter = MessageParameter(
 ```
 
 🚀 Tool use with stream enabled, is also supported. Please visit the [demo project for details](https://github.com/jamesrochabrun/SwiftAnthropic/tree/main/Examples/SwiftAnthropicExample/SwiftAnthropicExample/FunctionCalling)
+
+### Text Editor Tool
+
+Claude can use an Anthropic-defined text editor tool to view and modify text files, helping you debug, fix, and improve your code or other text documents. This allows Claude to directly interact with your files, providing hands-on assistance rather than just suggesting changes.
+
+#### Compatible Models
+
+The text editor tool is only available for specific Claude models:
+
+- **Claude 3.7 Sonnet**: Use `text_editor_20250124`
+- **Claude 3.5 Sonnet**: Use `text_editor_20241022`
+
+Both versions provide identical capabilities - the version you use should match the model you're working with.
+
+#### Use Cases
+
+Some examples of when to use the text editor tool are:
+
+- **Code debugging**: Have Claude identify and fix bugs in your code, from syntax errors to logic issues
+- **Code refactoring**: Let Claude improve your code structure, readability, and performance
+- **Documentation generation**: Ask Claude to add docstrings, comments, or README files
+- **Test creation**: Have Claude create unit tests for your code
+
+#### Using the Text Editor Tool
+
+Here's how to provide the text editor tool to Claude:
+
+```swift
+// Create a message asking Claude to help with code
+let messageParameter = MessageParameter.Message(role: .user, content: .text("There's a syntax error in my primes.py file. Can you help fix it?"))
+
+// Define the text editor tool using the hosted tool type
+let textEditorTool = MessageParameter.Tool.hosted(
+    type: "text_editor_20250124", // Use the appropriate version for your model
+    name: "str_replace_editor"
+)
+
+// Create parameters including the tool
+let parameters = MessageParameter(
+    model: .claude37Sonnet, 
+    messages: [messageParameter], 
+    maxTokens: 1024,
+    tools: [textEditorTool]
+)
+
+// Create message or stream
+let message = try await service.createMessage(parameters)
+
+// Process Claude's response
+for content in message.content {
+    if case .toolUse(let id, let name, let input) = content {
+        // Handle Claude's tool use request
+        if let command = input["command"]?.stringValue {
+            switch command {
+            case "view":
+                // Handle view file request
+                // Read file and return contents to Claude
+            case "str_replace":
+                // Handle text replacement request
+                // Replace text in file
+            case "create":
+                // Handle file creation request
+                // Create new file
+            case "insert":
+                // Handle text insertion request
+                // Insert text at specific location
+            case "undo_edit":
+                // Handle undo request
+                // Revert last edit
+            default:
+                break
+            }
+        }
+    }
+}
+```
+
+#### Available Commands
+
+The text editor tool supports several commands for viewing and modifying files:
+
+1. **view**: Examine the contents of a file
+   - Parameters: `path` (file path), `view_range` (optional line range)
+
+2. **str_replace**: Replace specific text in a file
+   - Parameters: `path` (file path), `old_str` (text to replace), `new_str` (replacement text)
+
+3. **create**: Create a new file with specified content
+   - Parameters: `path` (file path), `file_text` (content for the new file)
+
+4. **insert**: Insert text at a specific location in a file
+   - Parameters: `path` (file path), `insert_line` (line number), `new_str` (text to insert)
+
+5. **undo_edit**: Revert the last edit made to a file
+   - Parameters: `path` (file path)
+
+For more information, see [Anthropic's Text Editor Tool documentation](https://docs.anthropic.com/en/docs/build-with-claude/tool-use/text-editor-tool).
 
 ### Prompt Caching
 
