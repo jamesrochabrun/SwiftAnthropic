@@ -348,3 +348,61 @@ extension MessageResponse {
       }
    }
 }
+
+// MARK: MessageResponse.Content + DynamicContent
+
+public extension MessageResponse.Content.DynamicContent {
+   var stringValue: String? {
+      if case .string(let value) = self {
+         return value
+      }
+      return nil
+   }
+   
+   var intValue: Int? {
+      if case .integer(let value) = self {
+         return value
+      }
+      return nil
+   }
+   
+   var boolValue: Bool? {
+      if case .bool(let value) = self {
+         return value
+      }
+      return nil
+   }
+   
+   var arrayValue: [MessageResponse.Content.DynamicContent]? {
+      if case .array(let value) = self {
+         return value
+      }
+      return nil
+   }
+   
+   var dictionaryValue: [String: MessageResponse.Content.DynamicContent]? {
+      if case .dictionary(let value) = self {
+         return value
+      }
+      return nil
+   }
+}
+
+// MARK: MessageResponse.Content + TextEditorCommand
+
+public extension MessageResponse.Content {
+   
+   public enum TextEditorCommand: String {
+      case view
+      case str_replace
+      case insert
+      case create
+      case undo_edit
+      
+      // Helper to extract command from input
+      public static func from(_ input: [String: DynamicContent]) -> TextEditorCommand? {
+         guard let commandValue = input["command"]?.stringValue else { return nil }
+         return TextEditorCommand(rawValue: commandValue)
+      }
+   }
+}

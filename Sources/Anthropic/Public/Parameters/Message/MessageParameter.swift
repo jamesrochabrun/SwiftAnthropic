@@ -408,183 +408,60 @@ public struct MessageParameter: Encodable {
       }
    }
    
-   public struct Tool: Codable, Equatable {
+   public enum Tool: Codable, Equatable {
       
-      /// The name of the function to be called. Must be a-z, A-Z, 0-9, or contain underscores and dashes, with a maximum length of 64.
-      public let name: String
-      /// A description of what the function does, used by the model to choose when and how to call the function.
-      public let description: String?
-      /// The parameters the functions accepts, described as a JSON Schema object. See the [guide](https://docs.anthropic.com/en/docs/build-with-claude/tool-use) for examples, and the [JSON Schema reference](https://json-schema.org/understanding-json-schema) for documentation about the format.
+      /// Standard function tool with schema
+      ///
+      /// name: The name of the function to be called. Must be a-z, A-Z, 0-9, or contain underscores and dashes, with a maximum length of 64.
+      /// description: A description of what the function does, used by the model to choose when and how to call the function.
+      /// inputSchema: The parameters the functions accepts, described as a JSON Schema object. See the [guide](https://docs.anthropic.com/en/docs/build-with-claude/tool-use) for examples, and the [JSON Schema reference](https://json-schema.org/understanding-json-schema) for documentation about the format.
       /// To describe a function that accepts no parameters, provide the value `{"type": "object", "properties": {}}`.
-      public let inputSchema: JSONSchema?
-      /// [Prompt Caching](https://docs.anthropic.com/en/docs/build-with-claude/prompt-caching#caching-tool-definitions)
-      public let cacheControl: CacheControl?
+      /// cacheControl: [Prompt Caching](https://docs.anthropic.com/en/docs/build-with-claude/prompt-caching#caching-tool-definitions)
+      case function(name: String, description: String?, inputSchema: JSONSchema?, cacheControl: CacheControl?)
       
-      public struct JSONSchema: Codable, Equatable {
+      /// Anthropic-hosted tool (like text editor)
+      case hosted(type: String, name: String)
+      
+      private enum CodingKeys: String, CodingKey {
+         case name
+         case description
+         case inputSchema = "input_schema"
+         case cacheControl = "cache_control"
+         case type
+      }
+      
+      public func encode(to encoder: Encoder) throws {
+         var container = encoder.container(keyedBy: CodingKeys.self)
          
-         public let type: JSONType
-         public let properties: [String: Property]?
-         public let required: [String]?
-         public let pattern: String?
-         public let const: String?
-         public let enumValues: [String]?
-         public let multipleOf: Int?
-         public let minimum: Int?
-         public let maximum: Int?
-         
-         private enum CodingKeys: String, CodingKey {
-            case type, properties, required, pattern, const
-            case enumValues = "enum"
-            case multipleOf, minimum, maximum
-         }
-         
-         public struct Property: Codable, Equatable {
+         switch self {
+         case .function(let name, let description, let inputSchema, let cacheControl):
+            try container.encode(name, forKey: .name)
+            try container.encodeIfPresent(description, forKey: .description)
+            try container.encodeIfPresent(inputSchema, forKey: .inputSchema)
+            try container.encodeIfPresent(cacheControl, forKey: .cacheControl)
             
-            public let type: JSONType
-            public let description: String?
-            public let format: String?
-            public let items: Items?
-            public let required: [String]?
-            public let pattern: String?
-            public let const: String?
-            public let enumValues: [String]?
-            public let multipleOf: Int?
-            public let minimum: Double?
-            public let maximum: Double?
-            public let minItems: Int?
-            public let maxItems: Int?
-            public let uniqueItems: Bool?
-            
-            private enum CodingKeys: String, CodingKey {
-               case type, description, format, items, required, pattern, const
-               case enumValues = "enum"
-               case multipleOf, minimum, maximum
-               case minItems, maxItems, uniqueItems
-            }
-            
-            public init(
-               type: JSONType,
-               description: String? = nil,
-               format: String? = nil,
-               items: Items? = nil,
-               required: [String]? = nil,
-               pattern: String? = nil,
-               const: String? = nil,
-               enumValues: [String]? = nil,
-               multipleOf: Int? = nil,
-               minimum: Double? = nil,
-               maximum: Double? = nil,
-               minItems: Int? = nil,
-               maxItems: Int? = nil,
-               uniqueItems: Bool? = nil)
-            {
-               self.type = type
-               self.description = description
-               self.format = format
-               self.items = items
-               self.required = required
-               self.pattern = pattern
-               self.const = const
-               self.enumValues = enumValues
-               self.multipleOf = multipleOf
-               self.minimum = minimum
-               self.maximum = maximum
-               self.minItems = minItems
-               self.maxItems = maxItems
-               self.uniqueItems = uniqueItems
-            }
-         }
-         
-         public enum JSONType: String, Codable {
-            case integer = "integer"
-            case string = "string"
-            case boolean = "boolean"
-            case array = "array"
-            case object = "object"
-            case number = "number"
-            case `null` = "null"
-         }
-         
-         public struct Items: Codable, Equatable {
-            
-            public let type: JSONType
-            public let properties: [String: Property]?
-            public let pattern: String?
-            public let const: String?
-            public let enumValues: [String]?
-            public let multipleOf: Int?
-            public let minimum: Double?
-            public let maximum: Double?
-            public let minItems: Int?
-            public let maxItems: Int?
-            public let uniqueItems: Bool?
-            
-            private enum CodingKeys: String, CodingKey {
-               case type, properties, pattern, const
-               case enumValues = "enum"
-               case multipleOf, minimum, maximum, minItems, maxItems, uniqueItems
-            }
-            
-            public init(
-               type: JSONType,
-               properties: [String : Property]? = nil,
-               pattern: String? = nil,
-               const: String? = nil,
-               enumValues: [String]? = nil,
-               multipleOf: Int? = nil,
-               minimum: Double? = nil,
-               maximum: Double? = nil,
-               minItems: Int? = nil,
-               maxItems: Int? = nil,
-               uniqueItems: Bool? = nil)
-            {
-               self.type = type
-               self.properties = properties
-               self.pattern = pattern
-               self.const = const
-               self.enumValues = enumValues
-               self.multipleOf = multipleOf
-               self.minimum = minimum
-               self.maximum = maximum
-               self.minItems = minItems
-               self.maxItems = maxItems
-               self.uniqueItems = uniqueItems
-            }
-         }
-         
-         public init(
-            type: JSONType,
-            properties: [String : Property]? = nil,
-            required: [String]? = nil,
-            pattern: String? = nil,
-            const: String? = nil,
-            enumValues: [String]? = nil,
-            multipleOf: Int? = nil,
-            minimum: Int? = nil,
-            maximum: Int? = nil)
-         {
-            self.type = type
-            self.properties = properties
-            self.required = required
-            self.pattern = pattern
-            self.const = const
-            self.enumValues = enumValues
-            self.multipleOf = multipleOf
-            self.minimum = minimum
-            self.maximum = maximum
+         case .hosted(let type, let name):
+            try container.encode(type, forKey: .type)
+            try container.encode(name, forKey: .name)
          }
       }
       
-      public init(
-         name: String,
-         description: String?,
-         inputSchema: JSONSchema?,
-         cacheControl: CacheControl? = nil)
-      {
-         self.name = name
-         self.description = description
-         self.inputSchema = inputSchema
-         self.cacheControl = cacheControl
+      public init(from decoder: Decoder) throws {
+         let container = try decoder.container(keyedBy: CodingKeys.self)
+         
+         // Check if we have a "type" field which indicates a hosted tool
+         if container.contains(.type) {
+            let type = try container.decode(String.self, forKey: .type)
+            let name = try container.decode(String.self, forKey: .name)
+            self = .hosted(type: type, name: name)
+         } else {
+            // Otherwise it's a function tool
+            let name = try container.decode(String.self, forKey: .name)
+            let description = try container.decodeIfPresent(String.self, forKey: .description)
+            let inputSchema = try container.decodeIfPresent(JSONSchema.self, forKey: .inputSchema)
+            let cacheControl = try container.decodeIfPresent(CacheControl.self, forKey: .cacheControl)
+            self = .function(name: name, description: description, inputSchema: inputSchema, cacheControl: cacheControl)
+         }
       }
    }
    
