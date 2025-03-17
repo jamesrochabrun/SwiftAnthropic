@@ -15,12 +15,12 @@
 		7B3287E42B8B1261002C7FEF /* SwiftAnthropicExampleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B3287E32B8B1261002C7FEF /* SwiftAnthropicExampleTests.swift */; };
 		7B3287EE2B8B1261002C7FEF /* SwiftAnthropicExampleUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B3287ED2B8B1261002C7FEF /* SwiftAnthropicExampleUITests.swift */; };
 		7B3287F02B8B1261002C7FEF /* SwiftAnthropicExampleUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B3287EF2B8B1261002C7FEF /* SwiftAnthropicExampleUITestsLaunchTests.swift */; };
-		7B3288012B8B13AC002C7FEF /* SwiftAnthropic in Frameworks */ = {isa = PBXBuildFile; productRef = 7B3288002B8B13AC002C7FEF /* SwiftAnthropic */; };
 		7B3288042B8B14A3002C7FEF /* ApiKeyIntroView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B3288032B8B14A3002C7FEF /* ApiKeyIntroView.swift */; };
 		7B3288062B8B1530002C7FEF /* OptionsListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B3288052B8B1530002C7FEF /* OptionsListView.swift */; };
 		7B3288082B8B1750002C7FEF /* MessageDemoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B3288072B8B1750002C7FEF /* MessageDemoView.swift */; };
 		7B32880A2B8B17A1002C7FEF /* MessageDemoObservable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B3288092B8B17A1002C7FEF /* MessageDemoObservable.swift */; };
 		7B531D782B96FFFA0047DBAB /* PhotoPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B531D772B96FFFA0047DBAB /* PhotoPicker.swift */; };
+		7B73EA002D877D5900BF0CD1 /* SwiftAnthropic in Frameworks */ = {isa = PBXBuildFile; productRef = 7B73E9FF2D877D5900BF0CD1 /* SwiftAnthropic */; };
 		7BF304E02BBFBE1000671273 /* MessageFunctionCallingDemoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BF304DE2BBFBE1000671273 /* MessageFunctionCallingDemoView.swift */; };
 		7BF304E12BBFBE1000671273 /* MessageFunctionCallingObservable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BF304DF2BBFBE1000671273 /* MessageFunctionCallingObservable.swift */; };
 /* End PBXBuildFile section */
@@ -72,7 +72,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				7B3288012B8B13AC002C7FEF /* SwiftAnthropic in Frameworks */,
+				7B73EA002D877D5900BF0CD1 /* SwiftAnthropic in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -194,7 +194,7 @@
 			);
 			name = SwiftAnthropicExample;
 			packageProductDependencies = (
-				7B3288002B8B13AC002C7FEF /* SwiftAnthropic */,
+				7B73E9FF2D877D5900BF0CD1 /* SwiftAnthropic */,
 			);
 			productName = SwiftAnthropicExample;
 			productReference = 7B3287CF2B8B1260002C7FEF /* SwiftAnthropicExample.app */;
@@ -269,7 +269,7 @@
 			);
 			mainGroup = 7B3287C62B8B1260002C7FEF;
 			packageReferences = (
-				7B3287FF2B8B13AC002C7FEF /* XCLocalSwiftPackageReference "../.." */,
+				7B73E9FE2D877D5900BF0CD1 /* XCLocalSwiftPackageReference "../../../SwiftAnthropic" */,
 			);
 			productRefGroup = 7B3287D02B8B1260002C7FEF /* Products */;
 			projectDirPath = "";
@@ -654,14 +654,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
-		7B3287FF2B8B13AC002C7FEF /* XCLocalSwiftPackageReference "../.." */ = {
+		7B73E9FE2D877D5900BF0CD1 /* XCLocalSwiftPackageReference "../../../SwiftAnthropic" */ = {
 			isa = XCLocalSwiftPackageReference;
-			relativePath = ../..;
+			relativePath = ../../../SwiftAnthropic;
 		};
 /* End XCLocalSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		7B3288002B8B13AC002C7FEF /* SwiftAnthropic */ = {
+		7B73E9FF2D877D5900BF0CD1 /* SwiftAnthropic */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = SwiftAnthropic;
 		};
