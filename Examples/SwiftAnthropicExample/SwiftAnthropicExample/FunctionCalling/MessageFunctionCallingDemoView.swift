@@ -18,8 +18,8 @@ enum FunctionCallDefinition: String, CaseIterable {
    var tool: MessageParameter.Tool {
       switch self {
       case .getWeather:
-         return .init(
-            name: self.rawValue, 
+         return .function(
+            name: self.rawValue,
             description: "Get the current weather in a given location",
             inputSchema: .init(
                            type: .object,
