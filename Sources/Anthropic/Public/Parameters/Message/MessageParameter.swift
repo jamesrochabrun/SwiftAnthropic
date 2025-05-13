@@ -80,13 +80,13 @@ public struct MessageParameter: Encodable {
    
    ///   Forcing tool use
    ///
-   ///    In some cases, you may want Claude to use a specific tool to answer the user’s question, even if Claude thinks it can provide an answer without using a tool. You can do this by specifying the tool in the tool_choice field like so:
+   ///    In some cases, you may want Claude to use a specific tool to answer the user's question, even if Claude thinks it can provide an answer without using a tool. You can do this by specifying the tool in the tool_choice field like so:
    ///
    ///    tool_choice = {"type": "tool", "name": "get_weather"}
    ///    When working with the tool_choice parameter, we have three possible options:
    ///
    ///    `auto` allows Claude to decide whether to call any provided tools or not. This is the default value.
-   ///    `any` tells Claude that it must use one of the provided tools, but doesn’t force a particular tool.
+   ///    `any` tells Claude that it must use one of the provided tools, but doesn't force a particular tool.
    ///    `tool` allows us to force Claude to always use a particular tool.
    let toolChoice: ToolChoice?
    
@@ -141,7 +141,7 @@ public struct MessageParameter: Encodable {
             case image(ImageSource)
             case document(DocumentSource)
             case toolUse(String, String, MessageResponse.Content.Input)
-            case toolResult(String, String, Bool?)
+            case toolResult(String, String, Bool?, CacheControl?) // Added optional cache control
             case cache(Cache)
             case thinking(String, String)  // (thinking content, signature)
             case redactedThinking(String)  // data field for redacted thinking
@@ -168,11 +168,12 @@ public struct MessageParameter: Encodable {
                   try container.encode(id, forKey: .id)
                   try container.encode(name, forKey: .name)
                   try container.encode(input, forKey: .input)
-               case .toolResult(let toolUseId, let content, let isError):
+               case .toolResult(let toolUseId, let content, let isError, let cacheControl):
                   try container.encode("tool_result", forKey: .type)
                   try container.encode(toolUseId, forKey: .toolUseId)
                   try container.encode(content, forKey: .content)
                   try container.encodeIfPresent(isError, forKey: .isError)
+                  try container.encodeIfPresent(cacheControl, forKey: .cacheControl) // Added cache control encoding
                case .cache(let cache):
                   try container.encode(cache.type.rawValue, forKey: .type)
                   try container.encode(cache.text, forKey: .text)
@@ -208,8 +209,24 @@ public struct MessageParameter: Encodable {
                case data
             }
             
+            // Keep the existing convenience method for backward compatibility
             public static func toolResult(_ toolUseId: String, _ content: String) -> ContentObject {
-               return .toolResult(toolUseId, content, nil)
+               return .toolResult(toolUseId, content, nil, nil)
+            }
+            
+            // Add new convenience method with cache control
+            public static func toolResult(_ toolUseId: String, _ content: String, cacheControl: CacheControl?) -> ContentObject {
+               return .toolResult(toolUseId, content, nil, cacheControl)
+            }
+            
+            // Add convenience method with isError
+            public static func toolResult(_ toolUseId: String, _ content: String, isError: Bool?) -> ContentObject {
+               return .toolResult(toolUseId, content, isError, nil)
+            }
+            
+            // Add convenience method with both isError and cacheControl
+            public static func toolResult(_ toolUseId: String, _ content: String, isError: Bool?, cacheControl: CacheControl?) -> ContentObject {
+               return .toolResult(toolUseId, content, isError, cacheControl)
             }
          }
          
@@ -260,11 +277,27 @@ public struct MessageParameter: Encodable {
                public let mediaType: String
                /// The document data
                public let data: String
+               /// Optional cache control for the document source
+               public let cacheControl: CacheControl? // Added optional cache control
                
                private enum CodingKeys: String, CodingKey {
                   case type
                   case mediaType = "media_type"
                   case data
+                  case cacheControl = "cache_control" // Added cache control key
+               }
+               
+               // Updated initializer to include cache control
+               public init(
+                  type: String,
+                  mediaType: String,
+                  data: String,
+                  cacheControl: CacheControl? = nil
+               ) {
+                  self.type = type
+                  self.mediaType = mediaType
+                  self.data = data
+                  self.cacheControl = cacheControl
                }
             }
             
@@ -298,13 +331,15 @@ public struct MessageParameter: Encodable {
                }
             }
             
+            // Updated initializer to include cache control
             public init(
                type: DocumentSourceType = .base64,
                mediaType: MediaType,
                data: String,
                title: String? = nil,
                context: String? = nil,
-               citations: Citations? = nil
+               citations: Citations? = nil,
+               cacheControl: CacheControl? = nil // Added optional cache control parameter
             ) throws {
                // For text type, no need to validate base64
                if type == .base64 {
@@ -322,7 +357,8 @@ public struct MessageParameter: Encodable {
                self.source = Source(
                   type: type.rawValue,
                   mediaType: mediaType.rawValue,
-                  data: data
+                  data: data,
+                  cacheControl: cacheControl // Added cache control
                )
                self.title = title
                self.context = context
@@ -334,7 +370,8 @@ public struct MessageParameter: Encodable {
                data: String,
                title: String? = nil,
                context: String? = nil,
-               citations: Citations? = nil
+               citations: Citations? = nil,
+               cacheControl: CacheControl? = nil // Added optional cache control
             ) throws -> DocumentSource {
                try DocumentSource(
                   type: .text,
@@ -342,7 +379,8 @@ public struct MessageParameter: Encodable {
                   data: data,
                   title: title,
                   context: context,
-                  citations: citations
+                  citations: citations,
+                  cacheControl: cacheControl // Added cache control
                )
             }
             
@@ -351,7 +389,8 @@ public struct MessageParameter: Encodable {
                base64Data: String,
                title: String? = nil,
                context: String? = nil,
-               citations: Citations? = nil
+               citations: Citations? = nil,
+               cacheControl: CacheControl? = nil // Added optional cache control
             ) throws -> DocumentSource {
                try DocumentSource(
                   type: .base64,
@@ -359,7 +398,8 @@ public struct MessageParameter: Encodable {
                   data: base64Data,
                   title: title,
                   context: context,
-                  citations: citations
+                  citations: citations,
+                  cacheControl: cacheControl // Added cache control
                )
             }
          }

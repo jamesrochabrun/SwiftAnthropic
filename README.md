@@ -1058,6 +1058,71 @@ MessageParameter.Tool(
    cacheControl: .init(type: .ephemeral))
 ```
 
+Using Prompt Caching with Documents (New in 2025):
+
+```swift
+let maxTokens = 1024
+let prompt = "Please analyze this document"
+
+// Load PDF data
+let pdfData = // your PDF data
+let base64PDF = pdfData.base64EncodedString()
+
+// Create document source with cache control at the parent level
+let documentSource = try MessageParameter.Message.Content.DocumentSource.pdf(
+    base64Data: base64PDF,
+    title: "Large Research Document",
+    cacheControl: .init(type: .ephemeral) // Cache control now at parent document.source level
+)
+
+// Create message with document and prompt
+let message = MessageParameter.Message(
+    role: .user,
+    content: .list([
+        .document(documentSource),
+        .text(prompt)
+    ])
+)
+
+// Create parameters
+let parameters = MessageParameter(
+    model: .claude35Sonnet,
+    messages: [message],
+    maxTokens: maxTokens
+)
+
+// Send request
+let response = try await service.createMessage(parameters)
+```
+
+Using Prompt Caching with Tool Results (New in 2025):
+
+
+```swift
+// Create tool result with cache control at the parent level
+let toolResult = MessageParameter.Message.Content.ContentObject.toolResult(
+    "tool_123",
+    "Large dataset response that should be cached",
+    cacheControl: .init(type: .ephemeral) // Cache control now at parent tool_result level
+)
+
+let message = MessageParameter.Message(
+    role: .assistant,
+    content: .list([toolResult])
+)
+
+// Include in subsequent message
+let userMessage = MessageParameter.Message(
+    role: .user,
+    content: .text("Please analyze the data from the previous tool result")
+)
+
+let parameters = MessageParameter(
+    model: .claude35Sonnet,
+    messages: [message, userMessage],
+    maxTokens: 1024
+)
+```
 
 Swift Response
 ```swift
