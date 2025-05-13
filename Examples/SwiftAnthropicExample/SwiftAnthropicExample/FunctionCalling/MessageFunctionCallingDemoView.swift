@@ -51,7 +51,7 @@ struct MessageFunctionCallingDemoView: View {
    var body: some View {
       ScrollView {
          VStack {
-            Text("TOOL: \(FunctionCallDefinition.getWeather.rawValue)")
+            Text("TOOL: Web search")
             picker
             Text(observable.errorMessage)
                .foregroundColor(.red)
@@ -94,11 +94,18 @@ struct MessageFunctionCallingDemoView: View {
                let messages = [MessageParameter.Message(role: .user, content: .list(finalInput))]
                
                prompt = ""
+               
+               let webSearchTool = MessageParameter.webSearch(
+                  maxUses: 5,
+                  allowedDomains: ["wikipedia.org"],
+                  userLocation: .sanFrancisco
+               )
+               
                let parameters = MessageParameter(
                   model: .claude35Sonnet,
                   messages: messages,
                   maxTokens: 1024, 
-                  tools: [FunctionCallDefinition.getWeather.tool])
+                  tools: [webSearchTool])
                switch selectedSegment {
                case .message:
                   try await observable.createMessage(parameters: parameters)

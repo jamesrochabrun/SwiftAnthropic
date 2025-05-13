@@ -80,13 +80,13 @@ public struct MessageParameter: Encodable {
    
    ///   Forcing tool use
    ///
-   ///    In some cases, you may want Claude to use a specific tool to answer the user’s question, even if Claude thinks it can provide an answer without using a tool. You can do this by specifying the tool in the tool_choice field like so:
+   ///    In some cases, you may want Claude to use a specific tool to answer the user's question, even if Claude thinks it can provide an answer without using a tool. You can do this by specifying the tool in the tool_choice field like so:
    ///
    ///    tool_choice = {"type": "tool", "name": "get_weather"}
    ///    When working with the tool_choice parameter, we have three possible options:
    ///
    ///    `auto` allows Claude to decide whether to call any provided tools or not. This is the default value.
-   ///    `any` tells Claude that it must use one of the provided tools, but doesn’t force a particular tool.
+   ///    `any` tells Claude that it must use one of the provided tools, but doesn't force a particular tool.
    ///    `tool` allows us to force Claude to always use a particular tool.
    let toolChoice: ToolChoice?
    
@@ -141,7 +141,7 @@ public struct MessageParameter: Encodable {
             case image(ImageSource)
             case document(DocumentSource)
             case toolUse(String, String, MessageResponse.Content.Input)
-            case toolResult(String, String, Bool?)
+            case toolResult(String, String, Bool?, CacheControl?) // Added optional cache control
             case cache(Cache)
             case thinking(String, String)  // (thinking content, signature)
             case redactedThinking(String)  // data field for redacted thinking
@@ -168,11 +168,12 @@ public struct MessageParameter: Encodable {
                   try container.encode(id, forKey: .id)
                   try container.encode(name, forKey: .name)
                   try container.encode(input, forKey: .input)
-               case .toolResult(let toolUseId, let content, let isError):
+               case .toolResult(let toolUseId, let content, let isError, let cacheControl):
                   try container.encode("tool_result", forKey: .type)
                   try container.encode(toolUseId, forKey: .toolUseId)
                   try container.encode(content, forKey: .content)
                   try container.encodeIfPresent(isError, forKey: .isError)
+                  try container.encodeIfPresent(cacheControl, forKey: .cacheControl) // Added cache control encoding
                case .cache(let cache):
                   try container.encode(cache.type.rawValue, forKey: .type)
                   try container.encode(cache.text, forKey: .text)
@@ -208,8 +209,24 @@ public struct MessageParameter: Encodable {
                case data
             }
             
+            // Keep the existing convenience method for backward compatibility
             public static func toolResult(_ toolUseId: String, _ content: String) -> ContentObject {
-               return .toolResult(toolUseId, content, nil)
+               return .toolResult(toolUseId, content, nil, nil)
+            }
+            
+            // Add new convenience method with cache control
+            public static func toolResult(_ toolUseId: String, _ content: String, cacheControl: CacheControl?) -> ContentObject {
+               return .toolResult(toolUseId, content, nil, cacheControl)
+            }
+            
+            // Add convenience method with isError
+            public static func toolResult(_ toolUseId: String, _ content: String, isError: Bool?) -> ContentObject {
+               return .toolResult(toolUseId, content, isError, nil)
+            }
+            
+            // Add convenience method with both isError and cacheControl
+            public static func toolResult(_ toolUseId: String, _ content: String, isError: Bool?, cacheControl: CacheControl?) -> ContentObject {
+               return .toolResult(toolUseId, content, isError, cacheControl)
             }
          }
          
@@ -260,11 +277,27 @@ public struct MessageParameter: Encodable {
                public let mediaType: String
                /// The document data
                public let data: String
+               /// Optional cache control for the document source
+               public let cacheControl: CacheControl? // Added optional cache control
                
                private enum CodingKeys: String, CodingKey {
                   case type
                   case mediaType = "media_type"
                   case data
+                  case cacheControl = "cache_control" // Added cache control key
+               }
+               
+               // Updated initializer to include cache control
+               public init(
+                  type: String,
+                  mediaType: String,
+                  data: String,
+                  cacheControl: CacheControl? = nil
+               ) {
+                  self.type = type
+                  self.mediaType = mediaType
+                  self.data = data
+                  self.cacheControl = cacheControl
                }
             }
             
@@ -298,13 +331,15 @@ public struct MessageParameter: Encodable {
                }
             }
             
+            // Updated initializer to include cache control
             public init(
                type: DocumentSourceType = .base64,
                mediaType: MediaType,
                data: String,
                title: String? = nil,
                context: String? = nil,
-               citations: Citations? = nil
+               citations: Citations? = nil,
+               cacheControl: CacheControl? = nil // Added optional cache control parameter
             ) throws {
                // For text type, no need to validate base64
                if type == .base64 {
@@ -322,7 +357,8 @@ public struct MessageParameter: Encodable {
                self.source = Source(
                   type: type.rawValue,
                   mediaType: mediaType.rawValue,
-                  data: data
+                  data: data,
+                  cacheControl: cacheControl // Added cache control
                )
                self.title = title
                self.context = context
@@ -334,7 +370,8 @@ public struct MessageParameter: Encodable {
                data: String,
                title: String? = nil,
                context: String? = nil,
-               citations: Citations? = nil
+               citations: Citations? = nil,
+               cacheControl: CacheControl? = nil // Added optional cache control
             ) throws -> DocumentSource {
                try DocumentSource(
                   type: .text,
@@ -342,7 +379,8 @@ public struct MessageParameter: Encodable {
                   data: data,
                   title: title,
                   context: context,
-                  citations: citations
+                  citations: citations,
+                  cacheControl: cacheControl // Added cache control
                )
             }
             
@@ -351,7 +389,8 @@ public struct MessageParameter: Encodable {
                base64Data: String,
                title: String? = nil,
                context: String? = nil,
-               citations: Citations? = nil
+               citations: Citations? = nil,
+               cacheControl: CacheControl? = nil // Added optional cache control
             ) throws -> DocumentSource {
                try DocumentSource(
                   type: .base64,
@@ -359,7 +398,8 @@ public struct MessageParameter: Encodable {
                   data: base64Data,
                   title: title,
                   context: context,
-                  citations: citations
+                  citations: citations,
+                  cacheControl: cacheControl // Added cache control
                )
             }
          }
@@ -422,12 +462,19 @@ public struct MessageParameter: Encodable {
       /// Anthropic-hosted tool (like text editor)
       case hosted(type: String, name: String)
       
+      /// https://docs.anthropic.com/en/docs/build-with-claude/tool-use/web-search-tool
+      case webSearch(name: String = "web_search", parameters: WebSearchParameters)
+      
       private enum CodingKeys: String, CodingKey {
          case name
          case description
          case inputSchema = "input_schema"
          case cacheControl = "cache_control"
          case type
+         case maxUses = "max_uses"
+         case allowedDomains = "allowed_domains"
+         case blockedDomains = "blocked_domains"
+         case userLocation = "user_location"
       }
       
       public func encode(to encoder: Encoder) throws {
@@ -443,19 +490,43 @@ public struct MessageParameter: Encodable {
          case .hosted(let type, let name):
             try container.encode(type, forKey: .type)
             try container.encode(name, forKey: .name)
+            
+         case .webSearch(let name, let parameters):
+            try container.encode("web_search_20250305", forKey: .type)
+            try container.encode(name, forKey: .name)
+            try container.encodeIfPresent(parameters.maxUses, forKey: .maxUses)
+            try container.encodeIfPresent(parameters.allowedDomains, forKey: .allowedDomains)
+            try container.encodeIfPresent(parameters.blockedDomains, forKey: .blockedDomains)
+            try container.encodeIfPresent(parameters.userLocation, forKey: .userLocation)
          }
       }
       
       public init(from decoder: Decoder) throws {
          let container = try decoder.container(keyedBy: CodingKeys.self)
          
-         // Check if we have a "type" field which indicates a hosted tool
          if container.contains(.type) {
             let type = try container.decode(String.self, forKey: .type)
             let name = try container.decode(String.self, forKey: .name)
-            self = .hosted(type: type, name: name)
+            
+            if type == "web_search_20250305" {
+               let maxUses = try container.decodeIfPresent(Int.self, forKey: .maxUses)
+               let allowedDomains = try container.decodeIfPresent([String].self, forKey: .allowedDomains)
+               let blockedDomains = try container.decodeIfPresent([String].self, forKey: .blockedDomains)
+               let userLocation = try container.decodeIfPresent(UserLocation.self, forKey: .userLocation)
+               
+               let parameters = WebSearchParameters(
+                  maxUses: maxUses,
+                  allowedDomains: allowedDomains,
+                  blockedDomains: blockedDomains,
+                  userLocation: userLocation
+               )
+               
+               self = .webSearch(name: name, parameters: parameters)
+            } else {
+               self = .hosted(type: type, name: name)
+            }
          } else {
-            // Otherwise it's a function tool
+            // Function tool
             let name = try container.decode(String.self, forKey: .name)
             let description = try container.decodeIfPresent(String.self, forKey: .description)
             let inputSchema = try container.decodeIfPresent(JSONSchema.self, forKey: .inputSchema)
@@ -520,6 +591,55 @@ public struct MessageParameter: Encodable {
       }
    }
    
+   // MARK: - Web Search Types
+   
+   /// Parameters for web search tool
+   public struct WebSearchParameters: Codable, Equatable {
+      public let maxUses: Int?
+      public let allowedDomains: [String]?
+      public let blockedDomains: [String]?
+      public let userLocation: UserLocation?
+      
+      public init(
+         maxUses: Int? = nil,
+         allowedDomains: [String]? = nil,
+         blockedDomains: [String]? = nil,
+         userLocation: UserLocation? = nil
+      ) {
+         self.maxUses = maxUses
+         self.allowedDomains = allowedDomains
+         self.blockedDomains = blockedDomains
+         self.userLocation = userLocation
+      }
+   }
+   
+   /// User location for search localization
+   public struct UserLocation: Codable, Equatable {
+      public let type: LocationType
+      public let city: String?
+      public let region: String?
+      public let country: String?
+      public let timezone: String?
+      
+      public enum LocationType: String, Codable {
+         case approximate
+      }
+      
+      public init(
+         type: LocationType = .approximate,
+         city: String? = nil,
+         region: String? = nil,
+         country: String? = nil,
+         timezone: String? = nil
+      ) {
+         self.type = type
+         self.city = city
+         self.region = region
+         self.country = country
+         self.timezone = timezone
+      }
+   }
+   
    public init(
       model: Model,
       messages: [Message],
@@ -550,4 +670,3 @@ public struct MessageParameter: Encodable {
       self.thinking = thinking
    }
 }
-

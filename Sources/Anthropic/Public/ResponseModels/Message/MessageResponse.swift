@@ -84,12 +84,51 @@ public struct MessageResponse: Decodable {
          public let signature: String?
       }
       
+      public struct ServerToolUse: Codable {
+         public let id: String
+         public let input: Input
+         public let type: String
+         public let name: String
+      }
+      
+      public struct WebSearchToolResult: Codable {
+         public let toolUseId: String?
+         public let content: [WebSearchContent]
+         public let type: String
+         
+         public struct WebSearchContent: Codable {
+            public let encryptedContent: String?
+            public let title: String?
+            public let pageAge: String?
+            public let type: String?
+            public let url: String?
+            
+            private enum CodingKeys: String, CodingKey {
+               case encryptedContent = "encrypted_content"
+               case title
+               case pageAge = "page_age"
+               case type
+               case url
+            }
+         }
+         
+         private enum CodingKeys: String, CodingKey {
+            case toolUseId = "tool_use_id"
+            case content
+            case type
+         }
+      }
+      
       case text(String, Citations?)
       case toolUse(ToolUse)
       case thinking(Thinking)
+      case serverToolUse(ServerToolUse)
+      case webSearchToolResult(WebSearchToolResult)
       
       private enum CodingKeys: String, CodingKey {
          case type, text, id, name, input, citations, thinking, signature
+         case toolUseId = "tool_use_id"
+         case content
       }
       
       public enum DynamicContent: Codable {
@@ -160,6 +199,17 @@ public struct MessageResponse: Decodable {
             let thinking = try container.decode(String.self, forKey: .thinking)
             let signature = try container.decodeIfPresent(String.self, forKey: .signature)
             self = .thinking(Thinking(thinking: thinking, signature: signature))
+         case "server_tool_use":
+            let id = try container.decode(String.self, forKey: .id)
+            let name = try container.decode(String.self, forKey: .name)
+            let input = try container.decode(Input.self, forKey: .input)
+            let type = try container.decode(String.self, forKey: .type)
+            self = .serverToolUse(ServerToolUse(id: id, input: input, type: type, name: name))
+         case "web_search_tool_result":
+            let toolUseId = try container.decodeIfPresent(String.self, forKey: .toolUseId)
+            let content = try container.decode([WebSearchToolResult.WebSearchContent].self, forKey: .content)
+            let type = try container.decode(String.self, forKey: .type)
+            self = .webSearchToolResult(WebSearchToolResult(toolUseId: toolUseId, content: content, type: type))
          default:
             throw DecodingError.dataCorruptedError(forKey: .type, in: container, debugDescription: "Invalid type value found in JSON!")
          }
@@ -181,6 +231,15 @@ public struct MessageResponse: Decodable {
             try container.encode("thinking", forKey: .type)
             try container.encode(thinking.thinking, forKey: .thinking)
             try container.encodeIfPresent(thinking.signature, forKey: .signature)
+         case .serverToolUse(let serverToolUse):
+            try container.encode("server_tool_use", forKey: .type)
+            try container.encode(serverToolUse.id, forKey: .id)
+            try container.encode(serverToolUse.name, forKey: .name)
+            try container.encode(serverToolUse.input, forKey: .input)
+         case .webSearchToolResult(let webSearchResult):
+            try container.encode("web_search_tool_result", forKey: .type)
+            try container.encode(webSearchResult.toolUseId, forKey: .toolUseId)
+            try container.encode(webSearchResult.content, forKey: .content)
          }
       }
    }
@@ -191,12 +250,22 @@ public struct MessageResponse: Decodable {
       case charLocation(CharLocation)
       case pageLocation(PageLocation)
       case contentBlockLocation(ContentBlockLocation)
+      case webSearchResultLocation(WebSearchResultLocation)
       
       private enum CodingKeys: String, CodingKey {
-         case type, citedText, documentIndex, documentTitle
-         case startCharIndex, endCharIndex
-         case startPageNumber, endPageNumber
-         case startBlockIndex, endBlockIndex
+         case type
+         case citedText
+         case documentIndex
+         case documentTitle
+         case startCharIndex
+         case endCharIndex
+         case startPageNumber
+         case endPageNumber
+         case startBlockIndex
+         case endBlockIndex
+         case url
+         case title
+         case encryptedIndex
       }
       
       public struct CharLocation: Codable {
@@ -221,6 +290,13 @@ public struct MessageResponse: Decodable {
          public let documentTitle: String?
          public let startBlockIndex: Int?
          public let endBlockIndex: Int?
+      }
+      
+      public struct WebSearchResultLocation: Codable {
+         public let url: String?
+         public let title: String?
+         public let encryptedIndex: String?
+         public let citedText: String?
       }
       
       public init(from decoder: Decoder) throws {
@@ -252,6 +328,13 @@ public struct MessageResponse: Decodable {
                startBlockIndex: try container.decodeIfPresent(Int.self, forKey: .startBlockIndex),
                endBlockIndex: try container.decodeIfPresent(Int.self, forKey: .endBlockIndex)
             ))
+         case "web_search_result_location":
+            self = .webSearchResultLocation(WebSearchResultLocation(
+               url: try container.decodeIfPresent(String.self, forKey: .url),
+               title: try container.decodeIfPresent(String.self, forKey: .title),
+               encryptedIndex: try container.decodeIfPresent(String.self, forKey: .encryptedIndex),
+               citedText: try container.decodeIfPresent(String.self, forKey: .citedText)
+            ))
          default:
             throw DecodingError.dataCorruptedError(forKey: .type, in: container, debugDescription: "Invalid citation type!")
          }
@@ -282,6 +365,12 @@ public struct MessageResponse: Decodable {
             try container.encodeIfPresent(location.documentTitle, forKey: .documentTitle)
             try container.encodeIfPresent(location.startBlockIndex, forKey: .startBlockIndex)
             try container.encodeIfPresent(location.endBlockIndex, forKey: .endBlockIndex)
+         case .webSearchResultLocation(let location):
+            try container.encode("web_search_result_location", forKey: .type)
+            try container.encodeIfPresent(location.url, forKey: .url)
+            try container.encodeIfPresent(location.title, forKey: .title)
+            try container.encodeIfPresent(location.encryptedIndex, forKey: .encryptedIndex)
+            try container.encodeIfPresent(location.citedText, forKey: .citedText)
          }
       }
    }
@@ -303,6 +392,14 @@ public struct MessageResponse: Decodable {
       /// [Prompt Caching](https://docs.anthropic.com/en/docs/build-with-claude/prompt-caching#how-can-i-track-the-effectiveness-of-my-caching-strategy)
       /// You can monitor cache performance using the cache_creation_input_tokens and cache_read_input_tokens fields in the API response.
       public let cacheReadInputTokens: Int?
+      
+      /// Server tool usage information - NEW
+      public let serverToolUse: ServerToolUse?
+   }
+   
+   public struct ServerToolUse: Codable {
+      /// Number of web search requests performed
+      public let webSearchRequests: Int?
    }
 }
 

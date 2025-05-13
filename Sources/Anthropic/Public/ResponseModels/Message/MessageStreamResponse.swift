@@ -33,7 +33,7 @@ public struct MessageStreamResponse: Decodable {
    
    /// Available in "content_block_delta", "message_delta" events.
    public let delta: Delta?
-    
+   
    /// Available in "message_delta" events.
    public let usage: MessageResponse.Usage?
    
@@ -43,8 +43,12 @@ public struct MessageStreamResponse: Decodable {
    
    public let error: Error?
    
+   /// Web search tool result
+   public let toolUseId: String?
+   
+   public let content: [WebSearchResult]?
+   
    public struct Delta: Decodable {
-      
       public let type: String?
       
       /// type = text
@@ -61,7 +65,7 @@ public struct MessageStreamResponse: Decodable {
       
       // type = citations_delta
       public let citation: MessageResponse.Citation?
-
+      
       public let stopReason: String?
       
       public let stopSequence: String?
@@ -84,7 +88,7 @@ public struct MessageStreamResponse: Decodable {
       // Citations for text type
       public let citations: [MessageResponse.Citation]?
       
-      /// `tool_use` type
+      /// `tool_use` and `server_tool_use` type
       public let input: [String: MessageResponse.Content.DynamicContent]?
       
       public let name: String?
@@ -118,6 +122,17 @@ public struct MessageStreamResponse: Decodable {
    }
 }
 
+// MARK: - Web Search Results
+
+public struct WebSearchResult: Decodable {
+   public let type: String?
+   public let url: String?
+   public let title: String?
+   public let encryptedContent: String?
+   public let pageAge: String?
+   public let errorCode: String?
+}
+
 extension MessageStreamResponse {
    
    /// Helper to check if the delta contains thinking content
@@ -138,5 +153,15 @@ extension MessageStreamResponse {
    /// Helper to check if the content block is a redacted thinking block
    public var isRedactedThinkingBlock: Bool {
       return contentBlock?.type == "redacted_thinking"
+   }
+   
+   /// Helper to check if this is a server tool use (web search)
+   public var isServerToolUse: Bool {
+      return contentBlock?.type == "server_tool_use"
+   }
+   
+   /// Helper to check if this is a web search tool result
+   public var isWebSearchToolResult: Bool {
+      return type == "web_search_tool_result"
    }
 }

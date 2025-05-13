@@ -30,6 +30,7 @@ An open-source Swift package designed for effortless interaction with [Anthropic
 - [Message](#message)
    - [Function Calling](#function-calling)
       - [Text Editor Tool](#text-editor-tool)
+      - [Web Search Tool](#web-search)
    - [Prompt Caching](#prompt-caching)
 - [Message Stream](#message-stream)
 - [Vision](#vision)
@@ -982,7 +983,47 @@ For general guidance in Prompt Caching please visit the official [Anthropic Docu
 
 <span style="background-color: #D3D3D3">
 
-/// Copied from Anthropic [website](https://docs.anthropic.com/en/docs/build-with-claude/prompt-caching#large-context-caching-example))
+/// Copied from Anthropic [website](https://docs.anthropic.com/en/docs/build-with-claude/prompt-caching#large-context-caching-example)
+
+### Web Search Tool
+
+/// Copied from Anthropic [website](https://docs.anthropic.com/en/docs/build-with-claude/tool-use/web-search-tool))
+
+The [web search tool](https://docs.anthropic.com/en/docs/build-with-claude/tool-use/web-search-tool) gives Claude direct access to real-time web content, allowing it to answer questions with up-to-date information beyond its knowledge cutoff. Claude automatically cites sources from search results as part of its answer.
+
+Supported models
+
+Web search is available on:
+
+- Claude 3.7 Sonnet (claude-3-7-sonnet-20250219)
+- Claude 3.5 Sonnet (new) (claude-3-5-sonnet-latest)
+- Claude 3.5 Haiku (claude-3-5-haiku-latest)
+
+How web search works:
+
+When you add the web search tool to your API request:
+
+Claude decides when to search based on the prompt.
+The API executes the searches and provides Claude with the results. This process may repeat multiple times throughout a single request.
+At the end of its turn, Claude provides a final response with cited sources.
+
+Usage in SwiftAnthropic
+
+`SwiftAnthropic` provides convenience initializers for web search tools, you can use it like this:
+
+```swift
+let webSearchTool = MessageParameter.webSearch(
+   maxUses: 5,
+   allowedDomains: ["wikipedia.org"],
+   userLocation: .sanFrancisco
+)
+               
+let parameters = MessageParameter(
+model: .claude35Sonnet,
+messages: messages,
+maxTokens: 1024, 
+tools: [webSearchTool])
+```
 
 Prompt Caching is in beta
 
@@ -1058,6 +1099,71 @@ MessageParameter.Tool(
    cacheControl: .init(type: .ephemeral))
 ```
 
+Using Prompt Caching with Documents (New in 2025):
+
+```swift
+let maxTokens = 1024
+let prompt = "Please analyze this document"
+
+// Load PDF data
+let pdfData = // your PDF data
+let base64PDF = pdfData.base64EncodedString()
+
+// Create document source with cache control at the parent level
+let documentSource = try MessageParameter.Message.Content.DocumentSource.pdf(
+    base64Data: base64PDF,
+    title: "Large Research Document",
+    cacheControl: .init(type: .ephemeral) // Cache control now at parent document.source level
+)
+
+// Create message with document and prompt
+let message = MessageParameter.Message(
+    role: .user,
+    content: .list([
+        .document(documentSource),
+        .text(prompt)
+    ])
+)
+
+// Create parameters
+let parameters = MessageParameter(
+    model: .claude35Sonnet,
+    messages: [message],
+    maxTokens: maxTokens
+)
+
+// Send request
+let response = try await service.createMessage(parameters)
+```
+
+Using Prompt Caching with Tool Results (New in 2025):
+
+
+```swift
+// Create tool result with cache control at the parent level
+let toolResult = MessageParameter.Message.Content.ContentObject.toolResult(
+    "tool_123",
+    "Large dataset response that should be cached",
+    cacheControl: .init(type: .ephemeral) // Cache control now at parent tool_result level
+)
+
+let message = MessageParameter.Message(
+    role: .assistant,
+    content: .list([toolResult])
+)
+
+// Include in subsequent message
+let userMessage = MessageParameter.Message(
+    role: .user,
+    content: .text("Please analyze the data from the previous tool result")
+)
+
+let parameters = MessageParameter(
+    model: .claude35Sonnet,
+    messages: [message, userMessage],
+    maxTokens: 1024
+)
+```
 
 Swift Response
 ```swift
