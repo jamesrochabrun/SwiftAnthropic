@@ -30,6 +30,7 @@ An open-source Swift package designed for effortless interaction with [Anthropic
 - [Message](#message)
    - [Function Calling](#function-calling)
       - [Text Editor Tool](#text-editor-tool)
+      - [Web Search Tool](#web-search)
    - [Prompt Caching](#prompt-caching)
 - [Message Stream](#message-stream)
 - [Vision](#vision)
@@ -982,7 +983,47 @@ For general guidance in Prompt Caching please visit the official [Anthropic Docu
 
 <span style="background-color: #D3D3D3">
 
-/// Copied from Anthropic [website](https://docs.anthropic.com/en/docs/build-with-claude/prompt-caching#large-context-caching-example))
+/// Copied from Anthropic [website](https://docs.anthropic.com/en/docs/build-with-claude/prompt-caching#large-context-caching-example)
+
+### Web Search Tool
+
+/// Copied from Anthropic [website](https://docs.anthropic.com/en/docs/build-with-claude/tool-use/web-search-tool))
+
+The [web search tool](https://docs.anthropic.com/en/docs/build-with-claude/tool-use/web-search-tool) gives Claude direct access to real-time web content, allowing it to answer questions with up-to-date information beyond its knowledge cutoff. Claude automatically cites sources from search results as part of its answer.
+
+Supported models
+
+Web search is available on:
+
+- Claude 3.7 Sonnet (claude-3-7-sonnet-20250219)
+- Claude 3.5 Sonnet (new) (claude-3-5-sonnet-latest)
+- Claude 3.5 Haiku (claude-3-5-haiku-latest)
+
+How web search works:
+
+When you add the web search tool to your API request:
+
+Claude decides when to search based on the prompt.
+The API executes the searches and provides Claude with the results. This process may repeat multiple times throughout a single request.
+At the end of its turn, Claude provides a final response with cited sources.
+
+Usage in SwiftAnthropic
+
+`SwiftAnthropic` provides convenience initializers for web search tools, you can use it like this:
+
+```swift
+let webSearchTool = MessageParameter.webSearch(
+   maxUses: 5,
+   allowedDomains: ["wikipedia.org"],
+   userLocation: .sanFrancisco
+)
+               
+let parameters = MessageParameter(
+model: .claude35Sonnet,
+messages: messages,
+maxTokens: 1024, 
+tools: [webSearchTool])
+```
 
 Prompt Caching is in beta
 
