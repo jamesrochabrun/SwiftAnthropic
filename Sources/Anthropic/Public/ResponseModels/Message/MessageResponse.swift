@@ -12,13 +12,13 @@ public struct MessageResponse: Decodable {
    /// Unique object identifier.
    ///
    /// The format and length of IDs may change over time.
-   public let id: String
+   public let id: String?
    
    /// e.g: "message"
-   public let type: String
+   public let type: String?
    
    /// The model that handled the request.
-   public let model: String
+   public let model: String?
    
    /// Conversational role of the generated message.
    ///
