@@ -92,31 +92,15 @@ public struct MessageResponse: Decodable {
     }
     
     public struct ToolResult: Codable {
-      public let content: String
+      public let content: ToolResultContent
       public let isError: Bool?
       public let toolUseId: String?
     }
     
     public struct WebSearchToolResult: Codable {
       public let toolUseId: String?
-      public let content: [WebSearchContent]
+      public let content: [ContentItem]
       public let type: String
-      
-      public struct WebSearchContent: Codable {
-        public let encryptedContent: String?
-        public let title: String?
-        public let pageAge: String?
-        public let type: String?
-        public let url: String?
-        
-        private enum CodingKeys: String, CodingKey {
-          case encryptedContent = "encrypted_content"
-          case title
-          case pageAge = "page_age"
-          case type
-          case url
-        }
-      }
       
       private enum CodingKeys: String, CodingKey {
         case toolUseId = "tool_use_id"
@@ -215,24 +199,15 @@ public struct MessageResponse: Decodable {
         self = .serverToolUse(ServerToolUse(id: id, input: input, type: type, name: name))
       case "web_search_tool_result":
         let toolUseId = try container.decodeIfPresent(String.self, forKey: .toolUseId)
-        let content = try container.decode([WebSearchToolResult.WebSearchContent].self, forKey: .content)
+        let content = try container.decode([ContentItem].self, forKey: .content)
         let type = try container.decode(String.self, forKey: .type)
         self = .webSearchToolResult(WebSearchToolResult(toolUseId: toolUseId, content: content, type: type))
       case "tool_result":
-        // Define the correct coding keys
-        enum ToolResultCodingKeys: String, CodingKey {
-          case type, content
-          case toolUseId = "tool_use_id"
-          case isError = "is_error"
-        }
-        
-        // Read required fields
-        let content = try container.decode(String.self, forKey: .content)
         let toolUseId = try container.decodeIfPresent(String.self, forKey: .toolUseId)
-        
-        // Use decodeIfPresent for the optional isError field with a default of false
         let isError = try container.decodeIfPresent(Bool.self, forKey: .isError) ?? false
-        
+
+        // Now decode the flexible content type
+        let content = try container.decode(ToolResultContent.self, forKey: .content)
         self = .toolResult(ToolResult(content: content, isError: isError, toolUseId: toolUseId))
       default:
         throw DecodingError.dataCorruptedError(forKey: .type, in: container, debugDescription: "Invalid type value found in JSON!")
@@ -530,5 +505,94 @@ public extension MessageResponse.Content {
       guard let commandValue = input["command"]?.stringValue else { return nil }
       return TextEditorCommand(rawValue: commandValue)
     }
+  }
+}
+
+// MARK: MessageResponse.Content + ToolResultContent
+
+public extension MessageResponse.Content {
+  
+  public enum ToolResultContent: Codable {
+    case string(String)
+    case items([ContentItem])
+    
+    public init(from decoder: Decoder) throws {
+      let container = try decoder.singleValueContainer()
+      
+      if let stringValue = try? container.decode(String.self) {
+        self = .string(stringValue)
+      } else if let itemsArray = try? container.decode([ContentItem].self) {
+        self = .items(itemsArray)
+      } else {
+        throw DecodingError.dataCorruptedError(
+          in: container,
+          debugDescription: "ToolResultContent must be either String or [ContentItem]"
+        )
+      }
+    }
+    
+    public func encode(to encoder: Encoder) throws {
+      var container = encoder.singleValueContainer()
+      
+      switch self {
+      case .string(let value):
+        try container.encode(value)
+      case .items(let items):
+        try container.encode(items)
+      }
+    }
+  }
+}
+
+// MARK: ContentItem
+
+public struct ContentItem: Codable {
+  public let encryptedContent: String?
+  public let title: String?
+  public let pageAge: String?
+  public let type: String?
+  public let url: String?
+  public let text: String?
+  
+  var description: String {
+    var result = "ContentItem:\n"
+    
+    if let title = self.title {
+      result += "  Title: \"\(title)\"\n"
+    }
+    
+    if let url = self.url {
+      result += "  URL: \(url)\n"
+    }
+    
+    if let type = self.type {
+      result += "  Type: \(type)\n"
+    }
+    
+    if let pageAge = self.pageAge {
+      result += "  Age: \(pageAge)\n"
+    }
+    
+    if let text = self.text {
+      // Limit text length for readability
+      let truncatedText = text.count > 100 ? "\(text.prefix(100))..." : text
+      result += "  Text: \"\(truncatedText)\"\n"
+    }
+    
+    if let encryptedContent = self.encryptedContent {
+      // Just indicate presence rather than showing the whole encrypted content
+      result += "  Encrypted Content: [Present]\n"
+    }
+    
+    return result
+  }
+  
+  private enum CodingKeys: String, CodingKey {
+    case encryptedContent = "encrypted_content"
+    case title
+    case text
+    case pageAge = "page_age"
+    case type
+    case url
   }
 }
