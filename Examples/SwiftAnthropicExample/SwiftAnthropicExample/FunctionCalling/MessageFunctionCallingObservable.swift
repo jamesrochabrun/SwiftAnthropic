@@ -47,6 +47,8 @@ import SwiftUI
                   dump(serverToolUse)
                case .webSearchToolResult(let webSearchTool):
                   dump(webSearchTool)
+               case .toolResult(let toolResult):
+                 dump(toolResult)
                }
             }
          } catch {
