@@ -1,0 +1,36 @@
+name: CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build_and_test_macos:
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Get swift version
+      run: swift --version
+    - name: Build
+      run: swift build -q
+    - name: Run tests
+      run: swift test -q
+
+  build_and_test_linux:
+    runs-on: ubuntu-latest
+    container:
+      image: swift:6.0.1-jammy
+    steps:
+    - name: Install dependencies
+      run: |
+        apt-get update
+        apt-get install -y curl git
+    - uses: actions/checkout@v4
+    - name: Get swift version
+      run: swift --version
+    - name: Build
+      run: swift build -q
+    - name: Run tests
+      run: swift test -q
