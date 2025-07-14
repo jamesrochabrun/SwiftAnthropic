@@ -6,6 +6,9 @@
 //
 
 import Foundation
+#if canImport(FoundationNetworking)
+import FoundationNetworking
+#endif
 
 struct DefaultAnthropicService: AnthropicService {
   
@@ -45,7 +48,7 @@ struct DefaultAnthropicService: AnthropicService {
   {
     var localParameter = parameter
     localParameter.stream = false
-    let request = try AnthropicAPI(base: basePath, apiPath: .messages).request(apiKey: apiKey, version: apiVersion, method: .post, params: localParameter, betaHeaders: betaHeaders)
+    let request = try AnthropicAPI(base: basePath, apiPath: .messages).request(apiKey: apiKey, version: apiVersion, method: HTTPMethod.post, params: localParameter, betaHeaders: betaHeaders)
     return try await fetch(type: MessageResponse.self, with: request, debugEnabled: debugEnabled)
   }
   
@@ -55,7 +58,7 @@ struct DefaultAnthropicService: AnthropicService {
   {
     var localParameter = parameter
     localParameter.stream = true
-    let request = try AnthropicAPI(base: basePath, apiPath: .messages).request(apiKey: apiKey, version: apiVersion, method: .post, params: localParameter, betaHeaders: betaHeaders)
+    let request = try AnthropicAPI(base: basePath, apiPath: .messages).request(apiKey: apiKey, version: apiVersion, method: HTTPMethod.post, params: localParameter, betaHeaders: betaHeaders)
     return try await fetchStream(type: MessageStreamResponse.self, with: request, debugEnabled: debugEnabled)
   }
   
@@ -63,7 +66,7 @@ struct DefaultAnthropicService: AnthropicService {
     parameter: MessageTokenCountParameter)
   async throws -> MessageInputTokens
   {
-    let request = try AnthropicAPI(base: basePath, apiPath: .countTokens).request(apiKey: apiKey, version: apiVersion, method: .post, params: parameter, betaHeaders: betaHeaders)
+    let request = try AnthropicAPI(base: basePath, apiPath: .countTokens).request(apiKey: apiKey, version: apiVersion, method: HTTPMethod.post, params: parameter, betaHeaders: betaHeaders)
     return try await fetch(type: MessageInputTokens.self, with: request, debugEnabled: debugEnabled)
   }
   
@@ -76,7 +79,7 @@ struct DefaultAnthropicService: AnthropicService {
   {
     var localParameter = parameter
     localParameter.stream = false
-    let request = try AnthropicAPI(base: basePath, apiPath: .textCompletions).request(apiKey: apiKey, version: apiVersion, method: .post, params: localParameter)
+    let request = try AnthropicAPI(base: basePath, apiPath: .textCompletions).request(apiKey: apiKey, version: apiVersion, method: HTTPMethod.post, params: localParameter)
     return try await fetch(type: TextCompletionResponse.self, with: request, debugEnabled: debugEnabled)
   }
   
@@ -86,7 +89,7 @@ struct DefaultAnthropicService: AnthropicService {
   {
     var localParameter = parameter
     localParameter.stream = true
-    let request = try AnthropicAPI(base: basePath, apiPath: .textCompletions).request(apiKey: apiKey, version: apiVersion, method: .post, params: localParameter)
+    let request = try AnthropicAPI(base: basePath, apiPath: .textCompletions).request(apiKey: apiKey, version: apiVersion, method: HTTPMethod.post, params: localParameter)
     return try await fetchStream(type: TextCompletionStreamResponse.self, with: request, debugEnabled: debugEnabled)
   }
   
