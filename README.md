@@ -2,6 +2,8 @@
 <img width="1275" alt="Anthropic" src="https://github.com/jamesrochabrun/SwiftAnthropic/assets/5378604/52d1dd1a-b8ee-4a6b-b2de-6fbad440217b">
 
 ![iOS 15+](https://img.shields.io/badge/iOS-15%2B-blue.svg)
+![macOS 12+](https://img.shields.io/badge/macOS-12%2B-blue.svg)
+![Linux](https://img.shields.io/badge/Linux-blue.svg)
 [![MIT license](https://img.shields.io/badge/License-MIT-blue.svg)](https://lbesson.mit-license.org/)
 [![swift-version](https://img.shields.io/badge/swift-5.9-brightgreen.svg)](https://github.com/apple/swift)
 [![swiftui-version](https://img.shields.io/badge/swiftui-brightgreen)](https://developer.apple.com/documentation/swiftui)
@@ -22,6 +24,14 @@ An open-source Swift package designed for effortless interaction with [Anthropic
 ## Description
 
 `SwiftAnthropic` is an open-source Swift package that streamlines interactions with Anthropic's API endpoints.
+
+### Platform Support
+
+SwiftAnthropic supports both Apple platforms and Linux:
+- **Apple platforms**: iOS 15+, macOS 12+
+- **Linux**: SwiftAnthropic on Linux uses AsyncHTTPClient to work around URLSession bugs in Apple's Foundation framework, making it suitable for server-side Swift applications.
+
+**Note**: AIProxy support is only available on Apple platforms.
 
 ### Anthropic ENDPOINTS
 
