@@ -92,5 +92,154 @@ struct DefaultAnthropicService: AnthropicService {
     let request = try AnthropicAPI(base: basePath, apiPath: .textCompletions).request(apiKey: apiKey, version: apiVersion, method: HTTPMethod.post, params: localParameter)
     return try await fetchStream(type: TextCompletionStreamResponse.self, with: request, debugEnabled: debugEnabled)
   }
-  
+
+  // MARK: Skills Management
+
+  func createSkill(
+    _ parameter: SkillCreateParameter)
+  async throws -> SkillResponse
+  {
+    let request = try AnthropicAPI(base: basePath, apiPath: .skills).multipartRequest(
+      apiKey: apiKey,
+      version: apiVersion,
+      method: .post,
+      displayTitle: parameter.displayTitle,
+      files: parameter.files,
+      betaHeaders: betaHeaders
+    )
+    return try await fetch(type: SkillResponse.self, with: request, debugEnabled: debugEnabled)
+  }
+
+  func listSkills(
+    parameter: ListSkillsParameter?)
+  async throws -> ListSkillsResponse
+  {
+    var queryItems: [URLQueryItem] = []
+    if let page = parameter?.page {
+      queryItems.append(URLQueryItem(name: "page", value: page))
+    }
+    if let limit = parameter?.limit {
+      queryItems.append(URLQueryItem(name: "limit", value: "\(limit)"))
+    }
+    if let source = parameter?.source {
+      queryItems.append(URLQueryItem(name: "source", value: source.rawValue))
+    }
+
+    let request = try AnthropicAPI(base: basePath, apiPath: .skills).request(
+      apiKey: apiKey,
+      version: apiVersion,
+      method: .get,
+      betaHeaders: betaHeaders,
+      queryItems: queryItems
+    )
+    return try await fetch(type: ListSkillsResponse.self, with: request, debugEnabled: debugEnabled)
+  }
+
+  func retrieveSkill(
+    skillId: String)
+  async throws -> SkillResponse
+  {
+    let request = try AnthropicAPI(base: basePath, apiPath: .skill(id: skillId)).request(
+      apiKey: apiKey,
+      version: apiVersion,
+      method: .get,
+      betaHeaders: betaHeaders
+    )
+    return try await fetch(type: SkillResponse.self, with: request, debugEnabled: debugEnabled)
+  }
+
+  func deleteSkill(
+    skillId: String)
+  async throws
+  {
+    let request = try AnthropicAPI(base: basePath, apiPath: .skill(id: skillId)).request(
+      apiKey: apiKey,
+      version: apiVersion,
+      method: .delete,
+      betaHeaders: betaHeaders
+    )
+    // For DELETE requests, we just need to check the response status
+    let httpRequest = try HTTPRequest(from: request)
+    let (_, response) = try await httpClient.data(for: httpRequest)
+
+    guard response.statusCode == 200 || response.statusCode == 204 else {
+      throw APIError.responseUnsuccessful(description: "Failed to delete skill: status code \(response.statusCode)")
+    }
+  }
+
+  // MARK: Skill Versions
+
+  func createSkillVersion(
+    skillId: String,
+    _ parameter: SkillVersionCreateParameter)
+  async throws -> SkillVersionResponse
+  {
+    let request = try AnthropicAPI(base: basePath, apiPath: .skillVersions(skillId: skillId)).multipartRequest(
+      apiKey: apiKey,
+      version: apiVersion,
+      method: .post,
+      displayTitle: nil,
+      files: parameter.files,
+      betaHeaders: betaHeaders
+    )
+    return try await fetch(type: SkillVersionResponse.self, with: request, debugEnabled: debugEnabled)
+  }
+
+  func listSkillVersions(
+    skillId: String,
+    parameter: ListSkillVersionsParameter?)
+  async throws -> ListSkillVersionsResponse
+  {
+    var queryItems: [URLQueryItem] = []
+    if let page = parameter?.page {
+      queryItems.append(URLQueryItem(name: "page", value: page))
+    }
+    if let limit = parameter?.limit {
+      queryItems.append(URLQueryItem(name: "limit", value: "\(limit)"))
+    }
+
+    let request = try AnthropicAPI(base: basePath, apiPath: .skillVersions(skillId: skillId)).request(
+      apiKey: apiKey,
+      version: apiVersion,
+      method: .get,
+      betaHeaders: betaHeaders,
+      queryItems: queryItems
+    )
+    return try await fetch(type: ListSkillVersionsResponse.self, with: request, debugEnabled: debugEnabled)
+  }
+
+  func retrieveSkillVersion(
+    skillId: String,
+    version: String)
+  async throws -> SkillVersionResponse
+  {
+    let request = try AnthropicAPI(base: basePath, apiPath: .skillVersion(skillId: skillId, version: version)).request(
+      apiKey: apiKey,
+      version: apiVersion,
+      method: .get,
+      betaHeaders: betaHeaders
+    )
+    return try await fetch(type: SkillVersionResponse.self, with: request, debugEnabled: debugEnabled)
+  }
+
+  func deleteSkillVersion(
+    skillId: String,
+    version: String)
+  async throws
+  {
+    let request = try AnthropicAPI(base: basePath, apiPath: .skillVersion(skillId: skillId, version: version)).request(
+      apiKey: apiKey,
+      version: apiVersion,
+      method: .delete,
+      betaHeaders: betaHeaders
+    )
+    // For DELETE requests, we just need to check the response status
+    let httpRequest = try HTTPRequest(from: request)
+    let (_, response) = try await httpClient.data(for: httpRequest)
+
+    guard response.statusCode == 200 || response.statusCode == 204 else {
+      throw APIError.responseUnsuccessful(description: "Failed to delete skill version: status code \(response.statusCode)")
+    }
+  }
+
 }

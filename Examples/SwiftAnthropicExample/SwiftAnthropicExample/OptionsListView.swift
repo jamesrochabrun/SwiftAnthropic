@@ -17,10 +17,11 @@ struct OptionsListView: View {
    
    /// https://docs.anthropic.com/claude/reference/getting-started-with-the-api
    enum APIOption: String, CaseIterable, Identifiable {
-      
+
       case message = "Message"
       case messageFunctionCall = "Function Call"
       case thinking = "Thinking Mode"
+      case skills = "Skills API"
 
       var id: Self { self }
    }
@@ -41,7 +42,8 @@ struct OptionsListView: View {
                MessageFunctionCallingDemoView(observable: .init(service: service))
             case .thinking:
                ThinkingModeMessageDemoView(observable: .init(service: service))
-                                           
+            case .skills:
+               SkillsDemoView(observable: .init(service: service))
             }
          }
       }

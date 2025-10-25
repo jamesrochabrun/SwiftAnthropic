@@ -65,10 +65,20 @@ public struct MessageResponse: Decodable {
   ///
   /// This value will be non-null if one of your custom stop sequences was generated.
   public let stopSequence: String?
-  
+
   /// Container for the number of tokens used.
   public let usage: Usage
-  
+
+  /// Container information when skills are used.
+  /// Contains the container ID that can be reused in subsequent requests.
+  public let container: ContainerInfo?
+
+  /// Container information returned in responses when skills are used
+  public struct ContainerInfo: Decodable {
+    /// The container ID that can be reused across multiple messages
+    public let id: String?
+  }
+
   public enum Content: Codable {
     public typealias Input = [String: DynamicContent]
     public typealias Citations = [Citation]

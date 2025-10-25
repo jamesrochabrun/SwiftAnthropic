@@ -134,6 +134,123 @@ public protocol AnthropicService {
   func createStreamTextCompletion(
     _ parameter: TextCompletionParameter)
   async throws -> AsyncThrowingStream<TextCompletionStreamResponse, Error>
+
+  // MARK: Skills Management
+
+  /// Creates a new skill by uploading skill files.
+  ///
+  /// - Parameter parameter: Parameters for creating the skill, including display title and files.
+  ///
+  /// - Returns: A [SkillResponse](https://docs.anthropic.com/claude/reference/skills/create-skill).
+  ///
+  /// - Throws: An error if the request fails.
+  ///
+  /// For more information, refer to [Anthropic's Skills API documentation](https://docs.anthropic.com/claude/reference/skills/create-skill).
+  func createSkill(
+    _ parameter: SkillCreateParameter)
+  async throws -> SkillResponse
+
+  /// Lists all skills available to your workspace with optional filtering and pagination.
+  ///
+  /// - Parameter parameter: Optional parameters for filtering and pagination.
+  ///
+  /// - Returns: A [ListSkillsResponse](https://docs.anthropic.com/claude/reference/skills/list-skills).
+  ///
+  /// - Throws: An error if the request fails.
+  ///
+  /// For more information, refer to [Anthropic's Skills API documentation](https://docs.anthropic.com/claude/reference/skills/list-skills).
+  func listSkills(
+    parameter: ListSkillsParameter?)
+  async throws -> ListSkillsResponse
+
+  /// Retrieves detailed information about a specific skill.
+  ///
+  /// - Parameter skillId: The unique identifier of the skill to retrieve.
+  ///
+  /// - Returns: A [SkillResponse](https://docs.anthropic.com/claude/reference/skills/get-skill).
+  ///
+  /// - Throws: An error if the request fails.
+  ///
+  /// For more information, refer to [Anthropic's Skills API documentation](https://docs.anthropic.com/claude/reference/skills/get-skill).
+  func retrieveSkill(
+    skillId: String)
+  async throws -> SkillResponse
+
+  /// Deletes a skill.
+  /// Note: All versions of the skill must be deleted before the skill itself can be deleted.
+  ///
+  /// - Parameter skillId: The unique identifier of the skill to delete.
+  ///
+  /// - Throws: An error if the request fails or if versions still exist.
+  ///
+  /// For more information, refer to [Anthropic's Skills API documentation](https://docs.anthropic.com/claude/reference/skills/delete-skill).
+  func deleteSkill(
+    skillId: String)
+  async throws
+
+  // MARK: Skill Versions
+
+  /// Creates a new version of an existing skill.
+  ///
+  /// - Parameters:
+  ///   - skillId: The unique identifier of the skill.
+  ///   - parameter: Parameters containing the files for the new version.
+  ///
+  /// - Returns: A [SkillVersionResponse](https://docs.anthropic.com/claude/reference/skills/create-skill-version).
+  ///
+  /// - Throws: An error if the request fails.
+  ///
+  /// For more information, refer to [Anthropic's Skills API documentation](https://docs.anthropic.com/claude/reference/skills/create-skill-version).
+  func createSkillVersion(
+    skillId: String,
+    _ parameter: SkillVersionCreateParameter)
+  async throws -> SkillVersionResponse
+
+  /// Lists all versions of a specific skill with pagination support.
+  ///
+  /// - Parameters:
+  ///   - skillId: The unique identifier of the skill.
+  ///   - parameter: Optional parameters for pagination.
+  ///
+  /// - Returns: A [ListSkillVersionsResponse](https://docs.anthropic.com/claude/reference/skills/list-skill-versions).
+  ///
+  /// - Throws: An error if the request fails.
+  ///
+  /// For more information, refer to [Anthropic's Skills API documentation](https://docs.anthropic.com/claude/reference/skills/list-skill-versions).
+  func listSkillVersions(
+    skillId: String,
+    parameter: ListSkillVersionsParameter?)
+  async throws -> ListSkillVersionsResponse
+
+  /// Retrieves detailed information about a specific skill version.
+  ///
+  /// - Parameters:
+  ///   - skillId: The unique identifier of the skill.
+  ///   - version: The version identifier to retrieve.
+  ///
+  /// - Returns: A [SkillVersionResponse](https://docs.anthropic.com/claude/reference/skills/get-skill-version).
+  ///
+  /// - Throws: An error if the request fails.
+  ///
+  /// For more information, refer to [Anthropic's Skills API documentation](https://docs.anthropic.com/claude/reference/skills/get-skill-version).
+  func retrieveSkillVersion(
+    skillId: String,
+    version: String)
+  async throws -> SkillVersionResponse
+
+  /// Deletes a specific version of a skill.
+  ///
+  /// - Parameters:
+  ///   - skillId: The unique identifier of the skill.
+  ///   - version: The version identifier to delete.
+  ///
+  /// - Throws: An error if the request fails.
+  ///
+  /// For more information, refer to [Anthropic's Skills API documentation](https://docs.anthropic.com/claude/reference/skills/delete-skill-version).
+  func deleteSkillVersion(
+    skillId: String,
+    version: String)
+  async throws
 }
 
 extension AnthropicService {

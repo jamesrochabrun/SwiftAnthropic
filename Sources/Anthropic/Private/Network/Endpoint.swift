@@ -81,4 +81,62 @@ extension Endpoint {
     }
     return request
   }
+
+  /// Creates a multipart/form-data request for uploading skill files.
+  ///
+  /// This method is used for Skills API endpoints that require file uploads.
+  func multipartRequest(
+    apiKey: String,
+    version: String,
+    method: HTTPMethod,
+    displayTitle: String?,
+    files: [SkillFile],
+    betaHeaders: [String]? = nil,
+    queryItems: [URLQueryItem] = [])
+  throws -> URLRequest
+  {
+    let boundary = "Boundary-\(UUID().uuidString)"
+    var request = URLRequest(url: urlComponents(queryItems: queryItems).url!)
+    request.addValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
+    request.addValue("\(apiKey)", forHTTPHeaderField: "x-api-key")
+    request.addValue("\(version)", forHTTPHeaderField: "anthropic-version")
+    if let betaHeaders {
+      request.addValue("\(betaHeaders.joined(separator: ","))", forHTTPHeaderField: "anthropic-beta")
+    }
+    request.httpMethod = method.rawValue
+
+    // Build multipart body
+    var body = Data()
+
+    // Add display_title if provided
+    if let displayTitle = displayTitle {
+      body.append("--\(boundary)\r\n".data(using: .utf8)!)
+      body.append("Content-Disposition: form-data; name=\"display_title\"\r\n\r\n".data(using: .utf8)!)
+      body.append("\(displayTitle)\r\n".data(using: .utf8)!)
+    }
+
+    // Add files
+    for file in files {
+      body.append("--\(boundary)\r\n".data(using: .utf8)!)
+
+      // Format: files[]=@path/to/file;filename=skill_name/SKILL.md
+      let contentDisposition = "Content-Disposition: form-data; name=\"files[]\"; filename=\"\(file.filename)\"\r\n"
+      body.append(contentDisposition.data(using: .utf8)!)
+
+      if let mimeType = file.mimeType {
+        body.append("Content-Type: \(mimeType)\r\n\r\n".data(using: .utf8)!)
+      } else {
+        body.append("\r\n".data(using: .utf8)!)
+      }
+
+      body.append(file.data)
+      body.append("\r\n".data(using: .utf8)!)
+    }
+
+    // Close boundary
+    body.append("--\(boundary)--\r\n".data(using: .utf8)!)
+
+    request.httpBody = body
+    return request
+  }
 }

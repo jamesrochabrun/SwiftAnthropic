@@ -94,7 +94,12 @@ public struct MessageParameter: Encodable {
    /// Controls whether Claude's extended thinking/reasoning mode is enabled
    /// and specifies token budget allocated for thinking before responding.
    public let thinking: Thinking?
-   
+
+   /// Container configuration for skills and code execution environment.
+   /// Specifies which skills to load and optionally reuses an existing container.
+   /// See [Skills API](https://docs.anthropic.com/claude/reference/skills) for details.
+   public let container: Container?
+
    public enum System: Encodable {
       case text(String)
       case list([Cache])
@@ -620,11 +625,11 @@ public struct MessageParameter: Encodable {
       public let region: String?
       public let country: String?
       public let timezone: String?
-      
+
       public enum LocationType: String, Codable {
          case approximate
       }
-      
+
       public init(
          type: LocationType = .approximate,
          city: String? = nil,
@@ -639,7 +644,63 @@ public struct MessageParameter: Encodable {
          self.timezone = timezone
       }
    }
-   
+
+   // MARK: - Skills and Container Types
+
+   /// Container configuration for skills and code execution.
+   /// Containers provide isolated environments for executing code and using skills.
+   /// See [Skills API](https://docs.anthropic.com/claude/reference/skills) for details.
+   public struct Container: Encodable {
+      /// Optional container ID for reusing an existing container across multiple messages
+      public let id: String?
+      /// Array of skills to load in the container (maximum 8 skills)
+      public let skills: [SkillReference]?
+
+      public init(
+         id: String? = nil,
+         skills: [SkillReference]? = nil
+      ) {
+         self.id = id
+         self.skills = skills
+      }
+   }
+
+   /// Reference to a skill to be loaded in a container.
+   /// Skills can be either Anthropic-managed or custom user-created skills.
+   public struct SkillReference: Encodable {
+      /// Type of skill: "anthropic" for Anthropic-managed skills, "custom" for user-created skills
+      public let type: SkillType
+      /// Skill identifier
+      /// - For Anthropic skills: short names like "pptx", "xlsx", "docx", "pdf"
+      /// - For custom skills: generated IDs like "skill_01AbCdEfGhIjKlMnOpQrStUv"
+      public let skillId: String
+      /// Optional version identifier
+      /// - For Anthropic skills: date-based like "20251013" or "latest"
+      /// - For custom skills: epoch timestamp like "1759178010641129" or "latest"
+      public let version: String?
+
+      public enum SkillType: String, Encodable {
+         case anthropic
+         case custom
+      }
+
+      private enum CodingKeys: String, CodingKey {
+         case type
+         case skillId = "skill_id"
+         case version
+      }
+
+      public init(
+         type: SkillType,
+         skillId: String,
+         version: String? = "latest"
+      ) {
+         self.type = type
+         self.skillId = skillId
+         self.version = version
+      }
+   }
+
    public init(
       model: Model,
       messages: [Message],
@@ -653,7 +714,8 @@ public struct MessageParameter: Encodable {
       topP: Double? = nil,
       tools: [Tool]? = nil,
       toolChoice: ToolChoice? = nil,
-      thinking: Thinking? = nil)
+      thinking: Thinking? = nil,
+      container: Container? = nil)
    {
       self.model = model.value
       self.messages = messages
@@ -668,5 +730,6 @@ public struct MessageParameter: Encodable {
       self.tools = tools
       self.toolChoice = toolChoice
       self.thinking = thinking
+      self.container = container
    }
 }
