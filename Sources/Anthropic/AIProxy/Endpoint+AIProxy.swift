@@ -72,6 +72,77 @@ extension Endpoint {
     }
     return request
   }
+
+  /// Creates a multipart/form-data request for uploading skill files via AIProxy.
+  ///
+  /// This method is used for Skills API endpoints that require file uploads.
+  func multipartRequest(
+    aiproxyPartialKey: String,
+    clientID: String?,
+    version: String,
+    method: HTTPMethod,
+    displayTitle: String?,
+    files: [SkillFile],
+    betaHeaders: [String]? = nil,
+    queryItems: [URLQueryItem] = [])
+  async throws -> URLRequest
+  {
+    let boundary = "Boundary-\(UUID().uuidString)"
+    var request = URLRequest(url: urlComponents(queryItems: queryItems).url!)
+
+    request.addValue(aiproxyPartialKey, forHTTPHeaderField: "aiproxy-partial-key")
+    if let clientID = clientID ?? getClientID() {
+      request.addValue(clientID, forHTTPHeaderField: "aiproxy-client-id")
+    }
+    if let deviceCheckToken = await getDeviceCheckToken() {
+      request.addValue(deviceCheckToken, forHTTPHeaderField: "aiproxy-devicecheck")
+    }
+#if DEBUG && targetEnvironment(simulator)
+    if let deviceCheckBypass = ProcessInfo.processInfo.environment["AIPROXY_DEVICE_CHECK_BYPASS"] {
+      request.addValue(deviceCheckBypass, forHTTPHeaderField: "aiproxy-devicecheck-bypass")
+    }
+#endif
+
+    request.addValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
+    request.addValue("\(version)", forHTTPHeaderField: "anthropic-version")
+    if let betaHeaders {
+      request.addValue("\(betaHeaders.joined(separator: ","))", forHTTPHeaderField: "anthropic-beta")
+    }
+    request.httpMethod = method.rawValue
+
+    // Build multipart body
+    var body = Data()
+
+    // Add display_title if provided
+    if let displayTitle = displayTitle {
+      body.append("--\(boundary)\r\n".data(using: .utf8)!)
+      body.append("Content-Disposition: form-data; name=\"display_title\"\r\n\r\n".data(using: .utf8)!)
+      body.append("\(displayTitle)\r\n".data(using: .utf8)!)
+    }
+
+    // Add files
+    for file in files {
+      body.append("--\(boundary)\r\n".data(using: .utf8)!)
+
+      let contentDisposition = "Content-Disposition: form-data; name=\"files[]\"; filename=\"\(file.filename)\"\r\n"
+      body.append(contentDisposition.data(using: .utf8)!)
+
+      if let mimeType = file.mimeType {
+        body.append("Content-Type: \(mimeType)\r\n\r\n".data(using: .utf8)!)
+      } else {
+        body.append("\r\n".data(using: .utf8)!)
+      }
+
+      body.append(file.data)
+      body.append("\r\n".data(using: .utf8)!)
+    }
+
+    // Close boundary
+    body.append("--\(boundary)--\r\n".data(using: .utf8)!)
+
+    request.httpBody = body
+    return request
+  }
 }
 
 

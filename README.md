@@ -48,6 +48,7 @@ SwiftAnthropic supports both Apple platforms and Linux:
 - [Citations](#citations)
 - [Count Tokens](#count-tokens)
 - [Extended Thinking](#extended-thinking)
+- [Skills API](#skills-api)
 - [Examples](#demo)
 
 ## Getting an API Key
@@ -1881,6 +1882,366 @@ public final class StreamHandler {
 - **Compatibility**: Thinking mode isn't compatible with temperature, top_p, top_k modifications, or forced tool use.
 
 For more detailed information, refer to the [Anthropic Extended Thinking documentation](https://docs.anthropic.com/claude/docs/build-with-claude/extended-thinking).
+
+## Skills API
+
+The Skills API allows you to create and use reusable tools that Claude can leverage across conversations. Skills provide Claude with capabilities like code execution, text editing, and spreadsheet manipulation.
+
+### What are Skills?
+
+Skills are pre-built tools that extend Claude's capabilities beyond text generation. Anthropic provides built-in skills like:
+- `xlsx`: Create and manipulate spreadsheets
+- `text_editor`: Edit and modify text files
+- And more...
+
+You can also create custom skills tailored to your specific needs.
+
+### Beta Access
+
+Skills API is in beta. To use this feature, include the following beta headers:
+
+```swift
+let service = AnthropicServiceFactory.service(
+    apiKey: apiKey,
+    betaHeaders: ["skills-2025-10-02", "code-execution-2025-08-25"]
+)
+```
+
+### Using Skills in Messages
+
+To use a skill in a message, you need to:
+1. Reference the skill in the `container` parameter
+2. Include code execution tools
+3. Optionally reuse the container ID across turns for performance
+
+#### Basic Usage
+
+```swift
+// Create a message with a skill
+let userMessage = MessageParameter.Message(
+    role: .user,
+    content: .text("Create a simple budget spreadsheet with income and expenses")
+)
+
+// Create parameters with skill reference
+let parameters = MessageParameter(
+    model: .claude37Sonnet,
+    messages: [userMessage],
+    maxTokens: 4096,
+    tools: [.hosted(type: "code_execution_20250825", name: "code_execution")],
+    container: .init(
+        id: nil, // nil for first request, reuse container ID for subsequent requests
+        skills: [
+            .init(type: .anthropic, skillId: "xlsx", version: "latest")
+        ]
+    )
+)
+
+// Create message
+let response = try await service.createMessage(parameters)
+
+// Extract container ID for reuse
+if let containerId = response.container?.id {
+    // Save this ID to reuse in the next request for better performance
+    print("Container ID: \(containerId)")
+}
+```
+
+#### Reusing Containers Across Turns
+
+For better performance in multi-turn conversations, reuse the container ID:
+
+```swift
+var containerId: String? = nil
+
+// First request
+let firstMessage = MessageParameter.Message(
+    role: .user,
+    content: .text("Create a budget spreadsheet")
+)
+
+let firstParams = MessageParameter(
+    model: .claude37Sonnet,
+    messages: [firstMessage],
+    maxTokens: 4096,
+    tools: [.hosted(type: "code_execution_20250825", name: "code_execution")],
+    container: .init(id: nil, skills: [
+        .init(type: .anthropic, skillId: "xlsx", version: "latest")
+    ])
+)
+
+let firstResponse = try await service.createMessage(firstParams)
+containerId = firstResponse.container?.id
+
+// Second request - reuse container
+let secondMessage = MessageParameter.Message(
+    role: .user,
+    content: .text("Add a totals row to the spreadsheet")
+)
+
+let secondParams = MessageParameter(
+    model: .claude37Sonnet,
+    messages: [secondMessage],
+    maxTokens: 4096,
+    tools: [.hosted(type: "code_execution_20250825", name: "code_execution")],
+    container: .init(id: containerId, skills: [
+        .init(type: .anthropic, skillId: "xlsx", version: "latest")
+    ])
+)
+
+let secondResponse = try await service.createMessage(secondParams)
+```
+
+### Managing Skills
+
+SwiftAnthropic provides comprehensive support for managing skills through the Skills API.
+
+#### List Skills
+
+```swift
+// List all skills
+let allSkills = try await service.listSkills(parameter: nil)
+
+// List with filters
+let listParams = ListSkillsParameter(
+    page: nil,
+    limit: 20,
+    source: .anthropic // or .custom for user-created skills
+)
+let skills = try await service.listSkills(parameter: listParams)
+
+for skill in skills.data {
+    print("Skill ID: \(skill.id)")
+    print("Title: \(skill.displayTitle ?? "N/A")")
+    print("Source: \(skill.source)")
+    print("Latest Version: \(skill.latestVersion ?? "N/A")")
+}
+```
+
+#### Create a Custom Skill
+
+```swift
+// Prepare skill files
+let scriptContent = """
+#!/usr/bin/env python3
+print("Hello from custom skill!")
+"""
+let scriptData = scriptContent.data(using: .utf8)!
+
+let skillFile = SkillFile(
+    filename: "main.py",
+    data: scriptData,
+    mimeType: "text/x-python"
+)
+
+// Create skill
+let createParams = SkillCreateParameter(
+    displayTitle: "My Custom Skill",
+    files: [skillFile]
+)
+
+let newSkill = try await service.createSkill(createParams)
+print("Created skill with ID: \(newSkill.id)")
+```
+
+#### Retrieve a Skill
+
+```swift
+let skillId = "skill_01JAbcdefghijklmnopqrstuvw"
+let skill = try await service.retrieveSkill(skillId: skillId)
+print("Skill: \(skill.displayTitle ?? "N/A")")
+```
+
+#### Delete a Skill
+
+```swift
+let skillId = "skill_01JAbcdefghijklmnopqrstuvw"
+try await service.deleteSkill(skillId: skillId)
+print("Skill deleted successfully")
+```
+
+### Managing Skill Versions
+
+Skills support versioning, allowing you to iterate on your custom skills while maintaining backward compatibility.
+
+#### List Skill Versions
+
+```swift
+let skillId = "skill_01JAbcdefghijklmnopqrstuvw"
+let versions = try await service.listSkillVersions(
+    skillId: skillId,
+    parameter: nil
+)
+
+for version in versions.data {
+    print("Version: \(version.version)")
+    print("Created: \(version.createdAt)")
+}
+```
+
+#### Create a New Version
+
+```swift
+let skillId = "skill_01JAbcdefghijklmnopqrstuvw"
+
+let updatedScriptContent = """
+#!/usr/bin/env python3
+print("Hello from updated skill!")
+"""
+let updatedScriptData = updatedScriptContent.data(using: .utf8)!
+
+let versionFile = SkillFile(
+    filename: "main.py",
+    data: updatedScriptData,
+    mimeType: "text/x-python"
+)
+
+let versionParams = SkillVersionCreateParameter(files: [versionFile])
+let newVersion = try await service.createSkillVersion(
+    skillId: skillId,
+    versionParams
+)
+print("Created version: \(newVersion.version)")
+```
+
+#### Retrieve a Specific Version
+
+```swift
+let skillId = "skill_01JAbcdefghijklmnopqrstuvw"
+let versionId = "20251013"
+
+let version = try await service.retrieveSkillVersion(
+    skillId: skillId,
+    version: versionId
+)
+print("Version \(version.version) created at \(version.createdAt)")
+```
+
+#### Delete a Version
+
+```swift
+let skillId = "skill_01JAbcdefghijklmnopqrstuvw"
+let versionId = "20251013"
+
+try await service.deleteSkillVersion(
+    skillId: skillId,
+    version: versionId
+)
+print("Version deleted successfully")
+```
+
+### Parameters
+
+#### Container Configuration
+
+```swift
+public struct Container: Encodable {
+    /// Optional container ID to reuse from a previous request
+    public let id: String?
+    /// Skills to make available in this container
+    public let skills: [SkillReference]?
+}
+
+public struct SkillReference: Encodable {
+    /// Type of skill source
+    public let type: SkillType
+    /// Unique identifier for the skill
+    public let skillId: String
+    /// Version identifier (use "latest" for most recent)
+    public let version: String?
+
+    public enum SkillType: String, Encodable {
+        case anthropic  // Anthropic-provided skill
+        case custom     // User-created skill
+    }
+}
+```
+
+#### Skill Creation Parameters
+
+```swift
+public struct SkillCreateParameter {
+    /// Optional display title for the skill
+    public let displayTitle: String?
+    /// Files that make up the skill
+    public let files: [SkillFile]
+}
+
+public struct SkillFile {
+    /// Name of the file
+    public let filename: String
+    /// File content as Data
+    public let data: Data
+    /// MIME type (e.g., "text/x-python", "application/javascript")
+    public let mimeType: String?
+}
+```
+
+#### List Skills Parameters
+
+```swift
+public struct ListSkillsParameter {
+    /// Pagination token from previous response
+    public let page: String?
+    /// Maximum number of results (default: 20)
+    public let limit: Int?
+    /// Filter by skill source
+    public let source: SkillSource?
+
+    public enum SkillSource: String {
+        case custom     // Only user-created skills
+        case anthropic  // Only Anthropic-provided skills
+    }
+}
+```
+
+### Response Models
+
+#### Skill Response
+
+```swift
+public struct SkillResponse: Decodable {
+    /// Unique identifier for the skill
+    public let id: String
+    /// Object type (always "skill")
+    public let type: String
+    /// Human-readable title
+    public let displayTitle: String?
+    /// Source: "custom" or "anthropic"
+    public let source: String
+    /// Latest version identifier
+    public let latestVersion: String?
+    /// ISO 8601 creation timestamp
+    public let createdAt: String
+    /// ISO 8601 update timestamp
+    public let updatedAt: String
+}
+```
+
+#### List Skills Response
+
+```swift
+public struct ListSkillsResponse: Decodable {
+    /// Array of skills
+    public let data: [SkillResponse]
+    /// Whether more results are available
+    public let hasMore: Bool
+    /// Token for next page (if hasMore is true)
+    public let nextPage: String?
+}
+```
+
+#### Container Info in Message Response
+
+```swift
+// Added to MessageResponse
+public struct ContainerInfo: Decodable {
+    /// Container ID that can be reused in subsequent requests
+    public let id: String?
+}
+```
+
+For more information, see the [Anthropic Skills API documentation](https://docs.anthropic.com/claude/reference/skills).
 
 ## AIProxy
 
