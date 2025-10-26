@@ -111,20 +111,35 @@ public struct MessageResponse: Decodable {
       public let toolUseId: String?
       public let content: [ContentItem]
       public let type: String
-      
+
       private enum CodingKeys: String, CodingKey {
         case toolUseId = "tool_use_id"
         case content
         case type
       }
     }
-    
+
+    /// Generic code execution tool result for Skills API
+    /// Handles text_editor_code_execution_tool_result, bash_code_execution_tool_result, etc.
+    public struct CodeExecutionToolResult: Codable {
+      public let type: String
+      public let toolUseId: String?
+      public let content: DynamicContent
+
+      private enum CodingKeys: String, CodingKey {
+        case type
+        case toolUseId = "tool_use_id"
+        case content
+      }
+    }
+
     case text(String, Citations?)
     case toolUse(ToolUse)
     case thinking(Thinking)
     case serverToolUse(ServerToolUse)
     case webSearchToolResult(WebSearchToolResult)
     case toolResult(ToolResult)
+    case codeExecutionToolResult(CodeExecutionToolResult)
     
     private enum CodingKeys: String, CodingKey {
       case type, text, id, name, input, citations, thinking, signature
@@ -220,7 +235,14 @@ public struct MessageResponse: Decodable {
         let content = try container.decode(ToolResultContent.self, forKey: .content)
         self = .toolResult(ToolResult(content: content, isError: isError, toolUseId: toolUseId))
       default:
-        throw DecodingError.dataCorruptedError(forKey: .type, in: container, debugDescription: "Invalid type value found in JSON!")
+        // Handle code execution tool results (text_editor, bash, etc.)
+        if type.hasSuffix("_tool_result") {
+          let toolUseId = try container.decodeIfPresent(String.self, forKey: .toolUseId)
+          let content = try container.decode(DynamicContent.self, forKey: .content)
+          self = .codeExecutionToolResult(CodeExecutionToolResult(type: type, toolUseId: toolUseId, content: content))
+        } else {
+          throw DecodingError.dataCorruptedError(forKey: .type, in: container, debugDescription: "Invalid type value found in JSON: \(type)")
+        }
       }
     }
     
@@ -254,6 +276,10 @@ public struct MessageResponse: Decodable {
         try container.encode(toolResult.content, forKey: .content)
         try container.encodeIfPresent(toolResult.isError, forKey: .isError)
         try container.encodeIfPresent(toolResult.toolUseId, forKey: .toolUseId)
+      case .codeExecutionToolResult(let codeExecResult):
+        try container.encode(codeExecResult.type, forKey: .type)
+        try container.encodeIfPresent(codeExecResult.toolUseId, forKey: .toolUseId)
+        try container.encode(codeExecResult.content, forKey: .content)
       }
     }
   }
