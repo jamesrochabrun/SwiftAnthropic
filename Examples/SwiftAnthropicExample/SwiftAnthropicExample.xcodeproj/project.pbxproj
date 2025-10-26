@@ -23,6 +23,8 @@
 		7B73EA002D877D5900BF0CD1 /* SwiftAnthropic in Frameworks */ = {isa = PBXBuildFile; productRef = 7B73E9FF2D877D5900BF0CD1 /* SwiftAnthropic */; };
 		7BF304E02BBFBE1000671273 /* MessageFunctionCallingDemoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BF304DE2BBFBE1000671273 /* MessageFunctionCallingDemoView.swift */; };
 		7BF304E12BBFBE1000671273 /* MessageFunctionCallingObservable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BF304DF2BBFBE1000671273 /* MessageFunctionCallingObservable.swift */; };
+		7BFBABF52EADD8AE003D084C /* SkillsDemoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BFBABF32EADD8AD003D084C /* SkillsDemoView.swift */; };
+		7BFBABF62EADD8AE003D084C /* SkillsDemoObservable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BFBABF22EADD8AD003D084C /* SkillsDemoObservable.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -61,6 +63,8 @@
 		7B531D772B96FFFA0047DBAB /* PhotoPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoPicker.swift; sourceTree = "<group>"; };
 		7BF304DE2BBFBE1000671273 /* MessageFunctionCallingDemoView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MessageFunctionCallingDemoView.swift; sourceTree = "<group>"; };
 		7BF304DF2BBFBE1000671273 /* MessageFunctionCallingObservable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MessageFunctionCallingObservable.swift; sourceTree = "<group>"; };
+		7BFBABF22EADD8AD003D084C /* SkillsDemoObservable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkillsDemoObservable.swift; sourceTree = "<group>"; };
+		7BFBABF32EADD8AD003D084C /* SkillsDemoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkillsDemoView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -127,6 +131,7 @@
 				7B3288022B8B147D002C7FEF /* Messages */,
 				7B3287D62B8B1261002C7FEF /* Assets.xcassets */,
 				7B3287D82B8B1261002C7FEF /* Preview Content */,
+				7BFBABF42EADD8AD003D084C /* Skills */,
 			);
 			path = SwiftAnthropicExample;
 			sourceTree = "<group>";
@@ -172,6 +177,15 @@
 				7BF304DF2BBFBE1000671273 /* MessageFunctionCallingObservable.swift */,
 			);
 			path = FunctionCalling;
+			sourceTree = "<group>";
+		};
+		7BFBABF42EADD8AD003D084C /* Skills */ = {
+			isa = PBXGroup;
+			children = (
+				7BFBABF22EADD8AD003D084C /* SkillsDemoObservable.swift */,
+				7BFBABF32EADD8AD003D084C /* SkillsDemoView.swift */,
+			);
+			path = Skills;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -313,6 +327,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7BFBABF52EADD8AE003D084C /* SkillsDemoView.swift in Sources */,
+				7BFBABF62EADD8AE003D084C /* SkillsDemoObservable.swift in Sources */,
 				7B3288042B8B14A3002C7FEF /* ApiKeyIntroView.swift in Sources */,
 				7B3288082B8B1750002C7FEF /* MessageDemoView.swift in Sources */,
 				7B531D782B96FFFA0047DBAB /* PhotoPicker.swift in Sources */,
