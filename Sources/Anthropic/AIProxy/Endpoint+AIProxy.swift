@@ -61,6 +61,7 @@ extension Endpoint {
     
     request.addValue("application/json", forHTTPHeaderField: "Content-Type")
     request.addValue("\(version)", forHTTPHeaderField: "anthropic-version")
+    request.setValue("SwiftAnthropic", forHTTPHeaderField: "User-Agent")
     if let betaHeaders {
       request.addValue("\(betaHeaders.joined(separator: ","))", forHTTPHeaderField: "anthropic-beta")
     }
@@ -105,6 +106,7 @@ extension Endpoint {
 
     request.addValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
     request.addValue("\(version)", forHTTPHeaderField: "anthropic-version")
+    request.setValue("SwiftAnthropic", forHTTPHeaderField: "User-Agent")
     if let betaHeaders {
       request.addValue("\(betaHeaders.joined(separator: ","))", forHTTPHeaderField: "anthropic-beta")
     }
