@@ -141,16 +141,38 @@ public struct MessageParameter: Encodable {
             }
          }
          
+         /// Content block for a tool result. Supports text and image content.
+         public enum ToolResultContent: Encodable {
+            case text(String)
+            case image(ImageSource)
+
+            public func encode(to encoder: Encoder) throws {
+               var container = encoder.container(keyedBy: ToolResultCodingKeys.self)
+               switch self {
+               case .text(let text):
+                  try container.encode("text", forKey: .type)
+                  try container.encode(text, forKey: .text)
+               case .image(let source):
+                  try container.encode("image", forKey: .type)
+                  try container.encode(source, forKey: .source)
+               }
+            }
+
+            enum ToolResultCodingKeys: String, CodingKey {
+               case type, text, source
+            }
+         }
+
          public enum ContentObject: Encodable {
             case text(String)
             case image(ImageSource)
             case document(DocumentSource)
             case toolUse(String, String, MessageResponse.Content.Input)
-            case toolResult(String, String, Bool?, CacheControl?) // Added optional cache control
+            case toolResult(String, [ToolResultContent], Bool?, CacheControl?)
             case cache(Cache)
             case thinking(String, String)  // (thinking content, signature)
             case redactedThinking(String)  // data field for redacted thinking
-            
+
             // Custom encoding to handle different cases
             public func encode(to encoder: Encoder) throws {
                var container = encoder.container(keyedBy: CodingKeys.self)
@@ -178,7 +200,7 @@ public struct MessageParameter: Encodable {
                   try container.encode(toolUseId, forKey: .toolUseId)
                   try container.encode(content, forKey: .content)
                   try container.encodeIfPresent(isError, forKey: .isError)
-                  try container.encodeIfPresent(cacheControl, forKey: .cacheControl) // Added cache control encoding
+                  try container.encodeIfPresent(cacheControl, forKey: .cacheControl)
                case .cache(let cache):
                   try container.encode(cache.type.rawValue, forKey: .type)
                   try container.encode(cache.text, forKey: .text)
@@ -194,7 +216,7 @@ public struct MessageParameter: Encodable {
                   try container.encode(data, forKey: .data)
                }
             }
-            
+
             enum CodingKeys: String, CodingKey {
                case type
                case source
@@ -213,24 +235,30 @@ public struct MessageParameter: Encodable {
                case signature
                case data
             }
-            
-            // Keep the existing convenience method for backward compatibility
+
+            // Convenience methods accepting a String (backward compatible)
             public static func toolResult(_ toolUseId: String, _ content: String) -> ContentObject {
+               return .toolResult(toolUseId, [.text(content)], nil, nil)
+            }
+
+            public static func toolResult(_ toolUseId: String, _ content: String, cacheControl: CacheControl?) -> ContentObject {
+               return .toolResult(toolUseId, [.text(content)], nil, cacheControl)
+            }
+
+            public static func toolResult(_ toolUseId: String, _ content: String, isError: Bool?) -> ContentObject {
+               return .toolResult(toolUseId, [.text(content)], isError, nil)
+            }
+
+            public static func toolResult(_ toolUseId: String, _ content: String, isError: Bool?, cacheControl: CacheControl?) -> ContentObject {
+               return .toolResult(toolUseId, [.text(content)], isError, cacheControl)
+            }
+
+            // Convenience methods accepting image content
+            public static func toolResult(_ toolUseId: String, _ content: [ToolResultContent]) -> ContentObject {
                return .toolResult(toolUseId, content, nil, nil)
             }
-            
-            // Add new convenience method with cache control
-            public static func toolResult(_ toolUseId: String, _ content: String, cacheControl: CacheControl?) -> ContentObject {
-               return .toolResult(toolUseId, content, nil, cacheControl)
-            }
-            
-            // Add convenience method with isError
-            public static func toolResult(_ toolUseId: String, _ content: String, isError: Bool?) -> ContentObject {
-               return .toolResult(toolUseId, content, isError, nil)
-            }
-            
-            // Add convenience method with both isError and cacheControl
-            public static func toolResult(_ toolUseId: String, _ content: String, isError: Bool?, cacheControl: CacheControl?) -> ContentObject {
+
+            public static func toolResult(_ toolUseId: String, _ content: [ToolResultContent], isError: Bool? = nil, cacheControl: CacheControl? = nil) -> ContentObject {
                return .toolResult(toolUseId, content, isError, cacheControl)
             }
          }
