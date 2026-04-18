@@ -17,6 +17,7 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/swift-server/async-http-client.git", from: "1.25.2"),
+        .package(url: "https://github.com/apple/swift-nio.git", from: "2.81.0"),
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
@@ -25,6 +26,7 @@ let package = Package(
             name: "SwiftAnthropic",
             dependencies: [
                 .product(name: "AsyncHTTPClient", package: "async-http-client", condition: .when(platforms: [.linux])),
+                .product(name: "NIOFoundationCompat", package: "swift-nio", condition: .when(platforms: [.linux])),
             ],
             path: "Sources/Anthropic"),
         .testTarget(
